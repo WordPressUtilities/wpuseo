@@ -2,7 +2,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.0
+Version: 1.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -63,9 +63,18 @@ class WPUSEO {
     }
 
     function add_fields( $options ) {
+        $is_multi = $this->is_site_multilingual() !== false;
+
         // Various
         $options['wpu_home_meta_description'] = array( 'label' => $this->__( 'Main meta description', 'wputh' ), 'type' => 'textarea', 'box' => 'wpu_seo' );
         $options['wpu_home_meta_keywords'] = array( 'label' => $this->__( 'Main meta keywords', 'wputh' ), 'type' => 'textarea', 'box' => 'wpu_seo' );
+        $options['wpu_home_page_title'] = array( 'label' => $this->__( 'Home page title', 'wputh' ), 'type' => 'textarea', 'box' => 'wpu_seo' );
+
+        if($is_multi){
+            $options['wpu_home_meta_description']['lang'] = 1;
+            $options['wpu_home_meta_keywords']['lang'] = 1;
+            $options['wpu_home_page_title']['lang'] = 1;
+        }
 
         // Google
         $options['wpu_google_site_verification'] = array( 'label' => $this->__( 'Google verification ID', 'wputh' ), 'box' => 'wpu_seo_google' );
@@ -116,7 +125,15 @@ class WPUSEO {
         $new_title = '';
         // Home : Exception for order
         if ( is_home() ) {
-            return get_bloginfo( 'name' ) . $spaced_sep . get_bloginfo( 'description' );
+            $is_multi = $this->is_site_multilingual() !== false;
+            $wpu_title = trim( get_option( 'wpu_home_page_title' ) );
+            if($is_multi && function_exists('wputh_l18n_get_option')){
+                $wpu_title = trim( wputh_l18n_get_option( 'wpu_home_page_title' ) );
+            }
+            if(empty($wpu_title)){
+                $wpu_title = get_bloginfo( 'description' );
+            }
+            return get_bloginfo( 'name' ) . $spaced_sep . $wpu_title;
         }
         $new_title = $this->get_displayed_title();
 
@@ -281,9 +298,18 @@ class WPUSEO {
 
         if ( is_home() || is_front_page() ) {
 
+            $is_multi = $this->is_site_multilingual() !== false;
+
+            // Main values
+            $wpu_description = trim( get_option( 'wpu_home_meta_description' ) );
+            $wpu_keywords = trim( get_option( 'wpu_home_meta_keywords' ) );
+            if($is_multi && function_exists('wputh_l18n_get_option')){
+                $wpu_description = trim( wputh_l18n_get_option( 'wpu_home_meta_description' ) );
+                $wpu_keywords = trim( wputh_l18n_get_option( 'wpu_home_meta_keywords' ) );
+            }
+
             // Meta description
             $home_meta_description = trim( get_bloginfo( 'description' ) );
-            $wpu_description = trim( get_option( 'wpu_home_meta_description' ) );
             if ( !empty( $wpu_description ) ) {
                 $home_meta_description = $wpu_description;
             }
@@ -293,7 +319,6 @@ class WPUSEO {
             );
 
             // Meta keywords
-            $wpu_keywords = trim( get_option( 'wpu_home_meta_keywords' ) );
             if ( !empty( $wpu_keywords ) ) {
                 $metas['keywords'] = array(
                     'name' => 'keywords',
@@ -511,6 +536,17 @@ class WPUSEO {
             $html .= ' />';
         }
         return $html;
+    }
+
+    /* Check if site is multilingual
+     -------------------------- */
+
+    function is_site_multilingual() {
+        $is_multi = false;
+        if (function_exists('qtrans_getSortedLanguages')) {
+            $is_multi = qtrans_getSortedLanguages();
+        }
+        return $is_multi;
     }
 
 }
