@@ -2,7 +2,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.1.1
+Version: 1.1.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -335,7 +335,7 @@ class WPUSEO {
                 'content' => home_url()
             );
 
-            $og_image = get_template_directory_uri() . '/screenshot.png';
+            $og_image = get_stylesheet_directory_uri() . '/screenshot.png';
             $opt_wputh_fb_image = get_option( 'wputh_fb_image' );
             $wputh_fb_image = wp_get_attachment_image_src( $opt_wputh_fb_image, 'medium', true );
             if ( $opt_wputh_fb_image != false && isset( $wputh_fb_image[0] ) ) {
