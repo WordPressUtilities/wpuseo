@@ -2,7 +2,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.1.2
+Version: 1.1.3
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -163,6 +163,9 @@ class WPUSEO {
         }
         if ( is_category() ) {
             $displayed_title = $this->__( 'Category:', 'wputh' ) . ' ' . single_cat_title( "", false );
+        }
+        if ( is_post_type_archive() ) {
+            $displayed_title = post_type_archive_title( '', false );
         }
         if ( is_author() ) {
             global $author;
