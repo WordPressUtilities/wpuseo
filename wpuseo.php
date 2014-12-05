@@ -2,7 +2,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.1.3
+Version: 1.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -30,6 +30,7 @@ class WPUSEO {
         add_action( 'template_redirect', array( &$this, 'clean_wordpress_head' ) );
 
         // Admin boxes
+        add_filter( 'wpu_options_tabs', array( &$this, 'add_tabs' ), 99, 1 );
         add_filter( 'wpu_options_boxes', array( &$this, 'add_boxes' ), 99, 1 );
         add_filter( 'wpu_options_fields', array( &$this, 'add_fields' ), 99, 1 );
 
@@ -54,11 +55,30 @@ class WPUSEO {
       Admin Options
     ---------------------------------------------------------- */
 
-    function add_boxes( $boxes ) {
-        $boxes['wpu_seo'] = array( 'name' => 'WPU SEO : Main' );
-        $boxes['wpu_seo_google'] = array( 'name' => 'WPU SEO : Google' );
-        $boxes['wpu_seo_facebook'] = array( 'name' => 'WPU SEO : Facebook' );
-        $boxes['wpu_seo_twitter'] = array( 'name' => 'WPU SEO : Twitter' );
+    function add_tabs($tabs) {
+        $tabs['wpu_seo'] = array(
+            'name' => 'Options SEO'
+        );
+        return $tabs;
+    }
+
+    function add_boxes($boxes) {
+        $boxes['wpu_seo'] = array(
+            'name' => 'Main',
+            'tab' => 'wpu_seo'
+        );
+        $boxes['wpu_seo_google'] = array(
+            'name' => 'Google',
+            'tab' => 'wpu_seo'
+        );
+        $boxes['wpu_seo_facebook'] = array(
+            'name' => 'Facebook',
+            'tab' => 'wpu_seo'
+        );
+        $boxes['wpu_seo_twitter'] = array(
+            'name' => 'Twitter',
+            'tab' => 'wpu_seo'
+        );
         return $boxes;
     }
 
