@@ -1,8 +1,9 @@
 <?php
+
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.2
+Version: 1.3
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -11,33 +12,53 @@ Contributor: @boiteaweb
 Last Update: 07 dec. 2013
 */
 
-
-class WPUSEO {
+class WPUSEO
+{
 
     function init() {
+
         // Load lang
-        load_plugin_textdomain( 'wpuseo', false, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
+        load_plugin_textdomain('wpuseo', false, dirname(plugin_basename(__FILE__)) . '/lang/');
 
         // Filter
-        add_filter( 'wp_title', array( &$this, 'wp_title' ), 10, 2 );
+        add_filter('wp_title', array(&$this,
+            'wp_title'
+        ) , 10, 2);
 
         // Actions
-        add_action( 'wp_head', array( &$this, 'add_metas' ), 10 );
-        add_action( 'wp_head', array( &$this, 'add_metas_robots' ), 10 , 0 );
-        add_action( 'wp_footer', array( &$this, 'display_google_analytics_code' ) );
+        add_action('wp_head', array(&$this,
+            'add_metas'
+        ) , 10);
+        add_action('wp_head', array(&$this,
+            'add_metas_robots'
+        ) , 10, 0);
+        add_action('wp_footer', array(&$this,
+            'display_google_analytics_code'
+        ));
 
         // Clean WP Head
-        add_action( 'template_redirect', array( &$this, 'clean_wordpress_head' ) );
+        add_action('template_redirect', array(&$this,
+            'clean_wordpress_head'
+        ));
 
         // Admin boxes
-        add_filter( 'wpu_options_tabs', array( &$this, 'add_tabs' ), 99, 1 );
-        add_filter( 'wpu_options_boxes', array( &$this, 'add_boxes' ), 99, 1 );
-        add_filter( 'wpu_options_fields', array( &$this, 'add_fields' ), 99, 1 );
+        add_filter('wpu_options_tabs', array(&$this,
+            'add_tabs'
+        ) , 99, 1);
+        add_filter('wpu_options_boxes', array(&$this,
+            'add_boxes'
+        ) , 99, 1);
+        add_filter('wpu_options_fields', array(&$this,
+            'add_fields'
+        ) , 99, 1);
 
         // User boxes
-        add_filter( 'wpu_usermetas_sections', array( &$this, 'add_user_sections' ), 10, 3 );
-        add_filter( 'wpu_usermetas_fields', array( &$this, 'add_user_fields' ), 10, 3 );
-
+        add_filter('wpu_usermetas_sections', array(&$this,
+            'add_user_sections'
+        ) , 10, 3);
+        add_filter('wpu_usermetas_fields', array(&$this,
+            'add_user_fields'
+        ) , 10, 3);
     }
 
     /* ----------------------------------------------------------
@@ -45,9 +66,9 @@ class WPUSEO {
     ---------------------------------------------------------- */
 
     function clean_wordpress_head() {
-        if ( !is_single() ) {
-            remove_action( 'wp_head', 'wp_shortlink_wp_head' );
-            remove_action( 'wp_head', 'adjacent_posts_rel_link_wp_head' );
+        if (!is_single()) {
+            remove_action('wp_head', 'wp_shortlink_wp_head');
+            remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
         }
     }
 
@@ -82,32 +103,71 @@ class WPUSEO {
         return $boxes;
     }
 
-    function add_fields( $options ) {
+    function add_fields($options) {
         $is_multi = $this->is_site_multilingual() !== false;
 
         // Various
-        $options['wpu_home_meta_description'] = array( 'label' => $this->__( 'Main meta description', 'wputh' ), 'type' => 'textarea', 'box' => 'wpu_seo' );
-        $options['wpu_home_meta_keywords'] = array( 'label' => $this->__( 'Main meta keywords', 'wputh' ), 'type' => 'textarea', 'box' => 'wpu_seo' );
-        $options['wpu_home_page_title'] = array( 'label' => $this->__( 'Home page title', 'wputh' ), 'type' => 'textarea', 'box' => 'wpu_seo' );
+        $options['wpu_home_meta_description'] = array(
+            'label' => $this->__('Main meta description', 'wputh') ,
+            'type' => 'textarea',
+            'box' => 'wpu_seo'
+        );
+        $options['wpu_home_meta_keywords'] = array(
+            'label' => $this->__('Main meta keywords', 'wputh') ,
+            'type' => 'textarea',
+            'box' => 'wpu_seo'
+        );
+        $options['wpu_home_page_title'] = array(
+            'label' => $this->__('Home page title', 'wputh') ,
+            'type' => 'textarea',
+            'box' => 'wpu_seo'
+        );
+        $options['wpu_home_title_separator'] = array(
+            'label' => $this->__('Title separator', 'wputh') ,
+            'type' => 'text',
+            'box' => 'wpu_seo'
+        );
 
-        if($is_multi){
+        if ($is_multi) {
             $options['wpu_home_meta_description']['lang'] = 1;
             $options['wpu_home_meta_keywords']['lang'] = 1;
             $options['wpu_home_page_title']['lang'] = 1;
         }
 
         // Google
-        $options['wpu_google_site_verification'] = array( 'label' => $this->__( 'Google verification ID', 'wputh' ), 'box' => 'wpu_seo_google' );
-        $options['wputh_ua_analytics'] = array( 'label' => $this->__( 'Google Analytics ID', 'wputh' ), 'box' => 'wpu_seo_google' );
+        $options['wpu_google_site_verification'] = array(
+            'label' => $this->__('Google verification ID', 'wputh') ,
+            'box' => 'wpu_seo_google'
+        );
+        $options['wputh_ua_analytics'] = array(
+            'label' => $this->__('Google Analytics ID', 'wputh') ,
+            'box' => 'wpu_seo_google'
+        );
 
         // Facebook
-        $options['wputh_fb_admins'] = array( 'label' => $this->__( 'FB:Admins ID', 'wputh' ), 'box' => 'wpu_seo_facebook' );
-        $options['wputh_fb_app'] = array( 'label' => $this->__( 'FB:App ID', 'wputh' ), 'box' => 'wpu_seo_facebook' );
-        $options['wputh_fb_image'] = array( 'label' => $this->__( 'FB:Image', 'wputh' ), 'box' => 'wpu_seo_facebook', 'type' => 'media' );
+        $options['wputh_fb_admins'] = array(
+            'label' => $this->__('FB:Admins ID', 'wputh') ,
+            'box' => 'wpu_seo_facebook'
+        );
+        $options['wputh_fb_app'] = array(
+            'label' => $this->__('FB:App ID', 'wputh') ,
+            'box' => 'wpu_seo_facebook'
+        );
+        $options['wputh_fb_image'] = array(
+            'label' => $this->__('FB:Image', 'wputh') ,
+            'box' => 'wpu_seo_facebook',
+            'type' => 'media'
+        );
 
         // Twitter
-        $options['wpu_seo_user_twitter_site_username'] = array( 'label' => $this->__( 'Twitter site @username', 'wputh' ), 'box' => 'wpu_seo_twitter' );
-        $options['wpu_seo_user_twitter_account_id'] = array( 'label' => $this->__( 'Twitter ads ID', 'wputh' ), 'box' => 'wpu_seo_twitter' );
+        $options['wpu_seo_user_twitter_site_username'] = array(
+            'label' => $this->__('Twitter site @username', 'wputh') ,
+            'box' => 'wpu_seo_twitter'
+        );
+        $options['wpu_seo_user_twitter_account_id'] = array(
+            'label' => $this->__('Twitter ads ID', 'wputh') ,
+            'box' => 'wpu_seo_twitter'
+        );
 
         return $options;
     }
@@ -116,14 +176,14 @@ class WPUSEO {
       User Options
     ---------------------------------------------------------- */
 
-    function add_user_sections( $sections ) {
+    function add_user_sections($sections) {
         $sections['wpu-seo'] = array(
             'name' => 'WPU SEO'
         );
         return $sections;
     }
 
-    function add_user_fields( $fields ) {
+    function add_user_fields($fields) {
         $fields['wpu_seo_user_google_profile'] = array(
             'name' => 'Google+ URL',
             'section' => 'wpu-seo'
@@ -135,72 +195,78 @@ class WPUSEO {
         return $fields;
     }
 
-
     /* ----------------------------------------------------------
       Page Title
     ---------------------------------------------------------- */
 
-    function wp_title( $title, $sep ) {
+    function wp_title($title, $sep) {
+
+        $wpu_home_title_separator = trim(get_option('wpu_home_title_separator'));
+        if (!empty($wpu_home_title_separator)) {
+            $sep = htmlentities($wpu_home_title_separator);
+        }
+
         $spaced_sep = ' ' . $sep . ' ';
         $new_title = '';
+
         // Home : Exception for order
-        if ( is_home() ) {
+        if (is_home()) {
             $is_multi = $this->is_site_multilingual() !== false;
-            $wpu_title = trim( get_option( 'wpu_home_page_title' ) );
-            if($is_multi && function_exists('wputh_l18n_get_option')){
-                $wpu_title = trim( wputh_l18n_get_option( 'wpu_home_page_title' ) );
+            $wpu_title = trim(get_option('wpu_home_page_title'));
+            if ($is_multi && function_exists('wputh_l18n_get_option')) {
+                $wpu_title = trim(wputh_l18n_get_option('wpu_home_page_title'));
             }
-            if(empty($wpu_title)){
-                $wpu_title = get_bloginfo( 'description' );
+            if (empty($wpu_title)) {
+                $wpu_title = get_bloginfo('description');
             }
-            return get_bloginfo( 'name' ) . $spaced_sep . $wpu_title;
+            return get_bloginfo('name') . $spaced_sep . $wpu_title;
         }
         $new_title = $this->get_displayed_title();
 
         // Return new title with site name at the end
-        return $new_title . $spaced_sep . get_bloginfo( 'name' );
+        return $new_title . $spaced_sep . get_bloginfo('name');
     }
 
     function get_displayed_title() {
         global $post;
-        if ( is_singular() ) {
+        if (is_singular()) {
             $displayed_title = get_the_title();
         }
-        if ( is_tax() ) {
-            $displayed_title = single_cat_title( "", false );
+        if (is_tax()) {
+            $displayed_title = single_cat_title("", false);
         }
-        if ( is_search() ) {
-            $displayed_title = sprintf( $this->__( 'Search results for "%s"', 'wputh' ),  get_search_query() );
+        if (is_search()) {
+            $displayed_title = sprintf($this->__('Search results for "%s"', 'wputh') , get_search_query());
         }
-        if ( is_404() ) {
-            $displayed_title =  $this->__( '404 Error', 'wputh' );
+        if (is_404()) {
+            $displayed_title = $this->__('404 Error', 'wputh');
         }
-        if ( is_archive() ) {
-            $displayed_title = $this->__( 'Archive', 'wputh' );
+        if (is_archive()) {
+            $displayed_title = $this->__('Archive', 'wputh');
         }
-        if ( is_tag() ) {
-            $displayed_title = $this->__( 'Tag:', 'wputh' ) . ' ' . single_tag_title( "", false );
+        if (is_tag()) {
+            $displayed_title = $this->__('Tag:', 'wputh') . ' ' . single_tag_title("", false);
         }
-        if ( is_category() ) {
-            $displayed_title = $this->__( 'Category:', 'wputh' ) . ' ' . single_cat_title( "", false );
+        if (is_category()) {
+            $displayed_title = $this->__('Category:', 'wputh') . ' ' . single_cat_title("", false);
         }
-        if ( is_post_type_archive() ) {
-            $displayed_title = post_type_archive_title( '', false );
+        if (is_post_type_archive()) {
+            $displayed_title = post_type_archive_title('', false);
         }
-        if ( is_author() ) {
+        if (is_author()) {
             global $author;
-            $author_name = get_query_var( 'author_name' );
-            $curauth = !empty( $author_name ) ? get_user_by( 'slug', $author_name ) : get_userdata( intval( $author ) );
-            $displayed_title = $this->__( 'Author:', 'wputh' ) . ' ' . $curauth->nickname;
+            $author_name = get_query_var('author_name');
+            $curauth = !empty($author_name) ? get_user_by('slug', $author_name) : get_userdata(intval($author));
+            $displayed_title = $this->__('Author:', 'wputh') . ' ' . $curauth->nickname;
         }
-        if ( is_year() ) {
-            $displayed_title = $this->__( 'Year:', 'wputh' ) . ' ' . get_the_time( $this->__( 'Y', 'wputh' ) );
+        if (is_year()) {
+            $displayed_title = $this->__('Year:', 'wputh') . ' ' . get_the_time($this->__('Y', 'wputh'));
         }
-        if ( is_month() ) {
-            $displayed_title = $this->__( 'Month:', 'wputh' ) . ' ' . get_the_time( $this->__( 'F Y', 'wputh' ) );
+        if (is_month()) {
+            $displayed_title = $this->__('Month:', 'wputh') . ' ' . get_the_time($this->__('F Y', 'wputh'));
         }
-        if ( is_day() ) {
-            $displayed_title = $this->__( 'Day:', 'wputh' ) . ' ' . get_the_time( $this->__( 'F j, Y', 'wputh' ) );
+        if (is_day()) {
+            $displayed_title = $this->__('Day:', 'wputh') . ' ' . get_the_time($this->__('F j, Y', 'wputh'));
         }
         return $displayed_title;
     }
@@ -216,7 +282,7 @@ class WPUSEO {
 
         $metas['og_sitename'] = array(
             'property' => 'og:site_name',
-            'content' => get_bloginfo( 'name' )
+            'content' => get_bloginfo('name')
         );
 
         $metas['og_type'] = array(
@@ -224,8 +290,8 @@ class WPUSEO {
             'content' => 'website'
         );
 
-        $wpu_seo_user_twitter_site_username = trim( get_option( 'wpu_seo_user_twitter_site_username' ) );
-        if ( !empty( $wpu_seo_user_twitter_site_username ) && $this->testTwitterUsername( $wpu_seo_user_twitter_site_username ) ) {
+        $wpu_seo_user_twitter_site_username = trim(get_option('wpu_seo_user_twitter_site_username'));
+        if (!empty($wpu_seo_user_twitter_site_username) && $this->testTwitterUsername($wpu_seo_user_twitter_site_username)) {
             $metas['twitter_site'] = array(
                 'name' => 'twitter:site',
                 'content' => $wpu_seo_user_twitter_site_username
@@ -236,17 +302,17 @@ class WPUSEO {
             );
         }
 
-        $wpu_seo_user_twitter_account_id = trim( get_option( 'wpu_seo_user_twitter_account_id' ) );
-        if ( !empty( $wpu_seo_user_twitter_account_id ) ) {
+        $wpu_seo_user_twitter_account_id = trim(get_option('wpu_seo_user_twitter_account_id'));
+        if (!empty($wpu_seo_user_twitter_account_id)) {
             $metas['twitter_account_id'] = array(
                 'property' => 'twitter:account_id',
                 'content' => $wpu_seo_user_twitter_account_id
             );
         }
 
-        if ( is_single() || is_page() ) {
+        if (is_single() || is_page()) {
 
-            $description = $this->prepare_text( $post->post_content );
+            $description = $this->prepare_text($post->post_content);
 
             /* Twitter : Summary card */
             $metas['twitter_card'] = array(
@@ -271,12 +337,12 @@ class WPUSEO {
                 'content' => $description
             );
 
-            $keywords = $this->get_post_keywords( get_the_ID() );
-            if ( !empty( $keywords ) ) {
-                $keywords_txt = implode( ', ', $keywords );
+            $keywords = $this->get_post_keywords(get_the_ID());
+            if (!empty($keywords)) {
+                $keywords_txt = implode(', ', $keywords);
                 $metas['keywords'] = array(
                     'name' => 'keywords',
-                    'content' => $this->prepare_text( $keywords_txt )
+                    'content' => $this->prepare_text($keywords_txt)
                 );
             }
 
@@ -288,8 +354,8 @@ class WPUSEO {
                 'property' => 'og:url',
                 'content' => get_permalink()
             );
-            $thumb_url = wp_get_attachment_image_src( get_post_thumbnail_id(), 'medium', true );
-            if ( isset( $thumb_url[0] ) ) {
+            $thumb_url = wp_get_attachment_image_src(get_post_thumbnail_id() , 'medium', true);
+            if (isset($thumb_url[0])) {
                 $metas['og_image'] = array(
                     'property' => 'og:image',
                     'content' => $thumb_url[0]
@@ -301,57 +367,56 @@ class WPUSEO {
             }
 
             // Author informations
-            $wpu_seo_user_google_profile = get_user_meta( $post->post_author, 'wpu_seo_user_google_profile', 1 );
-            if ( filter_var( $wpu_seo_user_google_profile, FILTER_VALIDATE_URL ) ) {
+            $wpu_seo_user_google_profile = get_user_meta($post->post_author, 'wpu_seo_user_google_profile', 1);
+            if (filter_var($wpu_seo_user_google_profile, FILTER_VALIDATE_URL)) {
                 $links['google_author'] = array(
                     'rel' => 'author',
                     'href' => $wpu_seo_user_google_profile
                 );
             }
 
-            $wpu_seo_user_twitter_account = get_user_meta( $post->post_author, 'wpu_seo_user_twitter_account', 1 );
-            if ( !empty( $wpu_seo_user_twitter_account ) && preg_match( '/^@([A-Za-z0-9_]+)$/', $wpu_seo_user_twitter_account ) ) {
+            $wpu_seo_user_twitter_account = get_user_meta($post->post_author, 'wpu_seo_user_twitter_account', 1);
+            if (!empty($wpu_seo_user_twitter_account) && preg_match('/^@([A-Za-z0-9_]+)$/', $wpu_seo_user_twitter_account)) {
                 $metas['twitter_creator'] = array(
                     'name' => 'twitter:creator',
                     'content' => $wpu_seo_user_twitter_account
                 );
             }
-
         }
 
-        if ( is_home() || is_front_page() ) {
+        if (is_home() || is_front_page()) {
 
             $is_multi = $this->is_site_multilingual() !== false;
 
             // Main values
-            $wpu_description = trim( get_option( 'wpu_home_meta_description' ) );
-            $wpu_keywords = trim( get_option( 'wpu_home_meta_keywords' ) );
-            if($is_multi && function_exists('wputh_l18n_get_option')){
-                $wpu_description = trim( wputh_l18n_get_option( 'wpu_home_meta_description' ) );
-                $wpu_keywords = trim( wputh_l18n_get_option( 'wpu_home_meta_keywords' ) );
+            $wpu_description = trim(get_option('wpu_home_meta_description'));
+            $wpu_keywords = trim(get_option('wpu_home_meta_keywords'));
+            if ($is_multi && function_exists('wputh_l18n_get_option')) {
+                $wpu_description = trim(wputh_l18n_get_option('wpu_home_meta_description'));
+                $wpu_keywords = trim(wputh_l18n_get_option('wpu_home_meta_keywords'));
             }
 
             // Meta description
-            $home_meta_description = trim( get_bloginfo( 'description' ) );
-            if ( !empty( $wpu_description ) ) {
+            $home_meta_description = trim(get_bloginfo('description'));
+            if (!empty($wpu_description)) {
                 $home_meta_description = $wpu_description;
             }
             $metas['description'] = array(
                 'name' => 'description',
-                'content' => $this->prepare_text( $home_meta_description, 200 )
+                'content' => $this->prepare_text($home_meta_description, 200)
             );
 
             // Meta keywords
-            if ( !empty( $wpu_keywords ) ) {
+            if (!empty($wpu_keywords)) {
                 $metas['keywords'] = array(
                     'name' => 'keywords',
-                    'content' => $this->prepare_text( $wpu_keywords, 200 )
+                    'content' => $this->prepare_text($wpu_keywords, 200)
                 );
             }
 
             $metas['og_title'] = array(
                 'property' => 'og:title',
-                'content' => get_bloginfo( 'name' )
+                'content' => get_bloginfo('name')
             );
             $metas['og_url'] = array(
                 'property' => 'og:url',
@@ -359,9 +424,9 @@ class WPUSEO {
             );
 
             $og_image = get_stylesheet_directory_uri() . '/screenshot.png';
-            $opt_wputh_fb_image = get_option( 'wputh_fb_image' );
-            $wputh_fb_image = wp_get_attachment_image_src( $opt_wputh_fb_image, 'medium', true );
-            if ( $opt_wputh_fb_image != false && isset( $wputh_fb_image[0] ) ) {
+            $opt_wputh_fb_image = get_option('wputh_fb_image');
+            $wputh_fb_image = wp_get_attachment_image_src($opt_wputh_fb_image, 'medium', true);
+            if ($opt_wputh_fb_image != false && isset($wputh_fb_image[0])) {
                 $og_image = $wputh_fb_image[0];
             }
             $metas['og_image'] = array(
@@ -371,8 +436,8 @@ class WPUSEO {
         }
 
         // Google Site
-        $wpu_google_site_verification = trim( get_option( 'wpu_google_site_verification' ) );
-        if ( !empty( $wpu_google_site_verification ) ) {
+        $wpu_google_site_verification = trim(get_option('wpu_google_site_verification'));
+        if (!empty($wpu_google_site_verification)) {
             $metas['google_site_verification'] = array(
                 'name' => 'google-site-verification',
                 'content' => $wpu_google_site_verification
@@ -380,8 +445,8 @@ class WPUSEO {
         }
 
         // FB Admins
-        $wputh_fb_admins = trim( get_option( 'wputh_fb_admins' ) );
-        if ( !empty( $wputh_fb_admins ) ) {
+        $wputh_fb_admins = trim(get_option('wputh_fb_admins'));
+        if (!empty($wputh_fb_admins)) {
             $metas['fb_admins'] = array(
                 'property' => 'fb:admins',
                 'content' => $wputh_fb_admins
@@ -389,16 +454,16 @@ class WPUSEO {
         }
 
         // FB App
-        $wputh_fb_app = trim( get_option( 'wputh_fb_app' ) );
-        if ( !empty( $wputh_fb_admins ) ) {
+        $wputh_fb_app = trim(get_option('wputh_fb_app'));
+        if (!empty($wputh_fb_admins)) {
             $metas['fb_app'] = array(
                 'property' => 'fb:app',
                 'content' => $wputh_fb_admins
             );
         }
 
-        echo $this->special_convert_array_html( $metas );
-        echo $this->special_convert_array_html( $links, 'link' );
+        echo $this->special_convert_array_html($metas);
+        echo $this->special_convert_array_html($links, 'link');
     }
 
     /* ----------------------------------------------------------
@@ -409,17 +474,14 @@ class WPUSEO {
         $metas = array();
 
         // Disable indexation for archives pages after page 1 OR 404 page OR paginated comments
-        if ( ( is_paged() && ( is_category() || is_tag() || is_author() || is_tax() ) ) ||
-            is_404() ||
-            ( is_single() && comments_open() && (int) get_query_var( 'cpage' ) > 0 )
-        ) {
+        if ((is_paged() && (is_category() || is_tag() || is_author() || is_tax())) || is_404() || (is_single() && comments_open() && (int)get_query_var('cpage') > 0)) {
             $metas['robots'] = array(
                 'name' => 'robots',
                 'content' => 'noindex, follow'
             );
         }
 
-        echo $this->special_convert_array_html( $metas );
+        echo $this->special_convert_array_html($metas);
     }
 
     /* ----------------------------------------------------------
@@ -427,90 +489,78 @@ class WPUSEO {
     ---------------------------------------------------------- */
 
     function display_google_analytics_code() {
-        $ua_analytics = get_option( 'wputh_ua_analytics' );
-        if ( $ua_analytics !== false && !empty( $ua_analytics ) && !in_array( $ua_analytics, array( 'UA-XXXXX-X' ) ) ) {
-            // List of vars to send to Google Analytics
-            $gaq = array();
-            // Analytics code used
-            $gaq['account'] = "['_setAccount','".$ua_analytics."']";
-            // Default action : page viewed
-            $gaq['trackpageview'] = "['_trackPageview']";
-            if ( is_404() ) {
-                // Tracking 404 errors | http://www.joshstauffer.com/track-404s-with-google-analytics/
-                $gaq['trackpageview'] = "['_trackPageview', '/404?page=' + document.location.pathname + document.location.search + '&from=' + document.referrer]";
-            }
-
+        $ua_analytics = get_option('wputh_ua_analytics');
+        if ($ua_analytics !== false && !empty($ua_analytics) && !in_array($ua_analytics, array(
+            'UA-XXXXX-X'
+        ))) {
             echo '<script type="text/javascript">';
-            echo 'var _gaq=_gaq||[];';
-            foreach ( $gaq as $_gaq ) {
-                echo '_gaq.push('.$_gaq.');';
-            }
-            echo "(function(){".
-                "var ga=document.createElement('script');".
-                "ga.type='text/javascript';".
-                "ga.async=true;".
-                "ga.src=('https:'==document.location.protocol?'https://ssl':'http://www')+'.google-analytics.com/ga.js';".
-                "var s=document.getElementsByTagName('script')[0];".
-                "s.parentNode.insertBefore(ga,s);".
-                "})();";
+            echo "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){" . "(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o)," . "m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)" . "})(window,document,'script','//www.google-analytics.com/analytics.js','ga');";
+            echo "ga('create', '" . $ua_analytics . "', 'auto');";
+            echo "ga('send', 'pageview');";
             echo '</script>';
         }
     }
-
 
     /* ----------------------------------------------------------
       Get post keywords
     ---------------------------------------------------------- */
 
-    function get_post_keywords( $id ) {
+    function get_post_keywords($id) {
         global $post;
 
         // Keywords
         $keywords_raw = array();
 
-        $title = explode( ' ', strtolower( get_the_title( $id ) ) );
-        foreach ( $title as $word ) {
-            if ( strlen( $word ) > 3 ) {
-                $keywords_raw = $this->check_keywords_value( sanitize_title( $word ), $word, $keywords_raw );
+        $title = explode(' ', strtolower(get_the_title($id)));
+        foreach ($title as $word) {
+            if (strlen($word) > 3) {
+                $keywords_raw = $this->check_keywords_value(sanitize_title($word) , $word, $keywords_raw);
             }
         }
 
-        $keywords_raw = $this->add_terms_to_keywords( get_the_category( $id ), $keywords_raw );
-        $keywords_raw = $this->add_terms_to_keywords( get_the_tags( $id ), $keywords_raw );
+        $keywords_raw = $this->add_terms_to_keywords(get_the_category($id) , $keywords_raw);
+        $keywords_raw = $this->add_terms_to_keywords(get_the_tags($id) , $keywords_raw);
 
         // Sort keywords by score
-        usort( $keywords_raw, array( 'WPUSEO', 'order_keywords_values' ) );
+        usort($keywords_raw, array(
+            'WPUSEO',
+            'order_keywords_values'
+        ));
 
         // Set keywords
         $keywords = array();
-        foreach ( $keywords_raw as $keyword ) {
+        foreach ($keywords_raw as $keyword) {
             $keywords[] = $keyword[1];
         }
         return $keywords;
     }
 
-    function add_terms_to_keywords( $terms, $keywords_raw ) {
-        if ( is_array( $terms ) ) {
-            foreach ( $terms as $term ) {
-                $keywords_raw = $this->check_keywords_value( $term->slug, $term->name, $keywords_raw );
+    function add_terms_to_keywords($terms, $keywords_raw) {
+        if (is_array($terms)) {
+            foreach ($terms as $term) {
+                $keywords_raw = $this->check_keywords_value($term->slug, $term->name, $keywords_raw);
             }
         }
 
         return $keywords_raw;
     }
 
-    function check_keywords_value( $slug, $word, $keywords_raw ) {
-        $word = str_replace( array( ',' ), ' ', $word );
-        if ( array_key_exists( $slug, $keywords_raw ) ) {
+    function check_keywords_value($slug, $word, $keywords_raw) {
+        $word = str_replace(array(
+            ','
+        ) , ' ', $word);
+        if (array_key_exists($slug, $keywords_raw)) {
             $keywords_raw[$slug][0]++;
-        }
-        else {
-            $keywords_raw[$slug] = array( 1, $word );
+        } else {
+            $keywords_raw[$slug] = array(
+                1,
+                $word
+            );
         }
         return $keywords_raw;
     }
 
-    function order_keywords_values( $a, $b ) {
+    function order_keywords_values($a, $b) {
         return $a[0] < $b[0];
     }
 
@@ -519,44 +569,44 @@ class WPUSEO {
     ---------------------------------------------------------- */
 
     /* Translate
-    -------------------------- */
+     -------------------------- */
 
-    private function __( $string ) {
-        return __( $string, 'wpuseo' );
+    private function __($string) {
+        return __($string, 'wpuseo');
     }
 
     /* Test a twitter username
-    -------------------------- */
+     -------------------------- */
 
-    public function testTwitterUsername( $username ) {
-        return preg_match( '/^\@([a-zA_Z_0-9]+)$/', $username ) !== false;
+    public function testTwitterUsername($username) {
+        return preg_match('/^\@([a-zA_Z_0-9]+)$/', $username) !== false;
     }
 
     /* Prepare meta description
-    -------------------------- */
+     -------------------------- */
 
-    function prepare_text( $text, $max_length = 200 ) {
-        $text = strip_shortcodes( $text );
-        $text = strip_tags( $text );
-        $text = preg_replace( "/\s+/", ' ', $text );
-        $text = trim( $text );
-        if ( strlen( $text ) > $max_length ) {
-            $text = substr( $text, 0, $max_length - 5 ) . ' ...';
+    function prepare_text($text, $max_length = 200) {
+        $text = strip_shortcodes($text);
+        $text = strip_tags($text);
+        $text = preg_replace("/\s+/", ' ', $text);
+        $text = trim($text);
+        if (strlen($text) > $max_length) {
+            $text = substr($text, 0, $max_length - 5) . ' ...';
         }
         return $text;
     }
 
     /* Convert an array of metas to HTML
-    -------------------------- */
+     -------------------------- */
 
-    function special_convert_array_html( $metas, $tag='meta' ) {
+    function special_convert_array_html($metas, $tag = 'meta') {
         $html = '';
-        foreach ( $metas as $values ) {
-            $html .= '<'.$tag;
-            foreach ( $values as $name => $value ) {
-                $html .= sprintf( ' %s="%s"', $name, esc_attr( $value ) );
+        foreach ($metas as $values) {
+            $html.= '<' . $tag;
+            foreach ($values as $name => $value) {
+                $html.= sprintf(' %s="%s"', $name, esc_attr($value));
             }
-            $html .= ' />';
+            $html.= ' />';
         }
         return $html;
     }
@@ -571,7 +621,6 @@ class WPUSEO {
         }
         return $is_multi;
     }
-
 }
 
 $WPUSEO = new WPUSEO();
