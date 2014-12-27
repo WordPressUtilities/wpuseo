@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.3
+Version: 1.3.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -229,20 +229,14 @@ class WPUSEO
 
     function get_displayed_title() {
         global $post;
-        if (is_singular()) {
-            $displayed_title = get_the_title();
-        }
-        if (is_tax()) {
-            $displayed_title = single_cat_title("", false);
-        }
         if (is_search()) {
             $displayed_title = sprintf($this->__('Search results for "%s"', 'wputh') , get_search_query());
         }
-        if (is_404()) {
-            $displayed_title = $this->__('404 Error', 'wputh');
-        }
         if (is_archive()) {
             $displayed_title = $this->__('Archive', 'wputh');
+        }
+        if (is_tax()) {
+            $displayed_title = single_cat_title("", false);
         }
         if (is_tag()) {
             $displayed_title = $this->__('Tag:', 'wputh') . ' ' . single_tag_title("", false);
@@ -267,6 +261,12 @@ class WPUSEO
         }
         if (is_day()) {
             $displayed_title = $this->__('Day:', 'wputh') . ' ' . get_the_time($this->__('F j, Y', 'wputh'));
+        }
+        if (is_singular()) {
+            $displayed_title = get_the_title();
+        }
+        if (is_404()) {
+            $displayed_title = $this->__('404 Error', 'wputh');
         }
         return $displayed_title;
     }
