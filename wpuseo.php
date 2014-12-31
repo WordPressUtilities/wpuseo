@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.3.1
+Version: 1.3.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -108,22 +108,22 @@ class WPUSEO
 
         // Various
         $options['wpu_home_meta_description'] = array(
-            'label' => $this->__('Main meta description', 'wputh') ,
+            'label' => $this->__('Main meta description') ,
             'type' => 'textarea',
             'box' => 'wpu_seo'
         );
         $options['wpu_home_meta_keywords'] = array(
-            'label' => $this->__('Main meta keywords', 'wputh') ,
+            'label' => $this->__('Main meta keywords') ,
             'type' => 'textarea',
             'box' => 'wpu_seo'
         );
         $options['wpu_home_page_title'] = array(
-            'label' => $this->__('Home page title', 'wputh') ,
+            'label' => $this->__('Home page title') ,
             'type' => 'textarea',
             'box' => 'wpu_seo'
         );
         $options['wpu_home_title_separator'] = array(
-            'label' => $this->__('Title separator', 'wputh') ,
+            'label' => $this->__('Title separator') ,
             'type' => 'text',
             'box' => 'wpu_seo'
         );
@@ -136,36 +136,36 @@ class WPUSEO
 
         // Google
         $options['wpu_google_site_verification'] = array(
-            'label' => $this->__('Google verification ID', 'wputh') ,
+            'label' => $this->__('Google verification ID') ,
             'box' => 'wpu_seo_google'
         );
         $options['wputh_ua_analytics'] = array(
-            'label' => $this->__('Google Analytics ID', 'wputh') ,
+            'label' => $this->__('Google Analytics ID') ,
             'box' => 'wpu_seo_google'
         );
 
         // Facebook
         $options['wputh_fb_admins'] = array(
-            'label' => $this->__('FB:Admins ID', 'wputh') ,
+            'label' => $this->__('FB:Admins ID') ,
             'box' => 'wpu_seo_facebook'
         );
         $options['wputh_fb_app'] = array(
-            'label' => $this->__('FB:App ID', 'wputh') ,
+            'label' => $this->__('FB:App ID') ,
             'box' => 'wpu_seo_facebook'
         );
         $options['wputh_fb_image'] = array(
-            'label' => $this->__('FB:Image', 'wputh') ,
+            'label' => $this->__('FB:Image') ,
             'box' => 'wpu_seo_facebook',
             'type' => 'media'
         );
 
         // Twitter
         $options['wpu_seo_user_twitter_site_username'] = array(
-            'label' => $this->__('Twitter site @username', 'wputh') ,
+            'label' => $this->__('Twitter site @username') ,
             'box' => 'wpu_seo_twitter'
         );
         $options['wpu_seo_user_twitter_account_id'] = array(
-            'label' => $this->__('Twitter ads ID', 'wputh') ,
+            'label' => $this->__('Twitter ads ID') ,
             'box' => 'wpu_seo_twitter'
         );
 
@@ -229,20 +229,21 @@ class WPUSEO
 
     function get_displayed_title() {
         global $post;
+        $displayed_title = $this->__('404 Error');
         if (is_search()) {
-            $displayed_title = sprintf($this->__('Search results for "%s"', 'wputh') , get_search_query());
+            $displayed_title = sprintf($this->__('Search results for "%s"') , get_search_query());
         }
         if (is_archive()) {
-            $displayed_title = $this->__('Archive', 'wputh');
+            $displayed_title = $this->__('Archive');
         }
         if (is_tax()) {
             $displayed_title = single_cat_title("", false);
         }
         if (is_tag()) {
-            $displayed_title = $this->__('Tag:', 'wputh') . ' ' . single_tag_title("", false);
+            $displayed_title = $this->__('Tag:') . ' ' . single_tag_title("", false);
         }
         if (is_category()) {
-            $displayed_title = $this->__('Category:', 'wputh') . ' ' . single_cat_title("", false);
+            $displayed_title = $this->__('Category:') . ' ' . single_cat_title("", false);
         }
         if (is_post_type_archive()) {
             $displayed_title = post_type_archive_title('', false);
@@ -251,22 +252,22 @@ class WPUSEO
             global $author;
             $author_name = get_query_var('author_name');
             $curauth = !empty($author_name) ? get_user_by('slug', $author_name) : get_userdata(intval($author));
-            $displayed_title = $this->__('Author:', 'wputh') . ' ' . $curauth->nickname;
+            $displayed_title = $this->__('Author:') . ' ' . $curauth->nickname;
         }
         if (is_year()) {
-            $displayed_title = $this->__('Year:', 'wputh') . ' ' . get_the_time($this->__('Y', 'wputh'));
+            $displayed_title = $this->__('Year:') . ' ' . get_the_time($this->__('Y'));
         }
         if (is_month()) {
-            $displayed_title = $this->__('Month:', 'wputh') . ' ' . get_the_time($this->__('F Y', 'wputh'));
+            $displayed_title = $this->__('Month:') . ' ' . get_the_time($this->__('F Y'));
         }
         if (is_day()) {
-            $displayed_title = $this->__('Day:', 'wputh') . ' ' . get_the_time($this->__('F j, Y', 'wputh'));
+            $displayed_title = $this->__('Day:') . ' ' . get_the_time($this->__('F j, Y'));
         }
         if (is_singular()) {
             $displayed_title = get_the_title();
         }
         if (is_404()) {
-            $displayed_title = $this->__('404 Error', 'wputh');
+            $displayed_title = $this->__('404 Error');
         }
         return $displayed_title;
     }
