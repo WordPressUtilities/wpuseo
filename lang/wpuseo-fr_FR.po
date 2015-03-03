@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU SEO\n"
-"POT-Creation-Date: 2015-01-17 23:56+0100\n"
+"POT-Creation-Date: 2015-03-03 21:33+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Darklg <darklg.blog@gmail.com>\n"
 "Language-Team: \n"
@@ -15,102 +15,114 @@ msgstr ""
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-SearchPath-0: ../.\n"
 
-#: .././wpuseo.php:86
+#: .././wpuseo.php:95
 msgid ""
 "This plugin depends on the WPUOptions plugin. Please install and activate it."
 msgstr ""
 "Ce plugin est dépendant du plugin WPUOptions. Merci de l'installer et de "
 "l'activer."
 
-#: .././wpuseo.php:136
+#: .././wpuseo.php:115
+msgid "SEO Details"
+msgstr "Détails SEO"
+
+#: .././wpuseo.php:130
+msgid "Page title"
+msgstr "Titre de la page"
+
+#: .././wpuseo.php:134
+msgid "Page description"
+msgstr "Description de la page"
+
+#: .././wpuseo.php:176
 msgid "Main meta description"
 msgstr "Meta description principale"
 
-#: .././wpuseo.php:141
+#: .././wpuseo.php:181
 msgid "Main meta keywords"
 msgstr "Meta keywords principaux"
 
-#: .././wpuseo.php:146
+#: .././wpuseo.php:186
 msgid "Home page title"
 msgstr "Titre de la page d'accueil"
 
-#: .././wpuseo.php:151
+#: .././wpuseo.php:191
 msgid "Title separator"
 msgstr "Séparateur de titre"
 
-#: .././wpuseo.php:164
+#: .././wpuseo.php:204
 msgid "Google verification ID"
 msgstr "ID verification Google"
 
-#: .././wpuseo.php:168
+#: .././wpuseo.php:208
 msgid "Google Analytics ID"
 msgstr "Google Analytics ID"
 
-#: .././wpuseo.php:174
+#: .././wpuseo.php:214
 msgid "FB:Admins ID"
 msgstr "FB:Admins ID"
 
-#: .././wpuseo.php:178
+#: .././wpuseo.php:218
 msgid "FB:App ID"
 msgstr "FB:App ID"
 
-#: .././wpuseo.php:182
+#: .././wpuseo.php:222
 msgid "FB:Image"
 msgstr "FB:Image"
 
-#: .././wpuseo.php:189
+#: .././wpuseo.php:229
 msgid "Twitter site @username"
 msgstr "Twitter @username du site"
 
-#: .././wpuseo.php:193
+#: .././wpuseo.php:233
 msgid "Twitter ads ID"
 msgstr "Twitter ads ID"
 
-#: .././wpuseo.php:257 .././wpuseo.php:295
+#: .././wpuseo.php:304 .././wpuseo.php:342
 msgid "404 Error"
 msgstr "Erreur 404"
 
-#: .././wpuseo.php:259
+#: .././wpuseo.php:306
 #, php-format
 msgid "Search results for \"%s\""
 msgstr "Résultats de recherche pour \"%s\""
 
-#: .././wpuseo.php:262
+#: .././wpuseo.php:309
 msgid "Archive"
 msgstr "Archive"
 
-#: .././wpuseo.php:268
+#: .././wpuseo.php:315
 msgid "Tag:"
 msgstr "Tag :"
 
-#: .././wpuseo.php:271
+#: .././wpuseo.php:318
 msgid "Category:"
 msgstr "Catégorie :"
 
-#: .././wpuseo.php:280
+#: .././wpuseo.php:327
 msgid "Author:"
 msgstr "Auteur :"
 
-#: .././wpuseo.php:283
+#: .././wpuseo.php:330
 msgid "Year:"
 msgstr "Année :"
 
-#: .././wpuseo.php:283
+#: .././wpuseo.php:330
 msgid "Y"
 msgstr "Y"
 
-#: .././wpuseo.php:286
+#: .././wpuseo.php:333
 msgid "Month:"
 msgstr "Mois :"
 
-#: .././wpuseo.php:286
+#: .././wpuseo.php:333
 msgid "F Y"
 msgstr "F Y"
 
-#: .././wpuseo.php:289
+#: .././wpuseo.php:336
 msgid "Day:"
 msgstr "Jour :"
 
-#: .././wpuseo.php:289
+#: .././wpuseo.php:336
 msgid "F j, Y"
 msgstr "j F Y"

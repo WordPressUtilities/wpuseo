@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.3.4
+Version: 1.4
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -63,6 +63,14 @@ class WPUSEO
         add_filter('wpu_usermetas_fields', array(&$this,
             'add_user_fields'
         ) , 10, 3);
+
+        // Post box
+        add_filter('wputh_post_metas_boxes', array(&$this,
+            'post_meta_boxes'
+        ) , 10, 3);
+        add_filter('wputh_post_metas_fields', array(&$this,
+            'post_meta_fields'
+        ) , 10, 3);
     }
 
     /* ----------------------------------------------------------
@@ -96,6 +104,37 @@ class WPUSEO
             remove_action('wp_head', 'wp_shortlink_wp_head');
             remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
         }
+    }
+
+    /* ----------------------------------------------------------
+      Metas
+    ---------------------------------------------------------- */
+
+    function post_meta_boxes($boxes) {
+        $boxes['wpuseo_box'] = array(
+            'name' => $this->__('SEO Details') ,
+            'post_type' => array(
+                'post',
+                'page'
+            )
+        );
+        return $boxes;
+    }
+
+    /* Meta fields
+     -------------------------- */
+
+    function post_meta_fields($fields) {
+        $fields['wpuseo_post_title'] = array(
+            'box' => 'wpuseo_box',
+            'name' => $this->__('Page title') ,
+        );
+        $fields['wpuseo_post_description'] = array(
+            'box' => 'wpuseo_box',
+            'name' => $this->__('Page description') ,
+            'type' => 'textarea'
+        );
+        return $fields;
     }
 
     /* ----------------------------------------------------------
@@ -249,6 +288,13 @@ class WPUSEO
         }
         $new_title = $this->get_displayed_title();
 
+        if (is_singular()) {
+            $wpuseo_post_title = trim(get_post_meta(get_the_ID() , 'wpuseo_post_title', 1));
+            if (!empty($wpuseo_post_title)) {
+                $displayed_title = $wpuseo_post_title;
+            }
+        }
+
         // Return new title with site name at the end
         return $new_title . $spaced_sep . get_bloginfo('name');
     }
@@ -340,6 +386,11 @@ class WPUSEO
         if (is_single() || is_page()) {
 
             $description = $this->prepare_text($post->post_content);
+
+            $wpuseo_post_description = trim(get_post_meta(get_the_ID() , 'wpuseo_post_description', 1));
+            if (!empty($wpuseo_post_description)) {
+                $description = $this->prepare_text($wpuseo_post_description);
+            }
 
             /* Twitter : Summary card */
             $metas['twitter_card'] = array(
