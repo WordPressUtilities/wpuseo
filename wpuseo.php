@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.3.3
+Version: 1.3.4
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -74,6 +74,7 @@ class WPUSEO
             return;
         }
         include_once (ABSPATH . 'wp-admin/includes/plugin.php');
+
         // Check if WPU Options is active
         if (!is_plugin_active('wpuoptions/wpuoptions.php')) {
             add_action('admin_notices', array(&$this,
@@ -252,7 +253,7 @@ class WPUSEO
         return $new_title . $spaced_sep . get_bloginfo('name');
     }
 
-    function get_displayed_title() {
+    function get_displayed_title($prefix = true) {
         global $post;
         $displayed_title = $this->__('404 Error');
         if (is_search()) {
@@ -265,10 +266,10 @@ class WPUSEO
             $displayed_title = single_cat_title("", false);
         }
         if (is_tag()) {
-            $displayed_title = $this->__('Tag:') . ' ' . single_tag_title("", false);
+            $displayed_title = ($prefix ? $this->__('Tag:') . ' ' : '') . single_tag_title("", false);
         }
         if (is_category()) {
-            $displayed_title = $this->__('Category:') . ' ' . single_cat_title("", false);
+            $displayed_title = ($prefix ? $this->__('Category:') . ' ' : '') . single_cat_title("", false);
         }
         if (is_post_type_archive()) {
             $displayed_title = post_type_archive_title('', false);
@@ -280,13 +281,13 @@ class WPUSEO
             $displayed_title = $this->__('Author:') . ' ' . $curauth->nickname;
         }
         if (is_year()) {
-            $displayed_title = $this->__('Year:') . ' ' . get_the_time($this->__('Y'));
+            $displayed_title = ($prefix ? $this->__('Year:') . ' ' : '') . get_the_time($this->__('Y'));
         }
         if (is_month()) {
-            $displayed_title = $this->__('Month:') . ' ' . get_the_time($this->__('F Y'));
+            $displayed_title = ($prefix ? $this->__('Month:') . ' ' : '') . get_the_time($this->__('F Y'));
         }
         if (is_day()) {
-            $displayed_title = $this->__('Day:') . ' ' . get_the_time($this->__('F j, Y'));
+            $displayed_title = ($prefix ? $this->__('Day:') . ' ' : '') . get_the_time($this->__('F j, Y'));
         }
         if (is_singular()) {
             $displayed_title = get_the_title();
@@ -577,7 +578,8 @@ class WPUSEO
         ) , ' ', $word);
         if (array_key_exists($slug, $keywords_raw)) {
             $keywords_raw[$slug][0]++;
-        } else {
+        }
+        else {
             $keywords_raw[$slug] = array(
                 1,
                 $word
