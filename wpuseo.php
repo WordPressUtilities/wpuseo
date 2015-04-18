@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.5.2
+Version: 1.6
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -70,6 +70,11 @@ class WPUSEO {
         add_filter('wputh_post_metas_fields', array(&$this,
             'post_meta_fields'
         ) , 10, 3);
+
+        // Taxo fields
+        add_filter('wputaxometas_fields', array(&$this,
+            'taxo_fields'
+        ) , 10, 3);
     }
 
     /* ----------------------------------------------------------
@@ -134,6 +139,28 @@ class WPUSEO {
             'name' => $this->__('Page description') ,
             'type' => 'textarea',
             'lang' => true
+        );
+        return $fields;
+    }
+
+    /* Taxo fields
+     -------------------------- */
+
+    function taxo_fields($fields) {
+        $taxonomies = apply_filters('wpuseo_taxo_list', array(
+            'category',
+            'post_tag'
+        ));
+        $fields['wpuseo_taxo_title'] = array(
+            'label' => $this->__('Page title') ,
+            'taxonomies' => $taxonomies,
+            'lang' => 1
+        );
+        $fields['wpuseo_taxo_description'] = array(
+            'label' => $this->__('Page description') ,
+            'taxonomies' => $taxonomies,
+            'type' => 'textarea',
+            'lang' => 1
         );
         return $fields;
     }
@@ -272,6 +299,27 @@ class WPUSEO {
     }
 
     /* ----------------------------------------------------------
+      Taxo metas
+    ---------------------------------------------------------- */
+
+    function get_taxo_meta($type) {
+        global $q_config;
+        $queried_object = get_queried_object();
+        $term_id = $queried_object->term_id;
+        $metas = get_taxonomy_metas($term_id);
+        $seo_title = '';
+        if (is_array($metas)) {
+            if (isset($metas['wpuseo_taxo_' . $type])) {
+                $seo_title = $metas['wpuseo_taxo_' . $type];
+            }
+            if (isset($q_config['language']) && isset($metas[$q_config['language'] . '__wpuseo_taxo_' . $type]) && !empty($metas[$q_config['language'] . '__wpuseo_taxo_' . $type])) {
+                $seo_title = $metas[$q_config['language'] . '__wpuseo_taxo_' . $type];
+            }
+        }
+        return $seo_title;
+    }
+
+    /* ----------------------------------------------------------
       Page Title
     ---------------------------------------------------------- */
 
@@ -297,6 +345,7 @@ class WPUSEO {
             }
             return get_bloginfo('name') . $spaced_sep . $wpu_title;
         }
+
         $new_title = $this->get_displayed_title();
 
         if (is_singular()) {
@@ -306,7 +355,14 @@ class WPUSEO {
             }
 
             if (!empty($wpuseo_post_title)) {
-                $displayed_title = $wpuseo_post_title;
+                $new_title = $wpuseo_post_title;
+            }
+        }
+
+        if (is_category() || is_tax() || is_tag()) {
+            $taxo_meta_title = $this->get_taxo_meta('title');
+            if (!empty($taxo_meta_title)) {
+                $new_title = $taxo_meta_title;
             }
         }
 
@@ -400,6 +456,21 @@ class WPUSEO {
                 'property' => 'twitter:account_id',
                 'content' => $wpu_seo_user_twitter_account_id
             );
+        }
+
+        if (is_category() || is_tax() || is_tag()) {
+            $taxo_meta_description = $this->get_taxo_meta('description');
+            $description = '';
+            if (!empty($taxo_meta_description)) {
+                $description = $taxo_meta_description;
+            }
+            if (!empty($description)) {
+                // Description
+                $metas['description'] = array(
+                    'name' => 'description',
+                    'content' => $description
+                );
+            }
         }
 
         if (is_single() || is_page()) {
@@ -740,6 +811,32 @@ class WPUSEO {
             $is_multi = qtrans_getSortedLanguages();
         }
         return $is_multi;
+    }
+
+    /* Get languages
+     -------------------------- */
+
+    private function get_languages() {
+        global $q_config, $polylang;
+        $languages = array();
+
+        // Obtaining from Qtranslate
+        if (isset($q_config['enabled_languages'])) {
+            foreach ($q_config['enabled_languages'] as $lang) {
+                if (!in_array($lang, $languages) && isset($q_config['language_name'][$lang])) {
+                    $languages[$lang] = $q_config['language_name'][$lang];
+                }
+            }
+        }
+
+        // Obtaining from Polylang
+        if (function_exists('pll_the_languages') && is_object($polylang)) {
+            $poly_langs = $polylang->model->get_languages_list();
+            foreach ($poly_langs as $lang) {
+                $languages[$lang->slug] = $lang->name;
+            }
+        }
+        return $languages;
     }
 }
 
