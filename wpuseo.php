@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.6
+Version: 1.7
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -459,23 +459,26 @@ class WPUSEO {
         }
 
         if (is_category() || is_tax() || is_tag()) {
+            $queried_object = get_queried_object();
+            $description = $queried_object->description;
+
             $taxo_meta_description = $this->get_taxo_meta('description');
-            $description = '';
             if (!empty($taxo_meta_description)) {
                 $description = $taxo_meta_description;
             }
             if (!empty($description)) {
+
                 // Description
                 $metas['description'] = array(
                     'name' => 'description',
-                    'content' => $description
+                    'content' => $this->prepare_text($description)
                 );
             }
         }
 
         if (is_single() || is_page()) {
 
-            $description = $this->prepare_text($post->post_content);
+            $description = $post->post_content;
 
             $wpuseo_post_description = trim(get_post_meta(get_the_ID() , 'wpuseo_post_description', 1));
             if (function_exists('wputh_l10n_get_post_meta')) {
@@ -483,7 +486,7 @@ class WPUSEO {
             }
 
             if (!empty($wpuseo_post_description)) {
-                $description = $this->prepare_text($wpuseo_post_description);
+                $description = $wpuseo_post_description;
             }
 
             if ($enable_twitter_metas) {
@@ -499,7 +502,7 @@ class WPUSEO {
                 );
                 $metas['twitter_description'] = array(
                     'name' => 'twitter:description',
-                    'content' => $description
+                    'content' => $this->prepare_text($description)
                 );
             }
 
@@ -781,10 +784,17 @@ class WPUSEO {
         $text = strip_tags($text);
         $text = preg_replace("/\s+/", ' ', $text);
         $text = trim($text);
-        if (strlen($text) > $max_length) {
-            $text = substr($text, 0, $max_length - 5) . ' ...';
+        $words = explode(' ', $text);
+        $final_text = '';
+        foreach ($words as $word) {
+            if ((strlen($final_text) + strlen(' ' . $word)) > $max_length) {
+                return $final_text . ' ...';
+            }
+            else {
+                $final_text .= ' ' . $word;
+            }
         }
-        return $text;
+        return trim($final_text);
     }
 
     /* Convert an array of metas to HTML
