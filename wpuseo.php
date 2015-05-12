@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.7.1
+Version: 1.7.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -16,11 +16,11 @@ class WPUSEO {
 
     function init() {
 
-        // Load lang
-        load_plugin_textdomain('wpuseo', false, dirname(plugin_basename(__FILE__)) . '/lang/');
-
         add_action('init', array(&$this,
             'check_config'
+        ));
+        add_action('init', array(&$this,
+            'load_translation'
         ));
 
         // Filter
@@ -75,6 +75,12 @@ class WPUSEO {
         add_filter('wputaxometas_fields', array(&$this,
             'taxo_fields'
         ) , 10, 3);
+    }
+
+    function load_translation() {
+
+        // Load lang
+        load_plugin_textdomain('wpuseo', false, dirname(plugin_basename(__FILE__)) . '/lang/');
     }
 
     /* ----------------------------------------------------------
