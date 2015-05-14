@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.7.3
+Version: 1.8
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -19,7 +19,7 @@ class WPUSEO {
         add_action('init', array(&$this,
             'check_config'
         ));
-        add_action('init', array(&$this,
+        add_action('plugins_loaded', array(&$this,
             'load_translation'
         ));
 
@@ -184,7 +184,11 @@ class WPUSEO {
 
     function add_boxes($boxes) {
         $boxes['wpu_seo'] = array(
-            'name' => 'Main',
+            'name' => $this->__('Main') ,
+            'tab' => 'wpu_seo'
+        );
+        $boxes['wpu_seo_home'] = array(
+            'name' => $this->__('Homepage') ,
             'tab' => 'wpu_seo'
         );
         $boxes['wpu_seo_google'] = array(
@@ -216,15 +220,21 @@ class WPUSEO {
             'type' => 'textarea',
             'box' => 'wpu_seo'
         );
-        $options['wpu_home_page_title'] = array(
-            'label' => $this->__('Home page title') ,
-            'type' => 'textarea',
-            'box' => 'wpu_seo'
-        );
         $options['wpu_home_title_separator'] = array(
             'label' => $this->__('Title separator') ,
-            'type' => 'text',
             'box' => 'wpu_seo'
+        );
+
+        /* Home */
+        $options['wpu_home_page_title'] = array(
+            'label' => $this->__('Page title') ,
+            'type' => 'textarea',
+            'box' => 'wpu_seo_home'
+        );
+        $options['wpu_home_title_separator_hide_prefix'] = array(
+            'label' => $this->__('Hide title prefix') ,
+            'type' => 'select',
+            'box' => 'wpu_seo_home'
         );
 
         if ($is_multi) {
@@ -342,6 +352,7 @@ class WPUSEO {
         // Home : Exception for order
         if (is_home() || is_feed()) {
             $is_multi = $this->is_site_multilingual() !== false;
+            $hide_prefix = get_option('wpu_home_title_separator_hide_prefix');
             $wpu_title = trim(get_option('wpu_home_page_title'));
             if ($is_multi && function_exists('wputh_l18n_get_option')) {
                 $wpu_title = trim(wputh_l18n_get_option('wpu_home_page_title'));
@@ -349,7 +360,15 @@ class WPUSEO {
             if (empty($wpu_title)) {
                 $wpu_title = get_bloginfo('description');
             }
-            return get_bloginfo('name') . $spaced_sep . $wpu_title;
+            if ($is_multi && function_exists('wputh_l18n_get_option')) {
+                $hide_prefix = trim(wputh_l18n_get_option('wpu_home_title_separator_hide_prefix'));
+            }
+
+            if ($hide_prefix != '1') {
+                $wpu_title = get_bloginfo('name') . $spaced_sep . $wpu_title;
+            }
+
+            return $wpu_title;
         }
 
         $new_title = $this->get_displayed_title();
@@ -797,7 +816,7 @@ class WPUSEO {
                 return $final_text . ' ...';
             }
             else {
-                $final_text .= ' ' . $word;
+                $final_text.= ' ' . $word;
             }
         }
         return trim($final_text);
@@ -825,6 +844,9 @@ class WPUSEO {
         $is_multi = false;
         if (function_exists('qtrans_getSortedLanguages')) {
             $is_multi = qtrans_getSortedLanguages();
+        }
+        if (function_exists('qtranxf_getSortedLanguages')) {
+            $is_multi = qtranxf_getSortedLanguages();
         }
         return $is_multi;
     }
