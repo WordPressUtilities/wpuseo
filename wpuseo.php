@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.8
+Version: 1.8.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -322,7 +322,10 @@ class WPUSEO {
         global $q_config;
         $queried_object = get_queried_object();
         $term_id = $queried_object->term_id;
-        $metas = get_taxonomy_metas($term_id);
+        $metas = array();
+        if (function_exists('get_taxonomy_metas')) {
+            $metas = get_taxonomy_metas($term_id);
+        }
         $seo_title = '';
         if (is_array($metas)) {
             if (isset($metas['wpuseo_taxo_' . $type])) {
