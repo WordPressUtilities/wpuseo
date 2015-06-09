@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.8.1
+Version: 1.8.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -623,6 +623,16 @@ class WPUSEO {
             );
 
             // Meta keywords
+            if (empty($wpu_keywords)) {
+                $categories = get_categories();
+                if (count($categories) > 1) {
+                    $tmp_keywords = array();
+                    foreach ($categories as $category) {
+                        $tmp_keywords[] = $category->name;
+                    }
+                    $wpu_keywords = implode(', ', $tmp_keywords);
+                }
+            }
             if (!empty($wpu_keywords)) {
                 $metas['keywords'] = array(
                     'name' => 'keywords',
