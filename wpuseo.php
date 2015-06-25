@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.8.2
+Version: 1.8.3
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -506,7 +506,7 @@ class WPUSEO {
 
         if (is_single() || is_page()) {
 
-            $description = $post->post_content;
+            $description = $this->prepare_text($post->post_content);
 
             $wpuseo_post_description = trim(get_post_meta(get_the_ID() , 'wpuseo_post_description', 1));
             if (function_exists('wputh_l10n_get_post_meta')) {
