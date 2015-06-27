@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.8.3
+Version: 1.8.4
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -75,6 +75,8 @@ class WPUSEO {
         add_filter('wputaxometas_fields', array(&$this,
             'taxo_fields'
         ) , 10, 3);
+
+        $this->thumbnail_size = apply_filters('wpuseo_thumbnail_size', 'full');
     }
 
     function load_translation() {
@@ -566,7 +568,7 @@ class WPUSEO {
                     'content' => get_permalink()
                 );
             }
-            $thumb_url = wp_get_attachment_image_src(get_post_thumbnail_id() , 'medium', true);
+            $thumb_url = wp_get_attachment_image_src(get_post_thumbnail_id() , $this->thumbnail_size, true);
             if (isset($thumb_url[0])) {
                 if ($enable_facebook_metas) {
                     $metas['og_image'] = array(
@@ -653,7 +655,7 @@ class WPUSEO {
 
             $og_image = get_stylesheet_directory_uri() . '/screenshot.png';
             $opt_wputh_fb_image = get_option('wputh_fb_image');
-            $wputh_fb_image = wp_get_attachment_image_src($opt_wputh_fb_image, 'medium', true);
+            $wputh_fb_image = wp_get_attachment_image_src($opt_wputh_fb_image, $this->thumbnail_size, true);
             if ($opt_wputh_fb_image != false && isset($wputh_fb_image[0])) {
                 $og_image = $wputh_fb_image[0];
             }
