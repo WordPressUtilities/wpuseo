@@ -3,13 +3,12 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.8.4
+Version: 1.8.5
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 Contributor: @boiteaweb
-Last Update: 07 dec. 2013
 */
 
 class WPUSEO {
@@ -26,15 +25,15 @@ class WPUSEO {
         // Filter
         add_filter('wp_title', array(&$this,
             'wp_title'
-        ) , 10, 2);
+        ) , 1, 2);
 
         // Actions
         add_action('wp_head', array(&$this,
             'add_metas'
-        ) , 10);
+        ) , 1);
         add_action('wp_head', array(&$this,
             'add_metas_robots'
-        ) , 10, 0);
+        ) , 1, 0);
         add_action('wp_footer', array(&$this,
             'display_google_analytics_code'
         ));
@@ -508,7 +507,10 @@ class WPUSEO {
 
         if (is_single() || is_page()) {
 
-            $description = $this->prepare_text($post->post_content);
+            $description = $post->post_excerpt;
+            if (empty($post->post_excerpt)) {
+                $description = $post->post_content;
+            }
 
             $wpuseo_post_description = trim(get_post_meta(get_the_ID() , 'wpuseo_post_description', 1));
             if (function_exists('wputh_l10n_get_post_meta')) {
@@ -518,6 +520,8 @@ class WPUSEO {
             if (!empty($wpuseo_post_description)) {
                 $description = $wpuseo_post_description;
             }
+
+            $description = $this->prepare_text($description);
 
             if ($enable_twitter_metas) {
 
@@ -532,7 +536,7 @@ class WPUSEO {
                 );
                 $metas['twitter_description'] = array(
                     'name' => 'twitter:description',
-                    'content' => $this->prepare_text($description)
+                    'content' => $description
                 );
             }
 
