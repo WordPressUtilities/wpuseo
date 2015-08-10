@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.8.6
+Version: 1.8.7
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -26,10 +26,10 @@ class WPUSEO {
         add_filter('wp_title', array(&$this,
             'wp_title'
         ) , 1, 2);
-        add_filter('bloginfo_rss', array(&$this,
+        add_filter('bloginfo_rss', '__return_empty_string', 1, 2);
+        add_filter('wp_title_rss', array(&$this,
             'rss_wp_title'
-        ) , 1, 2);
-        add_filter('wp_title_rss', '__return_empty_string', 999);
+        ) , 999);
 
         // Actions
         add_action('wp_head', array(&$this,
@@ -348,10 +348,7 @@ class WPUSEO {
     ---------------------------------------------------------- */
 
     function rss_wp_title($content, $name) {
-        if ($name == 'name') {
-            $content = $this->wp_title();
-        }
-        return $content;
+        return $this->wp_title($content);
     }
 
     function wp_title($title, $sep = '|') {
