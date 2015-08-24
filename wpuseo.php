@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.8.7
+Version: 1.8.8
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -38,9 +38,9 @@ class WPUSEO {
         add_action('wp_head', array(&$this,
             'add_metas_robots'
         ) , 1, 0);
-        add_action('wp_footer', array(&$this,
+        add_action('wp_head', array(&$this,
             'display_google_analytics_code'
-        ));
+        ) , 99, 0);
 
         // Clean WP Head
         add_action('template_redirect', array(&$this,
@@ -107,7 +107,7 @@ class WPUSEO {
     }
 
     function set_error_missing_wpuoptions() {
-        echo '<div class="error"><p>' . $this->__('This plugin depends on the WPUOptions plugin. Please install and activate it.') . '</p></div>';
+        echo '<div class="error"><p>' . sprintf($this->__('The plugin <b>%s</b> depends on the <b>WPU Options</b> plugin. Please install and activate it.') , 'WPU SEO') . '</p></div>';
     }
 
     /* ----------------------------------------------------------
