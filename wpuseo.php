@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU SEO
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.8.9
+Version: 1.8.10
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -719,17 +719,11 @@ class WPUSEO {
     ---------------------------------------------------------- */
 
     function add_metas_robots() {
-        $metas = array();
 
         // Disable indexation for archives pages after page 1 OR 404 page OR paginated comments
         if ((is_paged() && (is_category() || is_tag() || is_author() || is_tax())) || is_404() || (is_single() && comments_open() && (int)get_query_var('cpage') > 0)) {
-            $metas['robots'] = array(
-                'name' => 'robots',
-                'content' => 'noindex, follow'
-            );
+            wp_no_robots();
         }
-
-        echo $this->special_convert_array_html($metas);
     }
 
     /* ----------------------------------------------------------
