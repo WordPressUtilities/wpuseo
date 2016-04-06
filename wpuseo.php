@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.9
+Version: 1.9.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -370,7 +370,7 @@ class WPUSEO {
         $new_title = '';
 
         // Home : Exception for order
-        if (is_home() || is_feed()) {
+        if (is_home() || is_front_page() || is_feed()) {
             $is_multi = $this->is_site_multilingual() !== false;
             $hide_prefix = get_option('wpu_home_title_separator_hide_prefix');
             $wpu_title = trim(get_option('wpu_home_page_title'));
@@ -662,6 +662,19 @@ class WPUSEO {
                 );
             }
 
+            // Twitter
+            if ($enable_twitter_metas) {
+                $metas['twitter_title'] = array(
+                    'name' => 'twitter:title',
+                    'content' => get_bloginfo('name')
+                );
+                $metas['twitter_description'] = array(
+                    'name' => 'twitter:description',
+                    'content' => $this->prepare_text($home_meta_description, 200)
+                );
+            }
+
+            // Facebook
             if ($enable_facebook_metas) {
                 $metas['og_title'] = array(
                     'property' => 'og:title',
@@ -672,7 +685,6 @@ class WPUSEO {
                     'content' => home_url()
                 );
             }
-
             $og_image = get_stylesheet_directory_uri() . '/screenshot.png';
             $opt_wputh_fb_image = get_option('wputh_fb_image');
             $wputh_fb_image = wp_get_attachment_image_src($opt_wputh_fb_image, $this->thumbnail_size, true);
@@ -680,12 +692,12 @@ class WPUSEO {
                 $og_image = $wputh_fb_image[0];
             }
             if ($enable_facebook_metas) {
-
                 $metas['og_image'] = array(
                     'property' => 'og:image',
                     'content' => $og_image
                 );
             }
+
         }
 
         // Google Site
