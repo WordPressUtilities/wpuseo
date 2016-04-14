@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.9.1
+Version: 1.10
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -453,6 +453,13 @@ class WPUSEO {
         }
         if (is_singular()) {
             $displayed_title = get_the_title();
+            if (property_exists($post, 'post_password') && !empty($post->post_password)) {
+                if (post_password_required()) {
+                    $displayed_title = apply_filters('wpuseo_protectedposthidden_title', $displayed_title, $post);
+                } else {
+                    $displayed_title = apply_filters('wpuseo_protectedpostvisible_title', $displayed_title, $post);
+                }
+            }
         }
         if (is_404()) {
             $displayed_title = $this->__('404 Error');
@@ -764,13 +771,18 @@ class WPUSEO {
         if (is_user_logged_in() && !$analytics_enableloggedin) {
             return;
         }
+        $hook_ajaxready = apply_filters('wpuseo_ajaxready_hook', '');
 
         echo '<script type="text/javascript">';
-        echo "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){" . "(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o)," . "m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)" . "})(window,document,'script','//www.google-analytics.com/analytics.js','ga');";
+        echo "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');";
         echo "ga('create', '" . $ua_analytics . "', 'auto');";
         echo "ga('send', 'pageview');";
+        if (!empty($hook_ajaxready)) {
+            echo "function wpuseo_callback_ajaxready(){ga('send','pageview');}";
+            echo "if (typeof(jQuery) == 'undefined') {document.addEventListener('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready,1);}";
+            echo "else {jQuery(document).on('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready);}";
+        }
         echo '</script>';
-
     }
 
     /* ----------------------------------------------------------
