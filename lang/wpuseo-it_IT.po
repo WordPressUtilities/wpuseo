@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU SEO\n"
-"POT-Creation-Date: 2016-02-07 23:02+0000\n"
+"POT-Creation-Date: 2016-06-07 18:00+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Darklg <darklg.blog@gmail.com>\n"
 "Language-Team: \n"
@@ -64,90 +64,101 @@ msgstr "Nascondere il prefisso del titolo"
 msgid "Site verification ID"
 msgstr "Sito verification ID"
 
-#: .././wpuseo.php:260
+#: .././wpuseo.php:258
+msgid "Use the content attribute of the validation meta tag"
+msgstr "Utilizzare l'attributo content del tag meta convalida"
+
+#: .././wpuseo.php:261
 msgid "Google Analytics ID"
 msgstr "Google Analytics ID"
 
-#: .././wpuseo.php:264
+#: .././wpuseo.php:265
 msgid "Enable Analytics for logged-in users"
 msgstr "Abilitare Analytics per gli utenti registrati"
 
-#: .././wpuseo.php:271
+#: .././wpuseo.php:272
 msgid "Enable Facebook metas"
 msgstr "Abilitare Facebook metas"
 
-#: .././wpuseo.php:276
+#: .././wpuseo.php:277
 msgid "FB:Admins ID"
 msgstr "FB:Admins ID"
 
-#: .././wpuseo.php:280
+#: .././wpuseo.php:281
 msgid "FB:App ID"
 msgstr "FB:App ID"
 
-#: .././wpuseo.php:284
+#: .././wpuseo.php:285
 msgid "FB:Image"
 msgstr "FB:Image"
 
-#: .././wpuseo.php:291
+#: .././wpuseo.php:292
 msgid "Enable Twitter metas"
 msgstr "Abilitare Twitter metas"
 
-#: .././wpuseo.php:296
+#: .././wpuseo.php:297
 msgid "Twitter site @username"
 msgstr "Twitter site @username"
 
-#: .././wpuseo.php:300
+#: .././wpuseo.php:301
 msgid "Twitter ads ID"
 msgstr "Twitter ads ID"
 
-#: .././wpuseo.php:420 .././wpuseo.php:458
+#: .././wpuseo.php:421 .././wpuseo.php:466
 msgid "404 Error"
 msgstr "Errore 404"
 
-#: .././wpuseo.php:422
+#: .././wpuseo.php:423
 #, php-format
 msgid "Search results for \"%s\""
 msgstr "Risultati della ricerca per \"%s\""
 
-#: .././wpuseo.php:425
+#: .././wpuseo.php:426
 msgid "Archive"
 msgstr "Archivio"
 
-#: .././wpuseo.php:431
+#: .././wpuseo.php:432
 msgid "Tag:"
 msgstr "Tag:"
 
-#: .././wpuseo.php:434
+#: .././wpuseo.php:435
 msgid "Category:"
 msgstr "Categoria :"
 
-#: .././wpuseo.php:443
+#: .././wpuseo.php:444
 msgid "Author:"
 msgstr "Autore:"
 
-#: .././wpuseo.php:446
+#: .././wpuseo.php:447
 msgid "Year:"
 msgstr "Anno:"
 
-#: .././wpuseo.php:446
+#: .././wpuseo.php:447
 msgid "Y"
 msgstr "Y"
 
-#: .././wpuseo.php:449
+#: .././wpuseo.php:450
 msgid "Month:"
 msgstr "Mese:"
 
-#: .././wpuseo.php:449
+#: .././wpuseo.php:450
 msgid "F Y"
 msgstr "F Y"
 
-#: .././wpuseo.php:452
+#: .././wpuseo.php:453
 msgid "Day:"
 msgstr "Giorno:"
 
-#: .././wpuseo.php:452
+#: .././wpuseo.php:453
 msgid "F j, Y"
 msgstr "j F Y"
+
+#~ msgid ""
+#~ "Use the content attribute of the validation meta tag (&lt;meta name="
+#~ "\"google-site-verification\" content=\"THECODE\" /&gt;)"
+#~ msgstr ""
+#~ "Utilizzare l'attributo content del tag meta convalida (&lt;meta name="
+#~ "\"google-site-verification\" content=\"THECODE\" /&gt;)"
 
 #~ msgid "Google verification ID"
 #~ msgstr "Google verification ID"

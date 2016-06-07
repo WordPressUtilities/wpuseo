@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.10
+Version: 1.10.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -254,7 +254,8 @@ class WPUSEO {
         // Google
         $options['wpu_google_site_verification'] = array(
             'label' => $this->__('Site verification ID'),
-            'box' => 'wpu_seo_google'
+            'box' => 'wpu_seo_google',
+            'help' => $this->__('Use the content attribute of the validation meta tag') . ' (&lt;meta name="google-site-verification" content="THECODE" /&gt;)'
         );
         $options['wputh_ua_analytics'] = array(
             'label' => $this->__('Google Analytics ID'),
