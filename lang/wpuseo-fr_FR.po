@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU SEO\n"
-"POT-Creation-Date: 2016-06-07 18:00+0200\n"
+"POT-Creation-Date: 2017-03-14 21:47+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Darklg <darklg.blog@gmail.com>\n"
 "Language-Team: \n"
@@ -9,13 +9,13 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.4\n"
+"X-Generator: Poedit 1.8.11\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-Basepath: .\n"
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-SearchPath-0: ../.\n"
 
-#: .././wpuseo.php:113
+#: .././wpuseo.php:117
 #, php-format
 msgid ""
 "The plugin <b>%s</b> depends on the <b>WPU Options</b> plugin. Please "
@@ -24,132 +24,145 @@ msgstr ""
 "Le plugin <b>%s</b> dépend du plugin <b>WPU Options</b>. Merci de installer "
 "et de l'activer."
 
-#: .././wpuseo.php:133
+#: .././wpuseo.php:137
 msgid "SEO Details"
 msgstr "Détails SEO"
 
-#: .././wpuseo.php:148 .././wpuseo.php:169 .././wpuseo.php:238
+#: .././wpuseo.php:145
+msgid "SEO Details - Twitter"
+msgstr "Détails SEO - Twitter"
+
+#: .././wpuseo.php:154
+msgid "SEO Details - Facebook"
+msgstr "Détails SEO - Facebook"
+
+#: .././wpuseo.php:170 .././wpuseo.php:188 .././wpuseo.php:206
+#: .././wpuseo.php:221 .././wpuseo.php:290
 msgid "Page title"
 msgstr "Titre de la page"
 
-#: .././wpuseo.php:153 .././wpuseo.php:174
+#: .././wpuseo.php:175 .././wpuseo.php:193 .././wpuseo.php:226
 msgid "Page description"
 msgstr "Description de la page"
 
-#: .././wpuseo.php:195
+#: .././wpuseo.php:182 .././wpuseo.php:200
+msgid "Image"
+msgstr "Image"
+
+#: .././wpuseo.php:247
 msgid "Main"
 msgstr "Principal"
 
-#: .././wpuseo.php:199
+#: .././wpuseo.php:251
 msgid "Homepage"
 msgstr "Page d'accueil"
 
-#: .././wpuseo.php:222
+#: .././wpuseo.php:274
 msgid "Main meta description"
 msgstr "Meta description principale"
 
-#: .././wpuseo.php:227
+#: .././wpuseo.php:279
 msgid "Main meta keywords"
 msgstr "Meta keywords principaux"
 
-#: .././wpuseo.php:232
+#: .././wpuseo.php:284
 msgid "Title separator"
 msgstr "Séparateur de titre"
 
-#: .././wpuseo.php:243
+#: .././wpuseo.php:295
 msgid "Hide title prefix"
 msgstr "Masquer le préfixe du titre"
 
-#: .././wpuseo.php:256
+#: .././wpuseo.php:308
 msgid "Site verification ID"
 msgstr "ID de vérification de site"
 
-#: .././wpuseo.php:258
+#: .././wpuseo.php:310
 msgid "Use the content attribute of the validation meta tag"
 msgstr "Utilisez l’attribut contenu de la balise meta de validation"
 
-#: .././wpuseo.php:261
+#: .././wpuseo.php:313
 msgid "Google Analytics ID"
 msgstr "Google Analytics ID"
 
-#: .././wpuseo.php:265
+#: .././wpuseo.php:317
 msgid "Enable Analytics for logged-in users"
 msgstr "Activer Analytics pour les utilisateurs connectés"
 
-#: .././wpuseo.php:272
+#: .././wpuseo.php:324
 msgid "Enable Facebook metas"
 msgstr "Activer les metas Facebook"
 
-#: .././wpuseo.php:277
+#: .././wpuseo.php:329
 msgid "FB:Admins ID"
 msgstr "FB:Admins ID"
 
-#: .././wpuseo.php:281
+#: .././wpuseo.php:333
 msgid "FB:App ID"
 msgstr "FB:App ID"
 
-#: .././wpuseo.php:285
+#: .././wpuseo.php:337
 msgid "FB:Image"
 msgstr "FB:Image"
 
-#: .././wpuseo.php:292
+#: .././wpuseo.php:344
 msgid "Enable Twitter metas"
 msgstr "Activer les metas Twitter"
 
-#: .././wpuseo.php:297
+#: .././wpuseo.php:349
 msgid "Twitter site @username"
 msgstr "Twitter @username du site"
 
-#: .././wpuseo.php:301
+#: .././wpuseo.php:353
 msgid "Twitter ads ID"
 msgstr "Twitter ads ID"
 
-#: .././wpuseo.php:421 .././wpuseo.php:466
+#: .././wpuseo.php:473 .././wpuseo.php:518
 msgid "404 Error"
 msgstr "Erreur 404"
 
-#: .././wpuseo.php:423
+#: .././wpuseo.php:475
 #, php-format
 msgid "Search results for \"%s\""
 msgstr "Résultats de recherche pour \"%s\""
 
-#: .././wpuseo.php:426
+#: .././wpuseo.php:478
 msgid "Archive"
 msgstr "Archive"
 
-#: .././wpuseo.php:432
+#: .././wpuseo.php:484
 msgid "Tag:"
 msgstr "Tag :"
 
-#: .././wpuseo.php:435
+#: .././wpuseo.php:487
 msgid "Category:"
 msgstr "Catégorie :"
 
-#: .././wpuseo.php:444
+#: .././wpuseo.php:496
 msgid "Author:"
 msgstr "Auteur :"
 
-#: .././wpuseo.php:447
+#: .././wpuseo.php:499
 msgid "Year:"
 msgstr "Année :"
 
-#: .././wpuseo.php:447
+#: .././wpuseo.php:499
 msgid "Y"
 msgstr "Y"
 
-#: .././wpuseo.php:450
+#: .././wpuseo.php:502
 msgid "Month:"
 msgstr "Mois :"
 
-#: .././wpuseo.php:450
+#: .././wpuseo.php:502
 msgid "F Y"
 msgstr "F Y"
 
-#: .././wpuseo.php:453
+#: .././wpuseo.php:505
 msgid "Day:"
 msgstr "Jour :"
 
-#: .././wpuseo.php:453
+#: .././wpuseo.php:505
 msgid "F j, Y"
 msgstr "j F Y"
 

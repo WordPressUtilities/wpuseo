@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.10.1
+Version: 1.11
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -83,6 +83,9 @@ class WPUSEO {
         ), 10, 3);
 
         $this->thumbnail_size = apply_filters('wpuseo_thumbnail_size', 'full');
+
+        $this->enable_twitter_metas = (get_option('wpu_seo_user_twitter_enable') != '0');
+        $this->enable_facebook_metas = (get_option('wpu_seo_user_facebook_enable') != '0');
     }
 
     public function load_translation() {
@@ -96,6 +99,7 @@ class WPUSEO {
     ---------------------------------------------------------- */
 
     public function check_config() {
+
         if (!is_admin()) {
             return;
         }
@@ -136,6 +140,24 @@ class WPUSEO {
                 'page'
             )
         );
+        if ($this->enable_twitter_metas) {
+            $boxes['wpuseo_box_twitter'] = array(
+                'name' => $this->__('SEO Details - Twitter'),
+                'post_type' => array(
+                    'post',
+                    'page'
+                )
+            );
+        }
+        if ($this->enable_facebook_metas) {
+            $boxes['wpuseo_box_facebook'] = array(
+                'name' => $this->__('SEO Details - Facebook'),
+                'post_type' => array(
+                    'post',
+                    'page'
+                )
+            );
+        }
         return $boxes;
     }
 
@@ -152,6 +174,36 @@ class WPUSEO {
             'box' => 'wpuseo_box',
             'name' => $this->__('Page description'),
             'type' => 'textarea',
+            'lang' => true
+        );
+        /* Twitter */
+        $fields['wpuseo_post_image_twitter'] = array(
+            'box' => 'wpuseo_box_twitter',
+            'name' => $this->__('Image'),
+            'type' => 'attachment',
+            'lang' => true
+        );
+        $fields['wpuseo_post_title_twitter'] = array(
+            'box' => 'wpuseo_box_twitter',
+            'name' => $this->__('Page title'),
+            'lang' => true
+        );
+        $fields['wpuseo_post_description_twitter'] = array(
+            'box' => 'wpuseo_box_twitter',
+            'name' => $this->__('Page description'),
+            'type' => 'textarea',
+            'lang' => true
+        );
+        /* Facebook */
+        $fields['wpuseo_post_image_facebook'] = array(
+            'box' => 'wpuseo_box_facebook',
+            'name' => $this->__('Image'),
+            'type' => 'attachment',
+            'lang' => true
+        );
+        $fields['wpuseo_post_title_facebook'] = array(
+            'box' => 'wpuseo_box_facebook',
+            'name' => $this->__('Page title'),
             'lang' => true
         );
         return $fields;
@@ -476,10 +528,8 @@ class WPUSEO {
         global $post;
         $metas = array();
         $links = array();
-        $enable_twitter_metas = (get_option('wpu_seo_user_twitter_enable') != '0');
-        $enable_facebook_metas = (get_option('wpu_seo_user_facebook_enable') != '0');
 
-        if ($enable_facebook_metas) {
+        if ($this->enable_facebook_metas) {
             $metas['og_sitename'] = array(
                 'property' => 'og:site_name',
                 'content' => get_bloginfo('name')
@@ -492,7 +542,7 @@ class WPUSEO {
         }
 
         $wpu_seo_user_twitter_site_username = trim(get_option('wpu_seo_user_twitter_site_username'));
-        if (!empty($wpu_seo_user_twitter_site_username) && $this->testTwitterUsername($wpu_seo_user_twitter_site_username) && $enable_twitter_metas) {
+        if (!empty($wpu_seo_user_twitter_site_username) && $this->testTwitterUsername($wpu_seo_user_twitter_site_username) && $this->enable_twitter_metas) {
             $metas['twitter_site'] = array(
                 'name' => 'twitter:site',
                 'content' => $wpu_seo_user_twitter_site_username
@@ -504,7 +554,7 @@ class WPUSEO {
         }
 
         $wpu_seo_user_twitter_account_id = trim(get_option('wpu_seo_user_twitter_account_id'));
-        if (!empty($wpu_seo_user_twitter_account_id) && $enable_twitter_metas) {
+        if (!empty($wpu_seo_user_twitter_account_id) && $this->enable_twitter_metas) {
             $metas['twitter_account_id'] = array(
                 'property' => 'twitter:account_id',
                 'content' => $wpu_seo_user_twitter_account_id
@@ -547,24 +597,34 @@ class WPUSEO {
 
             $description = $this->prepare_text($description);
 
-            if ($enable_twitter_metas) {
+            if ($this->enable_twitter_metas) {
 
                 /* Twitter : Summary card */
                 $metas['twitter_card'] = array(
                     'name' => 'twitter:card',
                     'content' => 'summary'
                 );
+                /* Title */
+                $twitter_title = trim(get_post_meta(get_the_ID(), 'wpuseo_post_title_twitter', 1));
+                if (empty($twitter_title)) {
+                    $twitter_title = get_the_title();
+                }
                 $metas['twitter_title'] = array(
                     'name' => 'twitter:title',
-                    'content' => get_the_title()
+                    'content' => $twitter_title
                 );
+                /* Description */
+                $twitter_description = trim(get_post_meta(get_the_ID(), 'wpuseo_post_description_twitter', 1));
+                if (empty($twitter_description)) {
+                    $twitter_description = $description;
+                }
                 $metas['twitter_description'] = array(
                     'name' => 'twitter:description',
-                    'content' => $description
+                    'content' => $twitter_description
                 );
             }
 
-            if ($enable_facebook_metas) {
+            if ($this->enable_facebook_metas) {
 
                 /* Facebook : Open Graph */
                 $metas['og_type']['content'] = 'article';
@@ -585,11 +645,14 @@ class WPUSEO {
                 );
             }
 
-            if ($enable_facebook_metas) {
-
+            if ($this->enable_facebook_metas) {
+                $facebook_title = trim(get_post_meta(get_the_ID(), 'wpuseo_post_title_facebook', 1));
+                if (empty($facebook_title)) {
+                    $facebook_title = get_the_title();
+                }
                 $metas['og_title'] = array(
                     'property' => 'og:title',
-                    'content' => get_the_title()
+                    'content' => $facebook_title
                 );
                 $metas['og_url'] = array(
                     'property' => 'og:url',
@@ -598,17 +661,45 @@ class WPUSEO {
             }
             $thumb_url = wp_get_attachment_image_src(get_post_thumbnail_id(), $this->thumbnail_size, true);
             if (isset($thumb_url[0])) {
-                if ($enable_facebook_metas) {
+                if ($this->enable_facebook_metas) {
                     $metas['og_image'] = array(
                         'property' => 'og:image',
                         'content' => $thumb_url[0]
                     );
                 }
-                if ($enable_twitter_metas) {
+                if ($this->enable_twitter_metas) {
                     $metas['twitter_image'] = array(
                         'name' => 'twitter:image',
                         'content' => $thumb_url[0]
                     );
+                }
+            }
+
+            // Custom og:image
+            if ($this->enable_facebook_metas) {
+                $custom_og_image = get_post_meta(get_the_ID(), 'wpuseo_post_image_facebook', 1);
+                if (is_numeric($custom_og_image)) {
+                    $thumb_url = wp_get_attachment_image_src($custom_og_image, $this->thumbnail_size, true);
+                    if (isset($thumb_url[0])) {
+                        $metas['og_image'] = array(
+                            'property' => 'og:image',
+                            'content' => $thumb_url[0]
+                        );
+                    }
+                }
+            }
+
+            // Custom twitter:image
+            if ($this->enable_twitter_metas) {
+                $custom_twitter_image = get_post_meta(get_the_ID(), 'wpuseo_post_image_twitter', 1);
+                if (is_numeric($custom_twitter_image)) {
+                    $thumb_url = wp_get_attachment_image_src($custom_twitter_image, $this->thumbnail_size, true);
+                    if (isset($thumb_url[0])) {
+                        $metas['twitter_image'] = array(
+                            'name' => 'twitter:image',
+                            'content' => $thumb_url[0]
+                        );
+                    }
                 }
             }
 
@@ -622,7 +713,7 @@ class WPUSEO {
             }
 
             $wpu_seo_user_twitter_account = get_user_meta($post->post_author, 'wpu_seo_user_twitter_account', 1);
-            if (!empty($wpu_seo_user_twitter_account) && preg_match('/^@([A-Za-z0-9_]+)$/', $wpu_seo_user_twitter_account) && $enable_twitter_metas) {
+            if (!empty($wpu_seo_user_twitter_account) && preg_match('/^@([A-Za-z0-9_]+)$/', $wpu_seo_user_twitter_account) && $this->enable_twitter_metas) {
                 $metas['twitter_creator'] = array(
                     'name' => 'twitter:creator',
                     'content' => $wpu_seo_user_twitter_account
@@ -671,7 +762,7 @@ class WPUSEO {
             }
 
             // Twitter
-            if ($enable_twitter_metas) {
+            if ($this->enable_twitter_metas) {
                 $metas['twitter_title'] = array(
                     'name' => 'twitter:title',
                     'content' => get_bloginfo('name')
@@ -683,7 +774,7 @@ class WPUSEO {
             }
 
             // Facebook
-            if ($enable_facebook_metas) {
+            if ($this->enable_facebook_metas) {
                 $metas['og_title'] = array(
                     'property' => 'og:title',
                     'content' => get_bloginfo('name')
@@ -699,7 +790,7 @@ class WPUSEO {
             if ($opt_wputh_fb_image != false && isset($wputh_fb_image[0])) {
                 $og_image = $wputh_fb_image[0];
             }
-            if ($enable_facebook_metas) {
+            if ($this->enable_facebook_metas) {
                 $metas['og_image'] = array(
                     'property' => 'og:image',
                     'content' => $og_image
@@ -719,7 +810,7 @@ class WPUSEO {
 
         // FB Admins
         $wputh_fb_admins = trim(get_option('wputh_fb_admins'));
-        if ($enable_facebook_metas && !empty($wputh_fb_admins)) {
+        if ($this->enable_facebook_metas && !empty($wputh_fb_admins)) {
             $wputh_fb_admins_multiple = explode(',', $wputh_fb_admins);
             foreach ($wputh_fb_admins_multiple as $k => $admin) {
                 $metas['fb_admins_' . $k] = array(
@@ -731,7 +822,7 @@ class WPUSEO {
 
         // FB App
         $wputh_fb_app = trim(get_option('wputh_fb_app'));
-        if ($enable_facebook_metas && !empty($wputh_fb_app)) {
+        if ($this->enable_facebook_metas && !empty($wputh_fb_app)) {
             $metas['fb_app'] = array(
                 'property' => 'fb:app',
                 'content' => $wputh_fb_app
