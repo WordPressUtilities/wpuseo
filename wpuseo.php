@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.11
+Version: 1.12
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -86,6 +86,11 @@ class WPUSEO {
 
         $this->enable_twitter_metas = (get_option('wpu_seo_user_twitter_enable') != '0');
         $this->enable_facebook_metas = (get_option('wpu_seo_user_facebook_enable') != '0');
+        $this->boxes_pt = apply_filters('wpuseo_post_types', array(
+            'product',
+            'post',
+            'page'
+        ));
     }
 
     public function load_translation() {
@@ -135,27 +140,18 @@ class WPUSEO {
     public function post_meta_boxes($boxes) {
         $boxes['wpuseo_box'] = array(
             'name' => $this->__('SEO Details'),
-            'post_type' => array(
-                'post',
-                'page'
-            )
+            'post_type' => $this->boxes_pt
         );
         if ($this->enable_twitter_metas) {
             $boxes['wpuseo_box_twitter'] = array(
                 'name' => $this->__('SEO Details - Twitter'),
-                'post_type' => array(
-                    'post',
-                    'page'
-                )
+                'post_type' => $this->boxes_pt
             );
         }
         if ($this->enable_facebook_metas) {
             $boxes['wpuseo_box_facebook'] = array(
                 'name' => $this->__('SEO Details - Facebook'),
-                'post_type' => array(
-                    'post',
-                    'page'
-                )
+                'post_type' => $this->boxes_pt
             );
         }
         return $boxes;
@@ -204,6 +200,12 @@ class WPUSEO {
         $fields['wpuseo_post_title_facebook'] = array(
             'box' => 'wpuseo_box_facebook',
             'name' => $this->__('Page title'),
+            'lang' => true
+        );
+        $fields['wpuseo_post_description_facebook'] = array(
+            'box' => 'wpuseo_box_facebook',
+            'name' => $this->__('Page description'),
+            'type' => 'textarea',
             'lang' => true
         );
         return $fields;
@@ -581,6 +583,8 @@ class WPUSEO {
 
         if (is_single() || is_page()) {
 
+            $post_type = get_post_type($post);
+
             $description = $post->post_excerpt;
             if (empty($post->post_excerpt)) {
                 $description = $post->post_content;
@@ -614,7 +618,7 @@ class WPUSEO {
                     'content' => $twitter_title
                 );
                 /* Description */
-                $twitter_description = trim(get_post_meta(get_the_ID(), 'wpuseo_post_description_twitter', 1));
+                $twitter_description = $this->prepare_text(get_post_meta(get_the_ID(), 'wpuseo_post_description_twitter', 1));
                 if (empty($twitter_description)) {
                     $twitter_description = $description;
                 }
@@ -626,8 +630,14 @@ class WPUSEO {
 
             if ($this->enable_facebook_metas) {
 
+                $og_type = 'article';
+                if ($post_type == 'product') {
+                    $og_type = 'product';
+                }
+
                 /* Facebook : Open Graph */
-                $metas['og_type']['content'] = 'article';
+                $metas['og_type']['content'] = $og_type;
+
             }
 
             // Description
@@ -646,13 +656,22 @@ class WPUSEO {
             }
 
             if ($this->enable_facebook_metas) {
-                $facebook_title = trim(get_post_meta(get_the_ID(), 'wpuseo_post_title_facebook', 1));
+                $facebook_title = $this->prepare_text(get_post_meta(get_the_ID(), 'wpuseo_post_title_facebook', 1));
                 if (empty($facebook_title)) {
                     $facebook_title = get_the_title();
                 }
                 $metas['og_title'] = array(
                     'property' => 'og:title',
                     'content' => $facebook_title
+                );
+                /* Description */
+                $facebook_description = trim(get_post_meta(get_the_ID(), 'wpuseo_post_description_facebook', 1));
+                if (empty($facebook_description)) {
+                    $facebook_description = $description;
+                }
+                $metas['og_description'] = array(
+                    'name' => 'og:description',
+                    'content' => $facebook_description
                 );
                 $metas['og_url'] = array(
                     'property' => 'og:url',
@@ -671,6 +690,21 @@ class WPUSEO {
                     $metas['twitter_image'] = array(
                         'name' => 'twitter:image',
                         'content' => $thumb_url[0]
+                    );
+                }
+            }
+
+            // Product details
+            if ($this->enable_facebook_metas && $post_type == 'product' && function_exists('wc_get_product')) {
+                $metas['product_price_currency'] = array(
+                    'property' => 'product:price:currency',
+                    'content' => get_woocommerce_currency()
+                );
+                $_product = wc_get_product($post->ID);
+                if (is_object($_product)) {
+                    $metas['product_price_amount'] = array(
+                        'property' => 'product:price:amount',
+                        'content' => $_product->get_price()
                     );
                 }
             }
@@ -970,7 +1004,7 @@ class WPUSEO {
         $final_text = '';
         foreach ($words as $word) {
             if ((strlen($final_text) + strlen(' ' . $word)) > $max_length) {
-                return $final_text . ' ...';
+                return trim($final_text) . ' ...';
             } else {
                 $final_text .= ' ' . $word;
             }
