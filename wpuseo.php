@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.12
+Version: 1.13
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -253,6 +253,10 @@ class WPUSEO {
             'name' => $this->__('Homepage'),
             'tab' => 'wpu_seo'
         );
+        $boxes['wpu_seo_bing'] = array(
+            'name' => 'Bing',
+            'tab' => 'wpu_seo'
+        );
         $boxes['wpu_seo_google'] = array(
             'name' => 'Google',
             'tab' => 'wpu_seo'
@@ -305,6 +309,12 @@ class WPUSEO {
             $options['wpu_home_page_title']['lang'] = 1;
         }
 
+        // Bing
+        $options['wpu_bing_site_verification'] = array(
+            'label' => $this->__('Site verification ID'),
+            'box' => 'wpu_seo_bing',
+            'help' => $this->__('Use the content attribute of the validation meta tag') . ' (&lt;meta name="msvalidate.01" content="THECODE" /&gt;)'
+        );
         // Google
         $options['wpu_google_site_verification'] = array(
             'label' => $this->__('Site verification ID'),
@@ -831,6 +841,15 @@ class WPUSEO {
                 );
             }
 
+        }
+
+        // Bing Site
+        $wpu_bing_site_verification = trim(get_option('wpu_bing_site_verification'));
+        if (!empty($wpu_bing_site_verification)) {
+            $metas['bing_site_verification'] = array(
+                'name' => 'msvalidate.01',
+                'content' => $wpu_bing_site_verification
+            );
         }
 
         // Google Site
