@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.13
+Version: 1.14
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -176,7 +176,7 @@ class WPUSEO {
         $fields['wpuseo_post_image_twitter'] = array(
             'box' => 'wpuseo_box_twitter',
             'name' => $this->__('Image'),
-            'type' => 'attachment',
+            'type' => 'image',
             'lang' => true
         );
         $fields['wpuseo_post_title_twitter'] = array(
@@ -194,7 +194,7 @@ class WPUSEO {
         $fields['wpuseo_post_image_facebook'] = array(
             'box' => 'wpuseo_box_facebook',
             'name' => $this->__('Image'),
-            'type' => 'attachment',
+            'type' => 'image',
             'lang' => true
         );
         $fields['wpuseo_post_title_facebook'] = array(
@@ -208,6 +208,17 @@ class WPUSEO {
             'type' => 'textarea',
             'lang' => true
         );
+
+        global $WPUPostMetas;
+        /* Old version of wpupostmetas : use type attachment */
+        if (is_object($WPUPostMetas) && isset($WPUPostMetas->version)) {
+            $wpupostmetas_version = floatval($WPUPostMetas->version);
+            if (is_float($wpupostmetas_version) && $wpupostmetas_version < 0.26) {
+                $fields['wpuseo_post_image_twitter']['type'] = 'attachment';
+                $fields['wpuseo_post_image_facebook']['type'] = 'attachment';
+            }
+        }
+
         return $fields;
     }
 
