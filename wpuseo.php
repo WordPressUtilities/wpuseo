@@ -60,6 +60,9 @@ class WPUSEO {
         add_filter('wpu_options_fields', array(&$this,
             'add_fields'
         ), 99, 1);
+        add_filter('admin_head', array(&$this,
+            'remove_boxes'
+        ), 99);
 
         // User boxes
         add_filter('wpu_usermetas_sections', array(&$this,
@@ -194,7 +197,7 @@ class WPUSEO {
         $fields['wpuseo_post_image_facebook'] = array(
             'box' => 'wpuseo_box_facebook',
             'name' => $this->__('Image'),
-            'type' => 'image',
+            'type' => 'attachment',
             'lang' => true
         );
         $fields['wpuseo_post_title_facebook'] = array(
@@ -378,6 +381,23 @@ class WPUSEO {
         );
 
         return $options;
+    }
+
+    public function remove_boxes() {
+        $screen = get_current_screen();
+        /* Only on post page */
+        if (!isset($_GET['post']) || !is_object($screen) || $screen->base != 'post' || $screen->id != 'page') {
+            return;
+        }
+        $show_on_front = get_option('show_on_front');
+        if ($show_on_front != 'page') {
+            return;
+        }
+        $page_on_front = get_option('page_on_front');
+        if ($page_on_front != $_GET['post']) {
+            return;
+        }
+        echo '<style>#wputh_box_wpuseo_box, #wputh_box_wpuseo_box_twitter, #wputh_box_wpuseo_box_facebook{display:none;}</style>';
     }
 
     /* ----------------------------------------------------------
