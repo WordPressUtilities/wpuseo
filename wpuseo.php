@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.14
+Version: 1.15
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -622,7 +622,7 @@ class WPUSEO {
             }
         }
 
-        if (is_single() || is_page()) {
+        if (is_single() || is_page() || is_singular()) {
 
             $post_type = get_post_type($post);
 
@@ -721,6 +721,9 @@ class WPUSEO {
             }
             $thumb_url = wp_get_attachment_image_src(get_post_thumbnail_id(), $this->thumbnail_size, true);
             if (isset($thumb_url[0])) {
+                $metas['image'] = array(
+                    'content' => $thumb_url[0]
+                );
                 if ($this->enable_facebook_metas) {
                     $metas['og_image'] = array(
                         'property' => 'og:image',
@@ -915,6 +918,52 @@ class WPUSEO {
 
         echo $this->special_convert_array_html($metas);
         echo $this->special_convert_array_html($links, 'link');
+
+        if ((is_single() || is_singular()) && !is_singular('product')) {
+            echo $this->set_metas_ld_json($metas);
+        }
+
+    }
+
+    public function set_metas_ld_json($metas) {
+        $queried_object = get_queried_object();
+        $metas_json = array(
+            "@context" => "http://schema.org",
+            "@type" => "Article",
+            "author" => get_the_author_meta('user_nicename', $queried_object->post_author),
+            "datePublished" => get_the_time('Y-m-d', $queried_object->ID),
+            "dateModified" => get_the_modified_time('Y-m-d', $queried_object->ID),
+            "mainEntityOfPage" => get_permalink(),
+            "url" => get_permalink(),
+            "headline" => get_the_title()
+        );
+
+        $metas_json['publisher'] = array(
+            "@type" => "Organization",
+            "name" => get_bloginfo('name'),
+            "url" => site_url(),
+        );
+
+        if (isset($metas['image'])) {
+            $metas_json['image'] = array(
+                "@type" => "ImageObject",
+                "url" => $metas['image']['content']
+            );
+        }
+
+        if (!empty($metas['description'])) {
+            $metas_json['description'] = $metas['description']['content'];
+        }
+
+        $metas_keywords = '';
+        if (isset($metas_json['keywords'])) {
+            $metas_keywords = $metas['keywords']['content'];
+        }
+        $metas_json['keywords'] = apply_filters('wpuseo_metasldjson_single', $metas_keywords);
+
+        $json = str_replace('\/', '/', json_encode($metas_json));
+
+        return '<script type="application/ld+json">' . $json . '</script>';
     }
 
     /* ----------------------------------------------------------
