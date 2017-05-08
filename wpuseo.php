@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.15
+Version: 1.16
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -570,6 +570,7 @@ class WPUSEO {
     public function add_metas() {
         global $post;
         $metas = array();
+        $metas_json = array();
         $links = array();
 
         if ($this->enable_facebook_metas) {
@@ -868,12 +869,20 @@ class WPUSEO {
             if ($opt_wputh_fb_image != false && isset($wputh_fb_image[0])) {
                 $og_image = $wputh_fb_image[0];
             }
+            $metas['image'] = array(
+                'content' => $og_image
+            );
             if ($this->enable_facebook_metas) {
                 $metas['og_image'] = array(
                     'property' => 'og:image',
                     'content' => $og_image
                 );
             }
+
+            // Metas JSON
+            $metas_json["@type"] = "WebSite";
+            $metas_json["url"] = site_url();
+            $metas_json["name"] = get_bloginfo('name');
 
         }
 
@@ -916,33 +925,42 @@ class WPUSEO {
             );
         }
 
+        // Metas JSON : Single
+        if ((is_single() || is_singular()) && !is_singular('product') && !is_front_page()) {
+            $queried_object = get_queried_object();
+            $metas_json = array(
+                "@type" => "Article",
+                "author" => get_the_author_meta('user_nicename', $queried_object->post_author),
+                "datePublished" => get_the_time('Y-m-d', $queried_object->ID),
+                "dateModified" => get_the_modified_time('Y-m-d', $queried_object->ID),
+                "mainEntityOfPage" => get_permalink(),
+                "url" => get_permalink(),
+                "headline" => get_the_title()
+            );
+
+            $metas_keywords = '';
+            if (isset($metas_json['keywords'])) {
+                $metas_keywords = $metas['keywords']['content'];
+            }
+            $metas_json['keywords'] = apply_filters('wpuseo_metasldjson_single', $metas_keywords);
+        }
+
         echo $this->special_convert_array_html($metas);
         echo $this->special_convert_array_html($links, 'link');
 
-        if ((is_single() || is_singular()) && !is_singular('product')) {
-            echo $this->set_metas_ld_json($metas);
+        if (!empty($metas_json)) {
+            echo $this->set_metas_ld_json($metas, $metas_json);
         }
 
     }
 
-    public function set_metas_ld_json($metas) {
-        $queried_object = get_queried_object();
-        $metas_json = array(
-            "@context" => "http://schema.org",
-            "@type" => "Article",
-            "author" => get_the_author_meta('user_nicename', $queried_object->post_author),
-            "datePublished" => get_the_time('Y-m-d', $queried_object->ID),
-            "dateModified" => get_the_modified_time('Y-m-d', $queried_object->ID),
-            "mainEntityOfPage" => get_permalink(),
-            "url" => get_permalink(),
-            "headline" => get_the_title()
-        );
+    public function set_metas_ld_json($metas, $metas_json) {
 
-        $metas_json['publisher'] = array(
-            "@type" => "Organization",
-            "name" => get_bloginfo('name'),
-            "url" => site_url(),
-        );
+        $metas_json = array_merge(array("@context" => "http://schema.org"), $metas_json);
+
+        if (!empty($metas['description'])) {
+            $metas_json['description'] = $metas['description']['content'];
+        }
 
         if (isset($metas['image'])) {
             $metas_json['image'] = array(
@@ -951,15 +969,11 @@ class WPUSEO {
             );
         }
 
-        if (!empty($metas['description'])) {
-            $metas_json['description'] = $metas['description']['content'];
-        }
-
-        $metas_keywords = '';
-        if (isset($metas_json['keywords'])) {
-            $metas_keywords = $metas['keywords']['content'];
-        }
-        $metas_json['keywords'] = apply_filters('wpuseo_metasldjson_single', $metas_keywords);
+        $metas_json['publisher'] = array(
+            "@type" => "Organization",
+            "name" => get_bloginfo('name'),
+            "url" => site_url()
+        );
 
         $json = str_replace('\/', '/', json_encode($metas_json));
 
