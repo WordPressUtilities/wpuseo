@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.17
+Version: 1.17.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -316,12 +316,6 @@ class WPUSEO {
             'box' => 'wpu_seo_home'
         );
 
-        if ($is_multi) {
-            $options['wpu_home_page_title']['lang'] = 1;
-            $options['wpu_home_meta_description']['lang'] = 1;
-            $options['wpu_home_meta_keywords']['lang'] = 1;
-        }
-
         // Bing
         $options['wpu_bing_site_verification'] = array(
             'label' => $this->__('Site verification ID'),
@@ -397,6 +391,17 @@ class WPUSEO {
             'type' => 'textarea',
             'box' => 'wpu_seo_twitter'
         );
+
+        if ($is_multi) {
+            $options['wpu_home_page_title']['lang'] = 1;
+            $options['wpu_home_meta_description']['lang'] = 1;
+            $options['wpu_home_meta_keywords']['lang'] = 1;
+            $options['wpu_homefb_page_title']['lang'] = 1;
+            $options['wpu_homefb_meta_description']['lang'] = 1;
+            $options['wpu_seo_user_twitter_site_username']['lang'] = 1;
+            $options['wpu_hometwitter_page_title']['lang'] = 1;
+            $options['wpu_hometwitter_meta_description']['lang'] = 1;
+        }
 
         return $options;
     }
@@ -576,7 +581,7 @@ class WPUSEO {
 
     public function add_metas() {
         global $post;
-        $metas = array();
+        $metas = apply_filters('wpuseo_metas_before_settings', $metas);
         $metas_json = array();
         $links = array();
 
@@ -610,7 +615,7 @@ class WPUSEO {
             'content' => $og_image
         );
 
-        $wpu_seo_user_twitter_site_username = trim(get_option('wpu_seo_user_twitter_site_username'));
+        $wpu_seo_user_twitter_site_username = trim($this->get_option_custom('wpu_seo_user_twitter_site_username'));
         if (!empty($wpu_seo_user_twitter_site_username) && $this->testTwitterUsername($wpu_seo_user_twitter_site_username) && $this->enable_twitter_metas) {
             $metas['twitter_site'] = array(
                 'name' => 'twitter:site',
@@ -967,6 +972,8 @@ class WPUSEO {
             }
             $metas_json['keywords'] = apply_filters('wpuseo_metasldjson_single', $metas_keywords);
         }
+
+        $metas = apply_filters('wpuseo_metas_after_settings', $metas);
 
         echo $this->special_convert_array_html($metas);
         echo $this->special_convert_array_html($links, 'link');
