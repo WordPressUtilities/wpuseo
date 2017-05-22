@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.17.1
+Version: 1.18
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -382,6 +382,11 @@ class WPUSEO {
             'label' => $this->__('Twitter ads ID'),
             'box' => 'wpu_seo_twitter'
         );
+        $options['wputh_twitter_image'] = array(
+            'label' => $this->__('Twitter:Image'),
+            'type' => 'media',
+            'box' => 'wpu_seo_twitter'
+        );
         $options['wpu_hometwitter_page_title'] = array(
             'label' => $this->__('Title Home'),
             'box' => 'wpu_seo_twitter'
@@ -499,7 +504,7 @@ class WPUSEO {
                 $wpu_title = get_bloginfo('name') . $spaced_sep . $wpu_title;
             }
 
-            return $wpu_title;
+            return apply_filters('wpuseo_title_after_settings', $wpu_title);
         }
 
         $new_title = $this->get_displayed_title();
@@ -520,7 +525,9 @@ class WPUSEO {
         }
 
         // Return new title with site name at the end
-        return $new_title . $spaced_sep . get_bloginfo('name');
+        $wpu_title = $new_title . $spaced_sep . get_bloginfo('name');
+
+        return apply_filters('wpuseo_title_after_settings', $wpu_title);
     }
 
     public function get_displayed_title($prefix = true) {
@@ -581,7 +588,7 @@ class WPUSEO {
 
     public function add_metas() {
         global $post;
-        $metas = apply_filters('wpuseo_metas_before_settings', $metas);
+        $metas = apply_filters('wpuseo_metas_before_settings', array());
         $metas_json = array();
         $links = array();
 
@@ -597,8 +604,19 @@ class WPUSEO {
             );
         }
 
+        $og_image = false;
+        $themes = wp_get_themes();
+        foreach ($themes as $theme) {
+            $screenshot = $theme->get_screenshot();
+            if ($screenshot) {
+                $og_image = $screenshot;
+            }
+        }
+
         // Default image
-        $og_image = get_stylesheet_directory_uri() . '/screenshot.png';
+        $og_image = apply_filters('wpuseo_default_image', $og_image);
+
+        // Default Facebook og:image
         if ($this->enable_facebook_metas) {
             $opt_wputh_fb_image = get_option('wputh_fb_image');
             $wputh_fb_image = wp_get_attachment_image_src($opt_wputh_fb_image, $this->thumbnail_size, true);
@@ -607,6 +625,19 @@ class WPUSEO {
             }
             $metas['og_image'] = array(
                 'property' => 'og:image',
+                'content' => $og_image
+            );
+        }
+
+        // Default Twitter twitter:image
+        if ($this->enable_twitter_metas) {
+            $opt_wputh_twitter_image = get_option('wputh_twitter_image');
+            $wputh_twitter_image = wp_get_attachment_image_src($opt_wputh_twitter_image, $this->thumbnail_size, true);
+            if ($opt_wputh_twitter_image != false && isset($wputh_twitter_image[0])) {
+                $og_image = $wputh_twitter_image[0];
+            }
+            $metas['twitter_image'] = array(
+                'name' => 'twitter:image',
                 'content' => $og_image
             );
         }
@@ -653,7 +684,7 @@ class WPUSEO {
             }
         }
 
-        if (is_single() || is_page() || is_singular()) {
+        if (!is_home() && !is_front_page() && (is_single() || is_page() || is_singular())) {
 
             $post_type = get_post_type($post);
 
@@ -954,10 +985,10 @@ class WPUSEO {
         }
 
         // Metas JSON : Single
-        if ((is_single() || is_singular()) && !is_singular('product') && !is_front_page()) {
+        if ((is_single() || is_singular()) && !is_singular('product') && !is_front_page() && !is_home()) {
             $queried_object = get_queried_object();
             $metas_json = array(
-                "@type" => "Article",
+                "@type" => "NewsArticle",
                 "author" => get_the_author_meta('user_nicename', $queried_object->post_author),
                 "datePublished" => get_the_time('Y-m-d', $queried_object->ID),
                 "dateModified" => get_the_modified_time('Y-m-d', $queried_object->ID),
