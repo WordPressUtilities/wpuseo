@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.19
+Version: 1.19.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -93,6 +93,10 @@ class WPUSEO {
             'product',
             'post',
             'page'
+        ));
+        $this->twitter_cards = apply_filters('wpuseo_twitter_cards', array(
+            'summary' => 'summary',
+            'summary_large_image' => 'summary_large_image'
         ));
     }
 
@@ -434,6 +438,12 @@ class WPUSEO {
             'label' => $this->__('Twitter ads ID'),
             'box' => 'wpu_seo_twitter'
         );
+        $options['wputh_twitter_card'] = array(
+            'label' => $this->__('Twitter:Card format'),
+            'type' => 'select',
+            'datas' => $this->twitter_cards,
+            'box' => 'wpu_seo_twitter'
+        );
         $options['wputh_twitter_image'] = array(
             'label' => $this->__('Twitter:Image'),
             'type' => 'media',
@@ -735,10 +745,15 @@ class WPUSEO {
 
             if ($this->enable_twitter_metas) {
 
+                $twitter_card_format = get_option('wputh_twitter_card');
+                if (!$twitter_card_format) {
+                    $twitter_card_format = 'summary';
+                }
+
                 /* Twitter : Summary card */
                 $metas['twitter_card'] = array(
                     'name' => 'twitter:card',
-                    'content' => 'summary'
+                    'content' => $twitter_card_format
                 );
                 /* Title */
                 $twitter_title = trim($this->get_taxo_meta('title_twitter'));
@@ -821,12 +836,6 @@ class WPUSEO {
             $description = $this->prepare_text($description);
 
             if ($this->enable_twitter_metas) {
-
-                /* Twitter : Summary card */
-                $metas['twitter_card'] = array(
-                    'name' => 'twitter:card',
-                    'content' => 'summary'
-                );
                 /* Title */
                 $twitter_title = trim($this->get_post_meta_custom(get_the_ID(), 'wpuseo_post_title_twitter', 1));
                 if (empty($twitter_title)) {
