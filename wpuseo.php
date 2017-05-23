@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.18
+Version: 1.19
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -233,6 +233,11 @@ class WPUSEO {
             'category',
             'post_tag'
         ));
+        $fields['wpuseo_title'] = array(
+            'label' => $this->__('SEO Details'),
+            'type' => 'title',
+            'taxonomies' => $taxonomies
+        );
         $fields['wpuseo_taxo_title'] = array(
             'label' => $this->__('Page title'),
             'taxonomies' => $taxonomies,
@@ -244,6 +249,53 @@ class WPUSEO {
             'type' => 'textarea',
             'lang' => 1
         );
+        if ($this->enable_twitter_metas) {
+            $fields['wpuseo_title_twitter'] = array(
+                'label' => $this->__('SEO Details - Twitter'),
+                'type' => 'title',
+                'taxonomies' => $taxonomies
+            );
+            $fields['wpuseo_taxo_title_twitter'] = array(
+                'label' => $this->__('Twitter:title'),
+                'taxonomies' => $taxonomies,
+                'lang' => 1
+            );
+            $fields['wpuseo_taxo_description_twitter'] = array(
+                'label' => $this->__('Twitter:description'),
+                'type' => 'textarea',
+                'taxonomies' => $taxonomies,
+                'lang' => 1
+            );
+            $fields['wpuseo_taxo_image_twitter'] = array(
+                'label' => $this->__('Twitter:Image'),
+                'type' => 'attachment',
+                'taxonomies' => $taxonomies
+            );
+
+        }
+        if ($this->enable_facebook_metas) {
+            $fields['wpuseo_title_facebook'] = array(
+                'label' => $this->__('SEO Details - Facebook'),
+                'type' => 'title',
+                'taxonomies' => $taxonomies
+            );
+            $fields['wpuseo_taxo_title_facebook'] = array(
+                'label' => $this->__('OG:Title'),
+                'taxonomies' => $taxonomies,
+                'lang' => 1
+            );
+            $fields['wpuseo_taxo_description_facebook'] = array(
+                'label' => $this->__('OG:Description'),
+                'type' => 'textarea',
+                'taxonomies' => $taxonomies,
+                'lang' => 1
+            );
+            $fields['wpuseo_taxo_image_facebook'] = array(
+                'label' => $this->__('Og:Image'),
+                'type' => 'attachment',
+                'taxonomies' => $taxonomies
+            );
+        }
         return $fields;
     }
 
@@ -675,13 +727,80 @@ class WPUSEO {
                 $description = $taxo_meta_description;
             }
             if (!empty($description)) {
-
-                // Description
                 $metas['description'] = array(
                     'name' => 'description',
                     'content' => $this->prepare_text($description)
                 );
             }
+
+            if ($this->enable_twitter_metas) {
+
+                /* Twitter : Summary card */
+                $metas['twitter_card'] = array(
+                    'name' => 'twitter:card',
+                    'content' => 'summary'
+                );
+                /* Title */
+                $twitter_title = trim($this->get_taxo_meta('title_twitter'));
+                if (empty($twitter_title)) {
+                    $twitter_title = $queried_object->name;
+                }
+                $metas['twitter_title'] = array(
+                    'name' => 'twitter:title',
+                    'content' => $twitter_title
+                );
+                /* Description */
+                $twitter_description = $this->prepare_text($this->get_taxo_meta('description_twitter'));
+                if (empty($twitter_description)) {
+                    $twitter_description = $description;
+                }
+                $metas['twitter_description'] = array(
+                    'name' => 'twitter:description',
+                    'content' => $twitter_description
+                );
+                $custom_twitter_image = $this->get_taxo_meta('image_twitter');
+                if (is_numeric($custom_twitter_image)) {
+                    $thumb_url = wp_get_attachment_image_src($custom_twitter_image, $this->thumbnail_size, true);
+                    if (isset($thumb_url[0])) {
+                        $metas['twitter_image'] = array(
+                            'name' => 'twitter:image',
+                            'content' => $thumb_url[0]
+                        );
+                    }
+                }
+            }
+
+            if ($this->enable_facebook_metas) {
+                $facebook_title = $this->prepare_text($this->get_taxo_meta('title_facebook'));
+                if (empty($facebook_title)) {
+                    $facebook_title = $queried_object->name;
+                }
+                $metas['og_title'] = array(
+                    'property' => 'og:title',
+                    'content' => $facebook_title
+                );
+                /* Description */
+                $facebook_description = trim($this->get_taxo_meta('description_facebook'));
+                if (empty($facebook_description)) {
+                    $facebook_description = $description;
+                }
+                $metas['og_description'] = array(
+                    'name' => 'og:description',
+                    'content' => $facebook_description
+                );
+
+                $custom_og_image = $this->get_taxo_meta('image_facebook');
+                if (is_numeric($custom_og_image)) {
+                    $thumb_url = wp_get_attachment_image_src($custom_og_image, $this->thumbnail_size, true);
+                    if (isset($thumb_url[0])) {
+                        $metas['og_image'] = array(
+                            'property' => 'og:image',
+                            'content' => $thumb_url[0]
+                        );
+                    }
+                }
+            }
+
         }
 
         if (!is_home() && !is_front_page() && (is_single() || is_page() || is_singular())) {
