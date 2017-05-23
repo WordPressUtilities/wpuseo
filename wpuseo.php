@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.19.1
+Version: 1.19.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -708,6 +708,19 @@ class WPUSEO {
             'content' => $og_image
         );
 
+        if ($this->enable_twitter_metas) {
+            $twitter_card_format = get_option('wputh_twitter_card');
+            if (!$twitter_card_format) {
+                $twitter_card_format = 'summary';
+            }
+
+            /* Twitter : Summary card */
+            $metas['twitter_card'] = array(
+                'name' => 'twitter:card',
+                'content' => $twitter_card_format
+            );
+        }
+
         $wpu_seo_user_twitter_site_username = trim($this->get_option_custom('wpu_seo_user_twitter_site_username'));
         if (!empty($wpu_seo_user_twitter_site_username) && $this->testTwitterUsername($wpu_seo_user_twitter_site_username) && $this->enable_twitter_metas) {
             $metas['twitter_site'] = array(
@@ -745,16 +758,6 @@ class WPUSEO {
 
             if ($this->enable_twitter_metas) {
 
-                $twitter_card_format = get_option('wputh_twitter_card');
-                if (!$twitter_card_format) {
-                    $twitter_card_format = 'summary';
-                }
-
-                /* Twitter : Summary card */
-                $metas['twitter_card'] = array(
-                    'name' => 'twitter:card',
-                    'content' => $twitter_card_format
-                );
                 /* Title */
                 $twitter_title = trim($this->get_taxo_meta('title_twitter'));
                 if (empty($twitter_title)) {
