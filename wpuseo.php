@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.19.2
+Version: 1.19.3
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -749,12 +749,14 @@ class WPUSEO {
             if (!empty($taxo_meta_description)) {
                 $description = $taxo_meta_description;
             }
-            if (!empty($description)) {
-                $metas['description'] = array(
-                    'name' => 'description',
-                    'content' => $this->prepare_text($description)
-                );
+            if (empty($description)) {
+                $description = $queried_object->name;
             }
+
+            $metas['description'] = array(
+                'name' => 'description',
+                'content' => $this->prepare_text($description)
+            );
 
             if ($this->enable_twitter_metas) {
 
@@ -909,7 +911,8 @@ class WPUSEO {
                     'content' => get_permalink()
                 );
             }
-            $thumb_url = wp_get_attachment_image_src(get_post_thumbnail_id(), $this->thumbnail_size, true);
+            $post_thumbnail_id = apply_filters('wpuseo_post_image_main', get_post_thumbnail_id(), $post);
+            $thumb_url = wp_get_attachment_image_src($post_thumbnail_id, $this->thumbnail_size, true);
             if (isset($thumb_url[0])) {
                 $metas['image'] = array(
                     'hidden' => 1,
