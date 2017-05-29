@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.20
+Version: 1.20.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -827,8 +827,8 @@ class WPUSEO {
 
             $post_type = get_post_type($post);
 
-            $description = $post->post_excerpt;
-            if (empty($post->post_excerpt)) {
+            $description = apply_filters('wpuseo_post_description_main', $post->post_excerpt);
+            if (empty($description)) {
                 $description = $post->post_content;
             }
 
