@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.20.1
+Version: 1.20.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -744,13 +744,16 @@ class WPUSEO {
         if (is_category() || is_tax() || is_tag()) {
             $queried_object = get_queried_object();
             $description = $queried_object->description;
-
+            $taxo_meta_title = $this->get_taxo_meta('title');
+            if(empty($taxo_meta_title)){
+                $taxo_meta_title = $queried_object->name;
+            }
             $taxo_meta_description = $this->get_taxo_meta('description');
             if (!empty($taxo_meta_description)) {
                 $description = $taxo_meta_description;
             }
             if (empty($description)) {
-                $description = $queried_object->name;
+                $description = $taxo_meta_title;
             }
 
             $metas['description'] = array(
@@ -763,7 +766,7 @@ class WPUSEO {
                 /* Title */
                 $twitter_title = trim($this->get_taxo_meta('title_twitter'));
                 if (empty($twitter_title)) {
-                    $twitter_title = $queried_object->name;
+                    $twitter_title = $taxo_meta_title;
                 }
                 $metas['twitter_title'] = array(
                     'name' => 'twitter:title',
@@ -793,7 +796,7 @@ class WPUSEO {
             if ($this->enable_facebook_metas) {
                 $facebook_title = $this->prepare_text($this->get_taxo_meta('title_facebook'));
                 if (empty($facebook_title)) {
-                    $facebook_title = $queried_object->name;
+                    $facebook_title = $taxo_meta_title;
                 }
                 $metas['og_title'] = array(
                     'property' => 'og:title',
@@ -805,7 +808,7 @@ class WPUSEO {
                     $facebook_description = $description;
                 }
                 $metas['og_description'] = array(
-                    'name' => 'og:description',
+                    'property' => 'og:description',
                     'content' => $facebook_description
                 );
 
@@ -903,7 +906,7 @@ class WPUSEO {
                     $facebook_description = $description;
                 }
                 $metas['og_description'] = array(
-                    'name' => 'og:description',
+                    'property' => 'og:description',
                     'content' => $facebook_description
                 );
                 $metas['og_url'] = array(
@@ -1123,7 +1126,7 @@ class WPUSEO {
             $queried_object = get_queried_object();
             $metas_json = array(
                 "@type" => "NewsArticle",
-                "author" => get_the_author_meta('user_nicename', $queried_object->post_author),
+                "author" => get_the_author_meta('display_name', $queried_object->post_author),
                 "datePublished" => get_the_time('Y-m-d', $queried_object->ID),
                 "dateModified" => get_the_modified_time('Y-m-d', $queried_object->ID),
                 "mainEntityOfPage" => get_permalink(),
@@ -1361,9 +1364,10 @@ class WPUSEO {
             }
             $html .= '<' . $tag;
             foreach ($values as $name => $value) {
-                $html .= sprintf(' %s="%s"', $name, esc_attr($value));
+                $_value = esc_attr(trim($value));
+                $html .= sprintf(' %s="%s"', $name, $_value);
             }
-            $html .= ' />';
+            $html .= ' />' . "\n";
         }
         return $html;
     }
