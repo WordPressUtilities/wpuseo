@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.20.2
+Version: 1.20.3
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -745,7 +745,7 @@ class WPUSEO {
             $queried_object = get_queried_object();
             $description = $queried_object->description;
             $taxo_meta_title = $this->get_taxo_meta('title');
-            if(empty($taxo_meta_title)){
+            if (empty($taxo_meta_title)) {
                 $taxo_meta_title = $queried_object->name;
             }
             $taxo_meta_description = $this->get_taxo_meta('description');
@@ -1165,6 +1165,14 @@ class WPUSEO {
                 "@type" => "ImageObject",
                 "url" => $metas['image']['content']
             );
+            $image_id = $this->get_att_from_url($metas['image']['content']);
+            if (is_numeric($image_id)) {
+                $image_obj = wp_get_attachment_image_src($image_id, $this->thumbnail_size);
+                if (is_array($image_obj) && $image_obj[0] == $metas['image']['content']) {
+                    $metas_json['image']['height'] = $image_obj[1];
+                    $metas_json['image']['width'] = $image_obj[2];
+                }
+            }
         }
 
         $metas_json['publisher'] = array(
@@ -1324,6 +1332,16 @@ class WPUSEO {
             $post_meta = trim(wputh_l10n_get_post_meta($post_id, $name, $single));
         }
         return $post_meta;
+    }
+
+    /* Get an attachment from image URL
+    -------------------------- */
+
+    public function get_att_from_url($image_url) {
+        global $wpdb;
+        $image_url = preg_replace('/-([0-9]+)x([0-9]+)\.([a-zA-Z]+)$/', '.$3', $image_url);
+        $attachment = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s'", $image_url));
+        return count($attachment) > 0 ? $attachment[0] : '';
     }
 
     /* Test a twitter username
