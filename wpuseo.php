@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.20.3
+Version: 1.21.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -1338,10 +1338,22 @@ class WPUSEO {
     -------------------------- */
 
     public function get_att_from_url($image_url) {
-        global $wpdb;
-        $image_url = preg_replace('/-([0-9]+)x([0-9]+)\.([a-zA-Z]+)$/', '.$3', $image_url);
-        $attachment = $wpdb->get_col($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s'", $image_url));
-        return count($attachment) > 0 ? $attachment[0] : '';
+        $cache_id = 'wpuseo_att_from_url_' . md5($image_url);
+
+        // GET CACHED VALUE
+        $att_id = wp_cache_get($cache_id);
+        if ($att_id !== false) {
+            return $att_id;
+        }
+
+        // COMPUTE RESULT
+        $att_id = attachment_url_to_postid($image_url);
+
+        // CACHE RESULT
+        wp_cache_set($cache_id, $att_id, '', is_numeric($att_id) ? 3600 : 60);
+
+        return $att_id;
+
     }
 
     /* Test a twitter username
