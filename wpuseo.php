@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.22.0
+Version: 1.23.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -43,6 +43,9 @@ class WPUSEO {
         ), 1, 0);
         add_action('wp_head', array(&$this,
             'display_google_analytics_code'
+        ), 99, 0);
+        add_action('wp_head', array(&$this,
+            'display_facebook_pixel_code'
         ), 99, 0);
 
         // Clean WP Head
@@ -407,6 +410,10 @@ class WPUSEO {
         );
         $options['wputh_fb_app'] = array(
             'label' => $this->__('FB:App ID'),
+            'box' => 'wpu_seo_facebook'
+        );
+        $options['wputh_fb_pixel'] = array(
+            'label' => $this->__('FB:Pixel ID'),
             'box' => 'wpu_seo_facebook'
         );
         $options['wputh_fb_image'] = array(
@@ -1248,6 +1255,32 @@ class WPUSEO {
             echo "else {jQuery(document).on('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready);}";
         }
         echo '</script>';
+    }
+
+    /* ----------------------------------------------------------
+      Facebook Pixel code
+    ---------------------------------------------------------- */
+
+    public function display_facebook_pixel_code() {
+        $fb_pixel = get_option('wputh_fb_pixel');
+        // Invalid ID
+        if (empty($fb_pixel)) {
+            return;
+        }
+
+        echo '<!-- Facebook Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');
+fbq(\'init\', \'' . $fb_pixel . '\'); // Insert your pixel ID here.
+fbq(\'track\', \'PageView\');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=' . $fb_pixel . '&ev=PageView&noscript=1"/></noscript>
+<!-- DO NOT MODIFY -->
+<!-- End Facebook Pixel Code -->';
     }
 
     /* ----------------------------------------------------------
