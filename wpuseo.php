@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.24.0
+Version: 1.25.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -353,6 +353,16 @@ class WPUSEO {
             'label' => $this->__('Title separator'),
             'box' => 'wpu_seo'
         );
+        $options['wpu_title_order'] = array(
+            'label' => $this->__('Site name before page title'),
+            'box' => 'wpu_seo',
+            'type' => 'select'
+        );
+        $options['wpu_meta_keywords_min_len'] = array(
+            'label' => $this->__('Meta keyword min length'),
+            'box' => 'wpu_seo',
+            'type' => 'number'
+        );
 
         // Home
         $options['wpu_home_title_separator_hide_prefix'] = array(
@@ -559,10 +569,12 @@ class WPUSEO {
 
     public function wp_title($title, $sep = '|') {
 
-        $wpu_home_title_separator = trim(get_option('wpu_home_title_separator'));
-        if (!empty($wpu_home_title_separator)) {
-            $sep = htmlentities($wpu_home_title_separator);
+        $custom_sep = trim(get_option('wpu_home_title_separator'));
+        if (!empty($custom_sep)) {
+            $sep = htmlentities($custom_sep);
         }
+
+        $wpu_title_order_before = get_option('wpu_title_order') == '1' ? '1' : '0';
 
         $spaced_sep = ' ' . $sep . ' ';
         $new_title = '';
@@ -599,7 +611,11 @@ class WPUSEO {
         }
 
         // Return new title with site name at the end
-        $wpu_title = $new_title . $spaced_sep . get_bloginfo('name');
+        if ($wpu_title_order_before) {
+            $wpu_title = get_bloginfo('name') . $spaced_sep . $new_title;
+        } else {
+            $wpu_title = $new_title . $spaced_sep . get_bloginfo('name');
+        }
 
         return apply_filters('wpuseo_title_after_settings', $wpu_title);
     }
@@ -1295,12 +1311,17 @@ fbq(\'track\', \'PageView\');
     public function get_post_keywords($id) {
         global $post;
 
+        $wpu_meta_keywords_min_len = get_option('wpu_meta_keywords_min_len');
+        if (!is_numeric($wpu_meta_keywords_min_len)) {
+            $wpu_meta_keywords_min_len = 3;
+        }
+
         // Keywords
         $keywords_raw = array();
 
         $title = explode(' ', strtolower(get_the_title($id)));
         foreach ($title as $word) {
-            if (strlen($word) > 3) {
+            if (strlen($word) >= $wpu_meta_keywords_min_len) {
                 $keywords_raw = $this->check_keywords_value(sanitize_title($word), $word, $keywords_raw);
             }
         }
