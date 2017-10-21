@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU SEO\n"
-"POT-Creation-Date: 2017-08-22 23:03+0100\n"
+"POT-Creation-Date: 2017-10-21 23:07+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Darklg <darklg.blog@gmail.com>\n"
 "Language-Team: \n"
@@ -178,52 +178,52 @@ msgstr "Titre Accueil"
 msgid "Description Home"
 msgstr "Description de la page d’accueil"
 
-#: .././wpuseo.php:625 .././wpuseo.php:670
+#: .././wpuseo.php:624 .././wpuseo.php:669
 msgid "404 Error"
 msgstr "Erreur 404"
 
-#: .././wpuseo.php:627
+#: .././wpuseo.php:626
 #, php-format
 msgid "Search results for \"%s\""
 msgstr "Résultats de recherche pour \"%s\""
 
-#: .././wpuseo.php:630
+#: .././wpuseo.php:629
 msgid "Archive"
 msgstr "Archive"
 
-#: .././wpuseo.php:636
+#: .././wpuseo.php:635
 msgid "Tag:"
 msgstr "Tag :"
 
-#: .././wpuseo.php:639
+#: .././wpuseo.php:638
 msgid "Category:"
 msgstr "Catégorie :"
 
-#: .././wpuseo.php:648
+#: .././wpuseo.php:647
 msgid "Author:"
 msgstr "Auteur :"
 
-#: .././wpuseo.php:651
+#: .././wpuseo.php:650
 msgid "Year:"
 msgstr "Année :"
 
-#: .././wpuseo.php:651
+#: .././wpuseo.php:650
 msgid "Y"
 msgstr "Y"
 
-#: .././wpuseo.php:654
+#: .././wpuseo.php:653
 msgid "Month:"
 msgstr "Mois :"
 
-#: .././wpuseo.php:654
+#: .././wpuseo.php:653
 msgid "F Y"
 msgstr "F Y"
 
-#: .././wpuseo.php:657
+#: .././wpuseo.php:656
 msgid "Day:"
 msgstr "Jour :"
 
-#: .././wpuseo.php:657
+#: .././wpuseo.php:656
 msgid "F j, Y"
 msgstr "j F Y"
 

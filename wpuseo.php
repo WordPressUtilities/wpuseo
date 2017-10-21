@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.25.0
+Version: 1.25.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -575,6 +575,7 @@ class WPUSEO {
         }
 
         $wpu_title_order_before = get_option('wpu_title_order') == '1' ? '1' : '0';
+        $bloginfo_name = apply_filters('wpuseo_bloginfo_name', get_bloginfo('name'));
 
         $spaced_sep = ' ' . $sep . ' ';
         $new_title = '';
@@ -587,7 +588,7 @@ class WPUSEO {
             }
             $hide_prefix = get_option('wpu_home_title_separator_hide_prefix');
             if ($hide_prefix != '1') {
-                $wpu_title = get_bloginfo('name') . $spaced_sep . $wpu_title;
+                $wpu_title = $bloginfo_name . $spaced_sep . $wpu_title;
             }
 
             return apply_filters('wpuseo_title_after_settings', $wpu_title);
@@ -597,12 +598,10 @@ class WPUSEO {
 
         if (is_singular()) {
             $wpuseo_post_title = trim($this->get_post_meta_custom(get_the_ID(), 'wpuseo_post_title', 1));
-
             if (!empty($wpuseo_post_title)) {
                 $new_title = $wpuseo_post_title;
             }
         }
-
         if (is_category() || is_tax() || is_tag()) {
             $taxo_meta_title = $this->get_taxo_meta('title');
             if (!empty($taxo_meta_title)) {
@@ -612,9 +611,9 @@ class WPUSEO {
 
         // Return new title with site name at the end
         if ($wpu_title_order_before) {
-            $wpu_title = get_bloginfo('name') . $spaced_sep . $new_title;
+            $wpu_title = $bloginfo_name . $spaced_sep . $new_title;
         } else {
-            $wpu_title = $new_title . $spaced_sep . get_bloginfo('name');
+            $wpu_title = $new_title . $spaced_sep . $bloginfo_name;
         }
 
         return apply_filters('wpuseo_title_after_settings', $wpu_title);
@@ -669,7 +668,7 @@ class WPUSEO {
         if (is_404()) {
             $displayed_title = $this->__('404 Error');
         }
-        return $displayed_title;
+        return apply_filters('wpuseo_displayed_title', $displayed_title);
     }
 
     /* ----------------------------------------------------------
