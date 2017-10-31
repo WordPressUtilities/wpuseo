@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.25.1
+Version: 1.25.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -694,6 +694,7 @@ class WPUSEO {
         }
 
         $og_image = false;
+        $og_image_id = false;
         $themes = wp_get_themes();
         foreach ($themes as $theme) {
             $screenshot = $theme->get_screenshot();
@@ -711,9 +712,11 @@ class WPUSEO {
             $wputh_fb_image = wp_get_attachment_image_src($opt_wputh_fb_image, $this->thumbnail_size, true);
             if ($opt_wputh_fb_image != false && isset($wputh_fb_image[0])) {
                 $og_image = $wputh_fb_image[0];
+                $og_image_id = $opt_wputh_fb_image;
             }
             $metas['og_image'] = array(
                 'property' => 'og:image',
+                'imgid' => $og_image_id,
                 'content' => $og_image
             );
         }
@@ -727,11 +730,13 @@ class WPUSEO {
             }
             $metas['twitter_image'] = array(
                 'name' => 'twitter:image',
+                'imgid' => $opt_wputh_twitter_image,
                 'content' => $og_image
             );
         }
         $metas['image'] = array(
             'hidden' => 1,
+            'imgid' => $og_image_id,
             'content' => $og_image
         );
 
@@ -814,6 +819,7 @@ class WPUSEO {
                     if (isset($thumb_url[0])) {
                         $metas['twitter_image'] = array(
                             'name' => 'twitter:image',
+                            'imgid' => $custom_twitter_image,
                             'content' => $thumb_url[0]
                         );
                     }
@@ -845,6 +851,7 @@ class WPUSEO {
                     if (isset($thumb_url[0])) {
                         $metas['og_image'] = array(
                             'property' => 'og:image',
+                            'imgid' => $custom_og_image,
                             'content' => $thumb_url[0]
                         );
                     }
@@ -946,17 +953,20 @@ class WPUSEO {
             if (isset($thumb_url[0])) {
                 $metas['image'] = array(
                     'hidden' => 1,
+                    'imgid' => $post_thumbnail_id,
                     'content' => $thumb_url[0]
                 );
                 if ($this->enable_facebook_metas) {
                     $metas['og_image'] = array(
                         'property' => 'og:image',
+                        'imgid' => $post_thumbnail_id,
                         'content' => $thumb_url[0]
                     );
                 }
                 if ($this->enable_twitter_metas) {
                     $metas['twitter_image'] = array(
                         'name' => 'twitter:image',
+                        'imgid' => $post_thumbnail_id,
                         'content' => $thumb_url[0]
                     );
                 }
@@ -985,6 +995,7 @@ class WPUSEO {
                     if (isset($thumb_url[0])) {
                         $metas['og_image'] = array(
                             'property' => 'og:image',
+                            'imgid' => $custom_og_image,
                             'content' => $thumb_url[0]
                         );
                     }
@@ -999,6 +1010,7 @@ class WPUSEO {
                     if (isset($thumb_url[0])) {
                         $metas['twitter_image'] = array(
                             'name' => 'twitter:image',
+                            'imgid' => $custom_twitter_image,
                             'content' => $thumb_url[0]
                         );
                     }
@@ -1192,7 +1204,7 @@ class WPUSEO {
                 "@type" => "ImageObject",
                 "url" => $metas['image']['content']
             );
-            $image_id = $this->get_att_from_url($metas['image']['content']);
+            $image_id = isset($metas['image']['imgid']) && is_numeric($metas['image']['imgid']) ? $metas['image']['imgid'] : $this->get_att_from_url($metas['image']['content']);
             if (is_numeric($image_id)) {
                 $image_obj = wp_get_attachment_image_src($image_id, $this->thumbnail_size);
                 if (is_array($image_obj) && $image_obj[0] == $metas['image']['content']) {
@@ -1214,8 +1226,8 @@ class WPUSEO {
                 $metas_json['publisher']['logo'] = array(
                     "@type" => "ImageObject",
                     "url" => $header->url,
-                    "width" => $header->width,
-                    "height" => $header->height
+                    "width" => is_numeric($header->width) ? $header->width : 0,
+                    "height" => is_numeric($header->height) ? $header->height : 0
                 );
             }
         }
@@ -1453,6 +1465,7 @@ fbq(\'track\', \'PageView\');
      -------------------------- */
 
     public function special_convert_array_html($metas, $tag = 'meta') {
+        $_excluded_attrs = array('imgid');
         $html = '';
         foreach ($metas as $values) {
             if (isset($values['hidden'])) {
@@ -1460,6 +1473,9 @@ fbq(\'track\', \'PageView\');
             }
             $html .= '<' . $tag;
             foreach ($values as $name => $value) {
+                if (in_array($name, $_excluded_attrs)) {
+                    continue;
+                }
                 $_value = esc_attr(trim($value));
                 $html .= sprintf(' %s="%s"', $name, $_value);
             }
