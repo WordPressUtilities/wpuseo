@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.25.2
+Version: 1.26.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -596,8 +596,13 @@ class WPUSEO {
 
         $new_title = $this->get_displayed_title();
 
-        if (is_singular()) {
-            $wpuseo_post_title = trim($this->get_post_meta_custom(get_the_ID(), 'wpuseo_post_title', 1));
+        if (is_singular() || $this->is_shop()) {
+            $post_id = get_the_ID();
+            if ($this->is_shop()) {
+                $post_id = get_option('woocommerce_shop_page_id');
+            }
+
+            $wpuseo_post_title = trim($this->get_post_meta_custom($post_id, 'wpuseo_post_title', 1));
             if (!empty($wpuseo_post_title)) {
                 $new_title = $wpuseo_post_title;
             }
@@ -860,16 +865,23 @@ class WPUSEO {
 
         }
 
-        if (!is_home() && !is_front_page() && (is_single() || is_page() || is_singular())) {
+        if (!is_home() && !is_front_page() && (is_single() || is_page() || is_singular() || $this->is_shop())) {
 
+            $post_infos = $post;
             $post_type = get_post_type($post);
+            $post_id = get_the_ID();
 
-            $description = apply_filters('wpuseo_post_description_main', $post->post_excerpt);
-            if (empty($description)) {
-                $description = $post->post_content;
+            if ($this->is_shop()) {
+                $post_id = get_option('woocommerce_shop_page_id');
+                $post_infos = get_post($post_id);
             }
 
-            $wpuseo_post_description = trim($this->get_post_meta_custom(get_the_ID(), 'wpuseo_post_description', 1));
+            $description = apply_filters('wpuseo_post_description_main', $post_infos->post_excerpt);
+            if (empty($description)) {
+                $description = $post_infos->post_content;
+            }
+
+            $wpuseo_post_description = trim($this->get_post_meta_custom($post_id, 'wpuseo_post_description', 1));
 
             if (!empty($wpuseo_post_description)) {
                 $description = $wpuseo_post_description;
@@ -879,7 +891,7 @@ class WPUSEO {
 
             if ($this->enable_twitter_metas) {
                 /* Title */
-                $twitter_title = trim($this->get_post_meta_custom(get_the_ID(), 'wpuseo_post_title_twitter', 1));
+                $twitter_title = trim($this->get_post_meta_custom($post_id, 'wpuseo_post_title_twitter', 1));
                 if (empty($twitter_title)) {
                     $twitter_title = get_the_title();
                 }
@@ -888,7 +900,7 @@ class WPUSEO {
                     'content' => $twitter_title
                 );
                 /* Description */
-                $twitter_description = $this->prepare_text($this->get_post_meta_custom(get_the_ID(), 'wpuseo_post_description_twitter', 1));
+                $twitter_description = $this->prepare_text($this->get_post_meta_custom($post_id, 'wpuseo_post_description_twitter', 1));
                 if (empty($twitter_description)) {
                     $twitter_description = $description;
                 }
@@ -916,7 +928,7 @@ class WPUSEO {
                 'content' => $description
             );
 
-            $keywords = $this->get_post_keywords(get_the_ID());
+            $keywords = $this->get_post_keywords($post_id);
             if (!empty($keywords)) {
                 $keywords_txt = implode(', ', $keywords);
                 $metas['keywords'] = array(
@@ -926,16 +938,16 @@ class WPUSEO {
             }
 
             if ($this->enable_facebook_metas) {
-                $facebook_title = $this->prepare_text($this->get_post_meta_custom(get_the_ID(), 'wpuseo_post_title_facebook', 1));
+                $facebook_title = $this->prepare_text($this->get_post_meta_custom($post_id, 'wpuseo_post_title_facebook', 1));
                 if (empty($facebook_title)) {
-                    $facebook_title = get_the_title();
+                    $facebook_title = get_the_title($post_id);
                 }
                 $metas['og_title'] = array(
                     'property' => 'og:title',
                     'content' => $facebook_title
                 );
                 /* Description */
-                $facebook_description = trim($this->get_post_meta_custom(get_the_ID(), 'wpuseo_post_description_facebook', 1));
+                $facebook_description = trim($this->get_post_meta_custom($post_id, 'wpuseo_post_description_facebook', 1));
                 if (empty($facebook_description)) {
                     $facebook_description = $description;
                 }
@@ -945,10 +957,10 @@ class WPUSEO {
                 );
                 $metas['og_url'] = array(
                     'property' => 'og:url',
-                    'content' => get_permalink()
+                    'content' => get_permalink($post_id)
                 );
             }
-            $post_thumbnail_id = apply_filters('wpuseo_post_image_main', get_post_thumbnail_id(), $post);
+            $post_thumbnail_id = apply_filters('wpuseo_post_image_main', get_post_thumbnail_id($post_id), $post_infos);
             $thumb_url = wp_get_attachment_image_src($post_thumbnail_id, $this->thumbnail_size, true);
             if (isset($thumb_url[0])) {
                 $metas['image'] = array(
@@ -978,18 +990,18 @@ class WPUSEO {
                     'property' => 'product:price:currency',
                     'content' => get_woocommerce_currency()
                 );
-                $_product = wc_get_product($post->ID);
+                $_product = wc_get_product($post_infos->ID);
                 if (is_object($_product)) {
                     $metas['product_price_amount'] = array(
                         'property' => 'product:price:amount',
-                        'content' => $_product->get_price()
+                        'content' => $post_id
                     );
                 }
             }
 
             // Custom og:image
             if ($this->enable_facebook_metas) {
-                $custom_og_image = get_post_meta(get_the_ID(), 'wpuseo_post_image_facebook', 1);
+                $custom_og_image = get_post_meta($post_id, 'wpuseo_post_image_facebook', 1);
                 if (is_numeric($custom_og_image)) {
                     $thumb_url = wp_get_attachment_image_src($custom_og_image, $this->thumbnail_size, true);
                     if (isset($thumb_url[0])) {
@@ -1004,7 +1016,7 @@ class WPUSEO {
 
             // Custom twitter:image
             if ($this->enable_twitter_metas) {
-                $custom_twitter_image = get_post_meta(get_the_ID(), 'wpuseo_post_image_twitter', 1);
+                $custom_twitter_image = get_post_meta($post_id, 'wpuseo_post_image_twitter', 1);
                 if (is_numeric($custom_twitter_image)) {
                     $thumb_url = wp_get_attachment_image_src($custom_twitter_image, $this->thumbnail_size, true);
                     if (isset($thumb_url[0])) {
@@ -1018,7 +1030,7 @@ class WPUSEO {
             }
 
             // Author informations
-            $wpu_seo_user_google_profile = get_user_meta($post->post_author, 'wpu_seo_user_google_profile', 1);
+            $wpu_seo_user_google_profile = get_user_meta($post_infos->post_author, 'wpu_seo_user_google_profile', 1);
             if (filter_var($wpu_seo_user_google_profile, FILTER_VALIDATE_URL)) {
                 $links['google_author'] = array(
                     'rel' => 'author',
@@ -1026,7 +1038,7 @@ class WPUSEO {
                 );
             }
 
-            $wpu_seo_user_twitter_account = get_user_meta($post->post_author, 'wpu_seo_user_twitter_account', 1);
+            $wpu_seo_user_twitter_account = get_user_meta($post_infos->post_author, 'wpu_seo_user_twitter_account', 1);
             if (!empty($wpu_seo_user_twitter_account) && preg_match('/^@([A-Za-z0-9_]+)$/', $wpu_seo_user_twitter_account) && $this->enable_twitter_metas) {
                 $metas['twitter_creator'] = array(
                     'name' => 'twitter:creator',
@@ -1523,6 +1535,17 @@ fbq(\'track\', \'PageView\');
         }
         return $languages;
     }
+
+    /* WooCommerce helpers
+    -------------------------- */
+
+    public function is_shop() {
+        if (!function_exists('is_shop') || !function_exists('woocommerce_content')) {
+            return false;
+        }
+        return is_shop();
+    }
+
 }
 
 $WPUSEO = new WPUSEO();
