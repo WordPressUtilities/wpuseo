@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.0
+Version: 1.26.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -1186,13 +1186,14 @@ class WPUSEO {
             );
 
             $metas_keywords = '';
-            if (isset($metas_json['keywords'])) {
+            if (isset($metas['keywords']['content'])) {
                 $metas_keywords = $metas['keywords']['content'];
             }
             $metas_json['keywords'] = apply_filters('wpuseo_metasldjson_single', $metas_keywords);
         }
 
         $metas = apply_filters('wpuseo_metas_after_settings', $metas);
+        $metas_json = apply_filters('wpuseo_metas_json_after_settings', $metas_json, $metas);
 
         echo $this->special_convert_array_html($metas);
         echo $this->special_convert_array_html($links, 'link');
@@ -1244,9 +1245,9 @@ class WPUSEO {
             }
         }
 
-        $json = str_replace('\/', '/', json_encode($metas_json));
+        $metas_json = apply_filters('wpuseo_metas_json_before_display', $metas_json, $metas);
 
-        return '<script type="application/ld+json">' . $json . '</script>';
+        return '<script type="application/ld+json">' . str_replace('\/', '/', json_encode($metas_json)) . '</script>';
     }
 
     /* ----------------------------------------------------------
