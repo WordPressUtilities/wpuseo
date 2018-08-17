@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.1
+Version: 1.26.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -1280,7 +1280,7 @@ class WPUSEO {
         if (is_user_logged_in() && !$analytics_enableloggedin) {
             return;
         }
-        $hook_ajaxready = apply_filters('wpuseo_ajaxready_hook', '');
+        $hook_ajaxready = apply_filters('wpuseo_ajaxready_hook', 'vanilla-pjax-ready');
 
         echo '<script type="text/javascript">';
         echo "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');";
@@ -1295,9 +1295,9 @@ class WPUSEO {
         echo "\nga('send','pageview');";
 
         if (!empty($hook_ajaxready)) {
-            echo "function wpuseo_callback_ajaxready(){ga('send','pageview');}";
-            echo "if (typeof(jQuery) == 'undefined') {document.addEventListener('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready,1);}";
-            echo "else {jQuery(document).on('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready);}";
+            echo "function wpuseo_callback_ajaxready(){ga('send','pageview', window.location.pathname);}";
+            echo "if (typeof(jQuery) == 'undefined') {window.addEventListener('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready,1);}";
+            echo "else {jQuery(window).on('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready);}";
         }
         echo '</script>';
     }
