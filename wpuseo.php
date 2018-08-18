@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.2
+Version: 1.26.3
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -1295,7 +1295,7 @@ class WPUSEO {
         echo "\nga('send','pageview');";
 
         if (!empty($hook_ajaxready)) {
-            echo "function wpuseo_callback_ajaxready(){ga('send','pageview', window.location.pathname);}";
+            echo "function wpuseo_callback_ajaxready(){ga('set','page',window.location.pathname);ga('send','pageview');}";
             echo "if (typeof(jQuery) == 'undefined') {window.addEventListener('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready,1);}";
             echo "else {jQuery(window).on('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready);}";
         }
