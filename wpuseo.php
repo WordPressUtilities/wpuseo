@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.3
+Version: 1.26.4
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -1419,7 +1419,7 @@ fbq(\'track\', \'PageView\');
     private function get_post_meta_custom($post_id, $name, $single = 1) {
         $is_multi = $this->is_site_multilingual() !== false;
         $post_meta = trim(get_post_meta($post_id, $name, $single));
-        if (function_exists('wputh_l10n_get_post_meta')) {
+        if ($is_multi && function_exists('wputh_l10n_get_post_meta')) {
             $post_meta = trim(wputh_l10n_get_post_meta($post_id, $name, $single));
         }
         return $post_meta;
@@ -1501,14 +1501,16 @@ fbq(\'track\', \'PageView\');
      -------------------------- */
 
     public function is_site_multilingual() {
-        $is_multi = false;
         if (function_exists('qtrans_getSortedLanguages')) {
-            $is_multi = qtrans_getSortedLanguages();
+            return true;
         }
         if (function_exists('qtranxf_getSortedLanguages')) {
-            $is_multi = qtranxf_getSortedLanguages();
+            return true;
         }
-        return $is_multi;
+        if (function_exists('pll_the_languages')) {
+            return true;
+        }
+        return false;
     }
 
     /* Get languages
