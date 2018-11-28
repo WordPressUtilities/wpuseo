@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.4
+Version: 1.26.5
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -13,6 +13,8 @@ Contributor: @boiteaweb
 */
 
 class WPUSEO {
+
+    public $plugin_version = '1.26.5';
 
     public function init() {
 
@@ -101,6 +103,12 @@ class WPUSEO {
             'summary' => 'summary',
             'summary_large_image' => 'summary_large_image'
         ));
+
+        include dirname(__FILE__) . '/inc/WPUBaseUpdate/WPUBaseUpdate.php';
+        $this->settings_update = new \wpuseo\WPUBaseUpdate(
+            'WordPressUtilities',
+            'wpuseo',
+            $this->plugin_version);
     }
 
     public function load_translation() {
@@ -960,8 +968,9 @@ class WPUSEO {
                     'content' => get_permalink($post_id)
                 );
             }
+
             $post_thumbnail_id = apply_filters('wpuseo_post_image_main', get_post_thumbnail_id($post_id), $post_infos);
-            $thumb_url = wp_get_attachment_image_src($post_thumbnail_id, $this->thumbnail_size, true);
+            $thumb_url = is_numeric($post_thumbnail_id) ? array() : wp_get_attachment_image_src($post_thumbnail_id, $this->thumbnail_size, true);
             if (isset($thumb_url[0])) {
                 $metas['image'] = array(
                     'hidden' => 1,
