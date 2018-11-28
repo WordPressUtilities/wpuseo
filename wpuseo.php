@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.5
+Version: 1.26.6
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '1.26.5';
+    public $plugin_version = '1.26.6';
 
     public function init() {
 
@@ -354,7 +354,6 @@ class WPUSEO {
     }
 
     public function add_fields($options) {
-        $is_multi = $this->is_site_multilingual() !== false;
 
         // Various
         $options['wpu_home_title_separator'] = array(
@@ -489,7 +488,7 @@ class WPUSEO {
             'box' => 'wpu_seo_twitter'
         );
 
-        if ($is_multi) {
+        if ($this->is_site_multilingual()) {
             $options['wpu_home_page_title']['lang'] = 1;
             $options['wpu_home_meta_description']['lang'] = 1;
             $options['wpu_home_meta_keywords']['lang'] = 1;
@@ -970,7 +969,7 @@ class WPUSEO {
             }
 
             $post_thumbnail_id = apply_filters('wpuseo_post_image_main', get_post_thumbnail_id($post_id), $post_infos);
-            $thumb_url = is_numeric($post_thumbnail_id) ? array() : wp_get_attachment_image_src($post_thumbnail_id, $this->thumbnail_size, true);
+            $thumb_url = !is_numeric($post_thumbnail_id) ? array() : wp_get_attachment_image_src($post_thumbnail_id, $this->thumbnail_size, true);
             if (isset($thumb_url[0])) {
                 $metas['image'] = array(
                     'hidden' => 1,
@@ -1417,18 +1416,16 @@ fbq(\'track\', \'PageView\');
     }
 
     private function get_option_custom($name) {
-        $is_multi = $this->is_site_multilingual() !== false;
         $opt = get_option($name);
-        if ($is_multi && function_exists('wputh_l18n_get_option')) {
+        if ($this->is_site_multilingual() && function_exists('wputh_l18n_get_option')) {
             $opt = wputh_l18n_get_option($name);
         }
         return $opt;
     }
 
     private function get_post_meta_custom($post_id, $name, $single = 1) {
-        $is_multi = $this->is_site_multilingual() !== false;
         $post_meta = trim(get_post_meta($post_id, $name, $single));
-        if ($is_multi && function_exists('wputh_l10n_get_post_meta')) {
+        if ($this->is_site_multilingual() && function_exists('wputh_l10n_get_post_meta')) {
             $post_meta = trim(wputh_l10n_get_post_meta($post_id, $name, $single));
         }
         return $post_meta;
