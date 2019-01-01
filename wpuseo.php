@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.7
+Version: 1.26.8
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '1.26.7';
+    public $plugin_version = '1.26.8';
 
     public function init() {
 
@@ -104,7 +104,7 @@ class WPUSEO {
             'summary_large_image' => 'summary_large_image'
         ));
 
-        include dirname(__FILE__) . '/inc/WPUBaseUpdate/WPUBaseUpdate.php';
+        require_once dirname(__FILE__) . '/inc/WPUBaseUpdate/WPUBaseUpdate.php';
         $this->settings_update = new \wpuseo\WPUBaseUpdate(
             'WordPressUtilities',
             'wpuseo',
@@ -1444,7 +1444,7 @@ fbq(\'track\', \'PageView\');
         }
 
         $up_dir = wp_upload_dir();
-        if (strpos($image_url, $up_dir['relative']) === false) {
+        if (strpos($image_url, $up_dir['basedir']) === false) {
             return false;
         }
 
@@ -1462,7 +1462,7 @@ fbq(\'track\', \'PageView\');
      -------------------------- */
 
     public function testTwitterUsername($username) {
-        return preg_match('/^\@([a-zA_Z_0-9]+)$/', $username) !== false;
+        return !!preg_match('/^\@([a-zA-Z_0-9]+)$/', $username);
     }
 
     /* Prepare meta description
