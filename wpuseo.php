@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.8
+Version: 1.26.9
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '1.26.8';
+    public $plugin_version = '1.26.9';
 
     public function init() {
 
@@ -525,6 +525,7 @@ class WPUSEO {
 
     public function add_user_sections($sections) {
         $sections['wpu-seo'] = array(
+            'capability' => 'edit_posts',
             'name' => 'WPU SEO'
         );
         return $sections;
@@ -1351,7 +1352,7 @@ fbq(\'track\', \'PageView\');
         // Keywords
         $keywords_raw = array();
 
-        $title = explode(' ', strtolower(get_the_title($id)));
+        $title = explode(' ', mb_strtolower(get_the_title($id)));
         foreach ($title as $word) {
             if (strlen($word) >= $wpu_meta_keywords_min_len) {
                 $keywords_raw = $this->check_keywords_value(sanitize_title($word), $word, $keywords_raw);
