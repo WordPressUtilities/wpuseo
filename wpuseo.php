@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.9
+Version: 1.26.10
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '1.26.9';
+    public $plugin_version = '1.26.10';
 
     public function init() {
 
@@ -1291,6 +1291,8 @@ class WPUSEO {
         }
         $hook_ajaxready = apply_filters('wpuseo_ajaxready_hook', 'vanilla-pjax-ready');
 
+        echo '<link rel="dns-prefetch" href="//www.google-analytics.com">';
+
         echo '<script type="text/javascript">';
         echo "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');";
         echo "\nga('create','" . $ua_analytics . "','auto');";
@@ -1326,6 +1328,8 @@ class WPUSEO {
         if (is_user_logged_in() && !$fbpixel_enableloggedin) {
             return;
         }
+
+        echo '<link rel="dns-prefetch" href="//connect.facebook.net">';
 
         echo '<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
