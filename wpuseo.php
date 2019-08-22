@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.10
+Version: 1.26.11
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '1.26.10';
+    public $plugin_version = '1.26.11';
 
     public function init() {
 
@@ -1291,26 +1291,30 @@ class WPUSEO {
         }
         $hook_ajaxready = apply_filters('wpuseo_ajaxready_hook', 'vanilla-pjax-ready');
 
-        echo '<link rel="dns-prefetch" href="//www.google-analytics.com">';
+        $analytics_code = '';
 
-        echo '<script type="text/javascript">';
-        echo "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');";
-        echo "\nga('create','" . $ua_analytics . "','auto');";
+        $analytics_code .= '<link rel="dns-prefetch" href="//www.google-analytics.com">';
+
+        $analytics_code .= '<script type="text/javascript">';
+        $analytics_code .= "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');";
+        $analytics_code .= "\nga('create','" . $ua_analytics . "','auto');";
         if (is_user_logged_in() && apply_filters('wpuseo_analytics_track_user_id', true)) {
             $user = wp_get_current_user();
             if (is_object($user)) {
-                echo "\nga('set','userId','" . $user->ID . "');";
+                $analytics_code .= "\nga('set','userId','" . $user->ID . "');";
             }
         }
-        echo "\nga('set','dimension1','visitorloggedin-" . (is_user_logged_in() ? '1' : '0') . "');";
-        echo "\nga('send','pageview');";
+        $analytics_code .= "\nga('set','dimension1','visitorloggedin-" . (is_user_logged_in() ? '1' : '0') . "');";
+        $analytics_code .= "\nga('send','pageview');";
 
         if (!empty($hook_ajaxready)) {
-            echo "function wpuseo_callback_ajaxready(){ga('set','page',window.location.pathname);ga('send','pageview');}";
-            echo "if (typeof(jQuery) == 'undefined') {window.addEventListener('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready,1);}";
-            echo "else {jQuery(window).on('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready);}";
+            $analytics_code .= "function wpuseo_callback_ajaxready(){ga('set','page',window.location.pathname);ga('send','pageview');}";
+            $analytics_code .= "if (typeof(jQuery) == 'undefined') {window.addEventListener('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready,1);}";
+            $analytics_code .= "else {jQuery(window).on('" . esc_attr($hook_ajaxready) . "',wpuseo_callback_ajaxready);}";
         }
-        echo '</script>';
+        $analytics_code .= '</script>';
+
+        echo apply_filters('wpuseo__display_google_analytics_code', $analytics_code);
     }
 
     /* ----------------------------------------------------------
@@ -1329,9 +1333,11 @@ class WPUSEO {
             return;
         }
 
-        echo '<link rel="dns-prefetch" href="//connect.facebook.net">';
+        $pixel_code = '';
 
-        echo '<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        $pixel_code .= '<link rel="dns-prefetch" href="//connect.facebook.net">';
+
+        $pixel_code .= '<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
 n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
@@ -1339,6 +1345,9 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');
 fbq(\'init\', \'' . $fb_pixel . '\');
 fbq(\'track\', \'PageView\');
 </script><noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=' . $fb_pixel . '&ev=PageView&noscript=1"/></noscript>';
+
+        echo apply_filters('wpuseo__display_facebook_pixel_code', $pixel_code);
+
     }
 
     /* ----------------------------------------------------------
