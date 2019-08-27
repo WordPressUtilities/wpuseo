@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.11
+Version: 1.26.12
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '1.26.11';
+    public $plugin_version = '1.26.12';
 
     public function init() {
 
@@ -49,6 +49,9 @@ class WPUSEO {
         add_action('wp_head', array(&$this,
             'display_facebook_pixel_code'
         ), 99, 0);
+        add_action('woocommerce_thankyou', array(&$this,
+            'display_facebook_pixel_code__thankyou'
+        ), 99, 1);
 
         // Clean WP Head
         add_action('template_redirect', array(&$this,
@@ -1321,33 +1324,62 @@ class WPUSEO {
       Facebook Pixel code
     ---------------------------------------------------------- */
 
-    public function display_facebook_pixel_code() {
+    public function get_pixel_id() {
         $fb_pixel = get_option('wputh_fb_pixel');
+
         // Invalid ID
         if (empty($fb_pixel)) {
-            return;
+            return false;
         }
         // Tracked logged in users
         $fbpixel_enableloggedin = (get_option('wputh_fbpixel_enableloggedin') == '1');
         if (is_user_logged_in() && !$fbpixel_enableloggedin) {
-            return;
+            return false;
+        }
+
+        return $fb_pixel;
+    }
+
+    public function display_facebook_pixel_code() {
+
+        $fb_pixel = $this->get_pixel_id();
+        if (!$fb_pixel) {
+            return false;
         }
 
         $pixel_code = '';
 
         $pixel_code .= '<link rel="dns-prefetch" href="//connect.facebook.net">';
 
-        $pixel_code .= '<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        $pixel_code .= '<script>';
+        $pixel_code .= '!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
 n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');
-fbq(\'init\', \'' . $fb_pixel . '\');
-fbq(\'track\', \'PageView\');
-</script><noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=' . $fb_pixel . '&ev=PageView&noscript=1"/></noscript>';
+document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
+        $pixel_code .= "fbq('init', '" . $fb_pixel . "');";
+        $pixel_code .= "fbq('track', 'PageView');";
+        $pixel_code .= '</script>';
+        $pixel_code .= '<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=' . $fb_pixel . '&ev=PageView&noscript=1"/></noscript>';
 
         echo apply_filters('wpuseo__display_facebook_pixel_code', $pixel_code);
 
+    }
+
+    public function display_facebook_pixel_code__thankyou($order_id) {
+
+        $fb_pixel = $this->get_pixel_id();
+        if (!$fb_pixel) {
+            return false;
+        }
+
+        $order = wc_get_order($order_id);
+
+        echo "<script>";
+        echo "if(typeof fbq == 'function'){";
+        echo "fbq('track', 'Purchase', {value: '" . $order->get_total() . "',currency: '" . $order->get_currency() . "'});";
+        echo "}";
+        echo "</script>";
     }
 
     /* ----------------------------------------------------------
