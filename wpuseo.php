@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.27.0
+Version: 1.27.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '1.27.0';
+    public $plugin_version = '1.27.1';
 
     public function init() {
 
@@ -718,7 +718,10 @@ class WPUSEO {
         if (!$screenshot) {
             $themes = wp_get_themes();
             foreach ($themes as $theme) {
-                $screenshot = $theme->get_screenshot();
+                if ($current_theme->get_screenshot()) {
+                    $screenshot = $theme->get_screenshot();
+                    break;
+                }
             }
         }
 
