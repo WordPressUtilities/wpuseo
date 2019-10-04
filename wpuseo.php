@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, nice metas.
-Version: 1.26.12
+Version: 1.27.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '1.26.12';
+    public $plugin_version = '1.27.0';
 
     public function init() {
 
@@ -709,14 +709,23 @@ class WPUSEO {
             );
         }
 
+        /* Get screenshot */
+        $screenshot = false;
+        $current_theme = wp_get_theme();
+        if ($current_theme && $current_theme->get_screenshot()) {
+            $screenshot = $current_theme->get_screenshot();
+        }
+        if (!$screenshot) {
+            $themes = wp_get_themes();
+            foreach ($themes as $theme) {
+                $screenshot = $theme->get_screenshot();
+            }
+        }
+
         $og_image = false;
         $og_image_id = false;
-        $themes = wp_get_themes();
-        foreach ($themes as $theme) {
-            $screenshot = $theme->get_screenshot();
-            if ($screenshot) {
-                $og_image = $screenshot;
-            }
+        if ($screenshot) {
+            $og_image = $screenshot;
         }
 
         // Default image
@@ -725,10 +734,12 @@ class WPUSEO {
         // Default Facebook og:image
         if ($this->enable_facebook_metas) {
             $opt_wputh_fb_image = get_option('wputh_fb_image');
-            $wputh_fb_image = wp_get_attachment_image_src($opt_wputh_fb_image, $this->thumbnail_size, true);
-            if ($opt_wputh_fb_image != false && isset($wputh_fb_image[0])) {
-                $og_image = $wputh_fb_image[0];
-                $og_image_id = $opt_wputh_fb_image;
+            if (is_numeric($opt_wputh_fb_image)) {
+                $wputh_fb_image = wp_get_attachment_image_src($opt_wputh_fb_image, $this->thumbnail_size, true);
+                if ($opt_wputh_fb_image != false && isset($wputh_fb_image[0])) {
+                    $og_image = $wputh_fb_image[0];
+                    $og_image_id = $opt_wputh_fb_image;
+                }
             }
             $metas['og_image'] = array(
                 'property' => 'og:image',
@@ -740,9 +751,11 @@ class WPUSEO {
         // Default Twitter twitter:image
         if ($this->enable_twitter_metas) {
             $opt_wputh_twitter_image = get_option('wputh_twitter_image');
-            $wputh_twitter_image = wp_get_attachment_image_src($opt_wputh_twitter_image, $this->thumbnail_size, true);
-            if ($opt_wputh_twitter_image != false && isset($wputh_twitter_image[0])) {
-                $og_image = $wputh_twitter_image[0];
+            if (is_numeric($opt_wputh_twitter_image)) {
+                $wputh_twitter_image = wp_get_attachment_image_src($opt_wputh_twitter_image, $this->thumbnail_size, true);
+                if ($opt_wputh_twitter_image != false && isset($wputh_twitter_image[0])) {
+                    $og_image = $wputh_twitter_image[0];
+                }
             }
             $metas['twitter_image'] = array(
                 'name' => 'twitter:image',
@@ -1229,7 +1242,7 @@ class WPUSEO {
                 "@type" => "ImageObject",
                 "url" => $metas['image']['content']
             );
-            $image_id = isset($metas['image']['imgid']) && is_numeric($metas['image']['imgid']) ? $metas['image']['imgid'] : $this->get_att_from_url($metas['image']['content']);
+            $image_id = isset($metas['image']['imgid']) && is_numeric($metas['image']['imgid']) ? $metas['image']['imgid'] : false;
             if (is_numeric($image_id)) {
                 $image_obj = wp_get_attachment_image_src($image_id, $this->thumbnail_size);
                 if (is_array($image_obj) && $image_obj[0] == $metas['image']['content']) {
@@ -1475,33 +1488,6 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
             $post_meta = trim(wputh_l10n_get_post_meta($post_id, $name, $single));
         }
         return $post_meta;
-    }
-
-    /* Get an attachment from image URL
-    -------------------------- */
-
-    public function get_att_from_url($image_url) {
-        $cache_id = 'wpuseo_att_from_url_' . md5($image_url);
-
-        // GET CACHED VALUE
-        $att_id = wp_cache_get($cache_id);
-        if ($att_id !== false) {
-            return $att_id;
-        }
-
-        $up_dir = wp_upload_dir();
-        if (strpos($image_url, $up_dir['basedir']) === false) {
-            return false;
-        }
-
-        // COMPUTE RESULT
-        $att_id = attachment_url_to_postid($image_url);
-
-        // CACHE RESULT
-        wp_cache_set($cache_id, $att_id, '', is_numeric($att_id) ? 3600 : 60);
-
-        return $att_id;
-
     }
 
     /* Test a twitter username
