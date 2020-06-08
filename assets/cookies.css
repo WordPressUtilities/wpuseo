@@ -1,0 +1,72 @@
+@charset "UTF-8";
+
+/* ----------------------------------------------------------
+  Wrapper
+---------------------------------------------------------- */
+
+.cookie-notice {
+    visibility: hidden;
+    z-index: 99;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    opacity: 0;
+    -webkit-transition: opacity 0.3s ease,visibility 0.3s ease;
+    transition: opacity 0.3s ease,visibility 0.3s ease;
+    pointer-events: none;
+}
+
+body[data-cookie-notice="1"] .cookie-notice {
+    visibility: visible;
+    opacity: 0.999;
+    pointer-events: auto;
+}
+
+/* ----------------------------------------------------------
+  Overlay
+---------------------------------------------------------- */
+
+.cookie-notice__overlay {
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+/* ----------------------------------------------------------
+  Banner
+---------------------------------------------------------- */
+
+.cookie-notice__wrapper {
+    z-index: 2;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    padding: 1em 4em 1em 1em;
+    background-color: #fff;
+}
+
+.cookie-notice__wrapper .close {
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    right: 1em;
+    font-size: 2em;
+}
+
+.cookie-notice__inner p a {
+    text-decoration: underline;
+}
+
+.cookie-notice__inner a[data-cookie-action] {
+    margin-left: 0.5em;
+}

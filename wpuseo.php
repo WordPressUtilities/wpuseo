@@ -3,18 +3,18 @@
 /*
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
-Description: Enhance SEO : Clean title, nice metas.
-Version: 1.28.0
+Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
+Version: 2.0.0
 Author: Darklg
-Author URI: http://darklg.me/
+Author URI: https://darklg.me/
 License: MIT License
-License URI: http://opensource.org/licenses/MIT
+License URI: https://opensource.org/licenses/MIT
 Contributor: @boiteaweb
 */
 
 class WPUSEO {
 
-    public $plugin_version = '1.28.0';
+    public $plugin_version = '2.0.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -52,6 +52,14 @@ class WPUSEO {
                 'add_metas_robots'
             ), 1, 0);
         }
+
+        // Cookies
+        add_action('wp_enqueue_scripts', array(&$this,
+            'wp_enqueue_scripts'
+        ), 10, 0);
+        add_action('wp_footer', array(&$this,
+            'wp_footer'
+        ), 50, 0);
 
         add_action('wp_head', array(&$this,
             'display_google_analytics_code'
@@ -367,6 +375,10 @@ class WPUSEO {
             'name' => 'Twitter',
             'tab' => 'wpu_seo'
         );
+        $boxes['wpu_seo_cookies'] = array(
+            'name' => 'Cookies',
+            'tab' => 'wpu_seo'
+        );
         return $boxes;
     }
 
@@ -438,6 +450,11 @@ class WPUSEO {
         );
         $options['wputh_analytics_enableloggedin'] = array(
             'label' => $this->__('Enable Analytics for logged-in users'),
+            'box' => 'wpu_seo_google',
+            'type' => 'select'
+        );
+        $options['wputh_analytics_enableanonymizeip'] = array(
+            'label' => $this->__('Enable anonymizeIp for Analytics'),
             'box' => 'wpu_seo_google',
             'type' => 'select'
         );
@@ -515,6 +532,43 @@ class WPUSEO {
             'box' => 'wpu_seo_twitter'
         );
 
+        // Cookies
+        $options['wpu_seo_cookies__enable_notice'] = array(
+            'label' => $this->__('Enable Cookie Notice'),
+            'type' => 'select',
+            'box' => 'wpu_seo_cookies'
+        );
+        $options['wpu_seo_cookies__enable_tracking'] = array(
+            'label' => $this->__('Track before cookie check'),
+            'type' => 'select',
+            'box' => 'wpu_seo_cookies',
+            'help' => $this->__('For test purposes only : do not use in production !')
+        );
+        $options['wpu_seo_cookies__text'] = array(
+            'label' => $this->__('Banner text'),
+            'type' => 'text',
+            'lang' => true,
+            'box' => 'wpu_seo_cookies'
+        );
+        $options['wpu_seo_cookies__button_accept'] = array(
+            'label' => $this->__('"Accept" button text'),
+            'type' => 'text',
+            'lang' => true,
+            'box' => 'wpu_seo_cookies'
+        );
+        $options['wpu_seo_cookies__button_refuse'] = array(
+            'label' => $this->__('"Refuse" button text'),
+            'type' => 'text',
+            'lang' => true,
+            'box' => 'wpu_seo_cookies'
+        );
+        $options['wpu_seo_cookies__display_refuse'] = array(
+            'label' => $this->__('Display "refuse" button'),
+            'type' => 'select',
+            'box' => 'wpu_seo_cookies'
+        );
+
+        // Multilingual
         if ($this->is_site_multilingual()) {
             if (isset($options['wpu_home_page_title'])) {
                 $options['wpu_home_page_title']['lang'] = 1;
@@ -1331,6 +1385,75 @@ class WPUSEO {
     }
 
     /* ----------------------------------------------------------
+      Scripts
+    ---------------------------------------------------------- */
+
+    public function wp_enqueue_scripts() {
+        $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
+        if ($wpu_seo_cookies__enable_notice) {
+            wp_enqueue_script('wpuseo_cookies_script', plugins_url('assets/cookies.js', __FILE__), array('jquery'), $this->plugin_version);
+            wp_enqueue_style('wpuseo_cookies_style', plugins_url('assets/cookies.css', __FILE__), array(), $this->plugin_version);
+        }
+    }
+
+    /* ----------------------------------------------------------
+      Footer
+    ---------------------------------------------------------- */
+
+    public function wp_footer() {
+        $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
+        if ($wpu_seo_cookies__enable_notice) {
+            $this->display__cookie_notice();
+        }
+    }
+
+    public function display__cookie_notice() {
+        $cookie_text = $this->__('This website uses cookies to ensure you get the best experience on our website.');
+        $opt_cookie_text = $this->get_option_custom('wpu_seo_cookies__text');
+        if ($opt_cookie_text) {
+            $cookie_text = $opt_cookie_text;
+        }
+
+        $cookie_button_accept = $this->__('Accept');
+        $opt_cookie_button_accept = $this->get_option_custom('wpu_seo_cookies__button_accept');
+        if ($opt_cookie_button_accept) {
+            $cookie_button_accept = esc_html($opt_cookie_button_accept);
+        }
+
+        $cookie_button_refuse = $this->__('Refuse');
+        $opt_cookie_button_refuse = $this->get_option_custom('wpu_seo_cookies__button_refuse');
+        if ($opt_cookie_button_accept) {
+            $cookie_button_refuse = esc_html($opt_cookie_button_refuse);
+        }
+
+        /* Hide refuse button */
+        $cookie_button_refuse_visible = true;
+        $opt_cookie_button_refuse_visible = $this->get_option_custom('wpu_seo_cookies__display_refuse');
+        if (!$opt_cookie_button_refuse_visible) {
+            $cookie_button_refuse_visible = false;
+        }
+
+        /* Content */
+        echo '<div class="cookie-notice">';
+        echo '<div class="cookie-notice__overlay"></div>';
+        echo '<div class="cookie-notice__wrapper">';
+        echo '<a href="#" class="close" data-cookie-action="-1" title="' . esc_attr($cookie_button_refuse) . '"><span>&times;</span></a>';
+        echo '<div class="cookie-notice__inner">';
+        /* Content */
+        echo '<p>';
+        echo $cookie_text;
+        echo ' <a href="#" data-cookie-action="1" class="accept">' . $cookie_button_accept . '</a>';
+        if ($cookie_button_refuse_visible) {
+            echo ' <a href="#" data-cookie-action="-1" class="refuse">' . $cookie_button_refuse . '</a>';
+        }
+        echo '</p>';
+        /* Content */
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+
+    /* ----------------------------------------------------------
       Google Analytics
     ---------------------------------------------------------- */
 
@@ -1349,13 +1472,26 @@ class WPUSEO {
             return;
         }
         $hook_ajaxready = apply_filters('wpuseo_ajaxready_hook', 'vanilla-pjax-ready');
+        $enableanonymizeip = (get_option('wputh_analytics_enableanonymizeip') == '1');
 
         $analytics_code = '';
+        $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
+        $enable_tracking = get_option('wpu_seo_cookies__enable_tracking');
 
-        $analytics_code .= '<link rel="dns-prefetch" href="//www.google-analytics.com">';
+        if (!$cookie_notice != '1') {
+            $analytics_code .= '<link rel="dns-prefetch" href="//www.google-analytics.com">';
+        }
 
         $analytics_code .= '<script type="text/javascript">';
-        $analytics_code .= "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');";
+        $analytics_code .= "(function(i,s,o,g,r,a,m){";
+        /* Cookie notice */
+        if ($cookie_notice == '1' && $enable_tracking != '1') {
+            $analytics_code .= 'if(wpuseo_getcookie("wpuseo_cookies") != "1"){return;};';
+        }
+        $analytics_code .= "i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');";
+
+        /* Calls GA */
+        $analytics_code .= "if (typeof(ga) == 'function') {";
         $analytics_code .= "\nga('create','" . $ua_analytics . "','auto');";
         if (is_user_logged_in() && apply_filters('wpuseo_analytics_track_user_id', true)) {
             $user = wp_get_current_user();
@@ -1363,8 +1499,13 @@ class WPUSEO {
                 $analytics_code .= "\nga('set','userId','" . $user->ID . "');";
             }
         }
+        if ($enableanonymizeip) {
+            $analytics_code .= "\nga('set', 'anonymizeIp', true);";
+        }
         $analytics_code .= "\nga('set','dimension1','visitorloggedin-" . (is_user_logged_in() ? '1' : '0') . "');";
         $analytics_code .= "\nga('send','pageview');";
+        $analytics_code .= "\n}\n";
+        /* End of calls */
 
         if (!empty($hook_ajaxready)) {
             $analytics_code .= "function wpuseo_callback_ajaxready(){ga('set','page',window.location.pathname);ga('send','pageview');}";
@@ -1404,10 +1545,16 @@ class WPUSEO {
         }
 
         $pixel_code = '';
-
-        $pixel_code .= '<link rel="dns-prefetch" href="//connect.facebook.net">';
+        $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
+        if ($cookie_notice != '1') {
+            $pixel_code .= '<link rel="dns-prefetch" href="//connect.facebook.net">';
+        }
 
         $pixel_code .= '<script>';
+        /* Cookie notice */
+        if ($cookie_notice == '1' && $enable_tracking != '1') {
+            $analytics_code .= 'if(wpuseo_getcookie("wpuseo_cookies") != "1"){return;};';
+        }
         $pixel_code .= '!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
 n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;
