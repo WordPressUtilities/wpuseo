@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.0.0
+Version: 2.1.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '2.0.0';
+    public $plugin_version = '2.1.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -1478,17 +1478,19 @@ class WPUSEO {
         $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
         $enable_tracking = get_option('wpu_seo_cookies__enable_tracking');
 
-        if (!$cookie_notice != '1') {
+        if ($cookie_notice != '1') {
             $analytics_code .= '<link rel="dns-prefetch" href="//www.google-analytics.com">';
         }
 
         $analytics_code .= '<script type="text/javascript">';
-        $analytics_code .= "(function(i,s,o,g,r,a,m){";
+        $analytics_code .= "function wpuseo_init_analytics(){";
+        $analytics_code .= apply_filters('wpuseo__display_google_analytics_code__before','');
+
         /* Cookie notice */
         if ($cookie_notice == '1' && $enable_tracking != '1') {
             $analytics_code .= 'if(wpuseo_getcookie("wpuseo_cookies") != "1"){return;};';
         }
-        $analytics_code .= "i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');";
+        $analytics_code .= "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');";
 
         /* Calls GA */
         $analytics_code .= "if (typeof(ga) == 'function') {";
@@ -1504,7 +1506,9 @@ class WPUSEO {
         }
         $analytics_code .= "\nga('set','dimension1','visitorloggedin-" . (is_user_logged_in() ? '1' : '0') . "');";
         $analytics_code .= "\nga('send','pageview');";
+        $analytics_code .= apply_filters('wpuseo__display_google_analytics_code__after','');
         $analytics_code .= "\n}\n";
+        $analytics_code .= "} wpuseo_init_analytics();";
         /* End of calls */
 
         if (!empty($hook_ajaxready)) {
@@ -1546,14 +1550,19 @@ class WPUSEO {
 
         $pixel_code = '';
         $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
+        $enable_tracking = get_option('wpu_seo_cookies__enable_tracking');
+
         if ($cookie_notice != '1') {
             $pixel_code .= '<link rel="dns-prefetch" href="//connect.facebook.net">';
         }
 
         $pixel_code .= '<script>';
+        $pixel_code .= "function wpuseo_init_fbpixel(){";
+        $pixel_code .= apply_filters('wpuseo__display_facebook_pixel_code__before','');
+
         /* Cookie notice */
         if ($cookie_notice == '1' && $enable_tracking != '1') {
-            $analytics_code .= 'if(wpuseo_getcookie("wpuseo_cookies") != "1"){return;};';
+            $pixel_code .= 'if(wpuseo_getcookie("wpuseo_cookies") != "1"){return;};';
         }
         $pixel_code .= '!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -1562,8 +1571,9 @@ t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
 document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         $pixel_code .= "fbq('init', '" . $fb_pixel . "');";
         $pixel_code .= "fbq('track', 'PageView');";
+        $pixel_code .= apply_filters('wpuseo__display_facebook_pixel_code__after','');
+        $pixel_code .= '} wpuseo_init_fbpixel();';
         $pixel_code .= '</script>';
-        $pixel_code .= '<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=' . $fb_pixel . '&ev=PageView&noscript=1"/></noscript>';
 
         echo apply_filters('wpuseo__display_facebook_pixel_code', $pixel_code);
 

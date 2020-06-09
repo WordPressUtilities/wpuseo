@@ -42,12 +42,24 @@ jQuery(document).ready(function wpuseo_cookienotice($) {
     /* Actions */
     jQuery('.cookie-notice').on('click', '[data-cookie-action]', function(e) {
         e.preventDefault();
-        var $this = jQuery(this);
+        var $this = jQuery(this),
+            _action = $this.attr('data-cookie-action');
+
         /* Set cookie */
-        wpuseo_setcookie('wpuseo_cookies', $this.attr('data-cookie-action'));
+        wpuseo_setcookie('wpuseo_cookies', _action);
+
         /* Disable cookie notice */
         jQuery('body').attr('data-cookie-notice', 0);
 
+        /* Restart analytics & pixel if available */
+        if (_action == '1') {
+            if (typeof wpuseo_init_analytics == 'function') {
+                wpuseo_init_analytics();
+            }
+            if (typeof wpuseo_init_fbpixel == 'function') {
+                wpuseo_init_fbpixel();
+            }
+        }
     });
 
 });
