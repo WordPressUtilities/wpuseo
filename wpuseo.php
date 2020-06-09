@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.1.0
+Version: 2.1.1
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '2.1.0';
+    public $plugin_version = '2.1.1';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -54,6 +54,9 @@ class WPUSEO {
         }
 
         // Cookies
+        add_action('wp_head', array(&$this,
+            'wp_head_cookie_helper'
+        ), 99, 0);
         add_action('wp_enqueue_scripts', array(&$this,
             'wp_enqueue_scripts'
         ), 10, 0);
@@ -1385,8 +1388,30 @@ class WPUSEO {
     }
 
     /* ----------------------------------------------------------
-      Scripts
+      Cookies
     ---------------------------------------------------------- */
+
+    public function wp_head_cookie_helper() {
+        $fb_pixel = $this->get_pixel_id();
+        $ua_analytics = $this->get_analytics_id();
+        if (!$fb_pixel && !$ua_analytics) {
+            return;
+        }
+        $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
+        if (!$wpu_seo_cookies__enable_notice) {
+            return;
+        }
+
+        /* Thanks to https://gist.github.com/wpsmith/6cf23551dd140fb72ae7 */
+        echo '<script>function wpuseo_getcookie(name){';
+        echo 'var value="; "+document.cookie;';
+        echo 'var parts=value.split("; "+name+"=");';
+        echo 'if(parts.length==2)return parts.pop().split(";").shift();';
+        echo '}</script>';
+    }
+
+    /* Scripts
+    -------------------------- */
 
     public function wp_enqueue_scripts() {
         $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
@@ -1396,9 +1421,8 @@ class WPUSEO {
         }
     }
 
-    /* ----------------------------------------------------------
-      Footer
-    ---------------------------------------------------------- */
+    /* Footer
+    -------------------------- */
 
     public function wp_footer() {
         $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
@@ -1458,11 +1482,8 @@ class WPUSEO {
     ---------------------------------------------------------- */
 
     public function display_google_analytics_code() {
-        $ua_analytics = get_option('wputh_ua_analytics');
-        // Invalid ID
-        if ($ua_analytics === false || empty($ua_analytics) || in_array($ua_analytics, array(
-            'UA-XXXXX-X'
-        ))) {
+        $ua_analytics = $this->get_analytics_id();
+        if (!$ua_analytics) {
             return;
         }
 
@@ -1484,7 +1505,7 @@ class WPUSEO {
 
         $analytics_code .= '<script type="text/javascript">';
         $analytics_code .= "function wpuseo_init_analytics(){";
-        $analytics_code .= apply_filters('wpuseo__display_google_analytics_code__before','');
+        $analytics_code .= apply_filters('wpuseo__display_google_analytics_code__before', '');
 
         /* Cookie notice */
         if ($cookie_notice == '1' && $enable_tracking != '1') {
@@ -1506,7 +1527,7 @@ class WPUSEO {
         }
         $analytics_code .= "\nga('set','dimension1','visitorloggedin-" . (is_user_logged_in() ? '1' : '0') . "');";
         $analytics_code .= "\nga('send','pageview');";
-        $analytics_code .= apply_filters('wpuseo__display_google_analytics_code__after','');
+        $analytics_code .= apply_filters('wpuseo__display_google_analytics_code__after', '');
         $analytics_code .= "\n}\n";
         $analytics_code .= "} wpuseo_init_analytics();";
         /* End of calls */
@@ -1519,6 +1540,19 @@ class WPUSEO {
         $analytics_code .= '</script>';
 
         echo apply_filters('wpuseo__display_google_analytics_code', $analytics_code);
+    }
+
+    public function get_analytics_id() {
+        $ua_analytics = get_option('wputh_ua_analytics');
+
+        // Invalid ID
+        if ($ua_analytics === false || empty($ua_analytics) || in_array($ua_analytics, array(
+            'UA-XXXXX-X'
+        ))) {
+            return false;
+        }
+
+        return $ua_analytics;
     }
 
     /* ----------------------------------------------------------
@@ -1558,7 +1592,7 @@ class WPUSEO {
 
         $pixel_code .= '<script>';
         $pixel_code .= "function wpuseo_init_fbpixel(){";
-        $pixel_code .= apply_filters('wpuseo__display_facebook_pixel_code__before','');
+        $pixel_code .= apply_filters('wpuseo__display_facebook_pixel_code__before', '');
 
         /* Cookie notice */
         if ($cookie_notice == '1' && $enable_tracking != '1') {
@@ -1571,7 +1605,7 @@ t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
 document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         $pixel_code .= "fbq('init', '" . $fb_pixel . "');";
         $pixel_code .= "fbq('track', 'PageView');";
-        $pixel_code .= apply_filters('wpuseo__display_facebook_pixel_code__after','');
+        $pixel_code .= apply_filters('wpuseo__display_facebook_pixel_code__after', '');
         $pixel_code .= '} wpuseo_init_fbpixel();';
         $pixel_code .= '</script>';
 
