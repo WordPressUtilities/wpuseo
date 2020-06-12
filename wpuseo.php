@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.1.1
+Version: 2.1.2
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '2.1.1';
+    public $plugin_version = '2.1.2';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -612,8 +612,8 @@ class WPUSEO {
         if ($show_on_front != 'page') {
             return;
         }
-        $page_on_front = get_option('page_on_front');
-        if ($page_on_front != $_GET['post']) {
+        $home_ids = $this->get_home_page_ids();
+        if (!in_array($_GET['post'], $home_ids)) {
             return;
         }
         echo '<style>#wputh_box_wpuseo_box, #wputh_box_wpuseo_box_twitter, #wputh_box_wpuseo_box_facebook{display:none;}</style>';
@@ -1247,7 +1247,7 @@ class WPUSEO {
                 );
                 $metas['og_url'] = array(
                     'property' => 'og:url',
-                    'content' => home_url()
+                    'content' => $this->get_home_url()
                 );
             }
 
@@ -1814,6 +1814,26 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
             }
         }
         return $languages;
+    }
+
+    /* Home
+    -------------------------- */
+
+    public function get_home_url() {
+        $url = home_url();
+        if (function_exists('pll_home_url')) {
+            $url = pll_home_url();
+        }
+        return $url;
+    }
+
+    public function get_home_page_ids() {
+        $page_id = get_option('page_on_front');
+        $ids = array($page_id);
+        if (function_exists('pll_get_post_translations')) {
+            $ids = pll_get_post_translations($page_id);
+        }
+        return $ids;
     }
 
     /* WooCommerce helpers
