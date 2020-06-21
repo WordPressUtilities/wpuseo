@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.1.2
+Version: 2.1.3
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '2.1.2';
+    public $plugin_version = '2.1.3';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -56,13 +56,16 @@ class WPUSEO {
         // Cookies
         add_action('wp_head', array(&$this,
             'wp_head_cookie_helper'
-        ), 99, 0);
+        ), 10, 0);
         add_action('wp_enqueue_scripts', array(&$this,
             'wp_enqueue_scripts'
         ), 10, 0);
         add_action('wp_footer', array(&$this,
             'wp_footer'
         ), 50, 0);
+        add_action('rocket_excluded_inline_js_content', array(&$this,
+            'rocket_excluded_inline_js_content'
+        ), 10, 1);
 
         add_action('wp_head', array(&$this,
             'display_google_analytics_code'
@@ -1419,6 +1422,11 @@ class WPUSEO {
             wp_enqueue_script('wpuseo_cookies_script', plugins_url('assets/cookies.js', __FILE__), array('jquery'), $this->plugin_version);
             wp_enqueue_style('wpuseo_cookies_style', plugins_url('assets/cookies.css', __FILE__), array(), $this->plugin_version);
         }
+    }
+
+    function rocket_excluded_inline_js_content( $inline_js ) {
+        $inline_js[] = 'wpuseo_getcookie';
+        return $inline_js;
     }
 
     /* Footer
