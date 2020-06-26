@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.1.3
+Version: 2.1.4
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '2.1.3';
+    public $plugin_version = '2.1.4';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -1323,6 +1323,7 @@ class WPUSEO {
         $metas = apply_filters('wpuseo_metas_after_settings', $metas);
         $metas_json = apply_filters('wpuseo_metas_json_after_settings', $metas_json, $metas);
 
+        error_log(serialize($metas));
         echo $this->special_convert_array_html($metas);
         echo $this->special_convert_array_html($links, 'link');
 
@@ -1424,7 +1425,7 @@ class WPUSEO {
         }
     }
 
-    function rocket_excluded_inline_js_content( $inline_js ) {
+    public function rocket_excluded_inline_js_content($inline_js) {
         $inline_js[] = 'wpuseo_getcookie';
         return $inline_js;
     }
@@ -1718,6 +1719,11 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
 
     private function get_option_custom($name) {
         $opt = get_option($name);
+
+        /* Prevent a weird encoding bug with c/c content */
+        $opt = htmlentities($opt);
+        $opt = html_entity_decode($opt);
+
         if ($this->is_site_multilingual() && function_exists('wputh_l18n_get_option')) {
             $opt = wputh_l18n_get_option($name);
         }
