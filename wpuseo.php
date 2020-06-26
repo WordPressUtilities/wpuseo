@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.1.4
+Version: 2.1.5
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '2.1.4';
+    public $plugin_version = '2.1.5';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -1323,7 +1323,6 @@ class WPUSEO {
         $metas = apply_filters('wpuseo_metas_after_settings', $metas);
         $metas_json = apply_filters('wpuseo_metas_json_after_settings', $metas_json, $metas);
 
-        error_log(serialize($metas));
         echo $this->special_convert_array_html($metas);
         echo $this->special_convert_array_html($links, 'link');
 
