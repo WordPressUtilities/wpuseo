@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.1.5
+Version: 2.1.6
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '2.1.5';
+    public $plugin_version = '2.1.6';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -409,6 +409,12 @@ class WPUSEO {
                 'type' => 'number'
             );
         }
+        $options['wpu_meta_image_default'] = array(
+            'label' => $this->__('Default SEO Thumbnail'),
+            'type' => 'media',
+            'box' => 'wpu_seo',
+            'help' => $this->__('If not filled, the current theme screenshot will be used')
+        );
 
         // Home
         if ($this->active_wp_title) {
@@ -833,6 +839,13 @@ class WPUSEO {
 
         // Default image
         $og_image = apply_filters('wpuseo_default_image', $og_image);
+        $default_image_id = get_option('wpu_meta_image_default');
+        if($default_image_id && is_numeric($default_image_id)){
+            $default_image_src = wp_get_attachment_image_src($default_image_id, $this->thumbnail_size, true);
+            $og_image = $default_image_src[0];
+            $og_image_id = $default_image_id;
+        }
+
 
         // Default Facebook og:image
         if ($this->enable_facebook_metas) {
