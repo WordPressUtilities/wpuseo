@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.1.6
+Version: 2.2.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributor: @boiteaweb
 
 class WPUSEO {
 
-    public $plugin_version = '2.1.6';
+    public $plugin_version = '2.2.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -840,12 +840,11 @@ class WPUSEO {
         // Default image
         $og_image = apply_filters('wpuseo_default_image', $og_image);
         $default_image_id = get_option('wpu_meta_image_default');
-        if($default_image_id && is_numeric($default_image_id)){
+        if ($default_image_id && is_numeric($default_image_id)) {
             $default_image_src = wp_get_attachment_image_src($default_image_id, $this->thumbnail_size, true);
             $og_image = $default_image_src[0];
             $og_image_id = $default_image_id;
         }
-
 
         // Default Facebook og:image
         if ($this->enable_facebook_metas) {
@@ -1813,33 +1812,10 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         if (function_exists('pll_the_languages')) {
             return true;
         }
+        if (function_exists('icl_get_languages')) {
+            return true;
+        }
         return false;
-    }
-
-    /* Get languages
-     -------------------------- */
-
-    private function get_languages() {
-        global $q_config, $polylang;
-        $languages = array();
-
-        // Obtaining from Qtranslate
-        if (isset($q_config['enabled_languages'])) {
-            foreach ($q_config['enabled_languages'] as $lang) {
-                if (!in_array($lang, $languages) && isset($q_config['language_name'][$lang])) {
-                    $languages[$lang] = $q_config['language_name'][$lang];
-                }
-            }
-        }
-
-        // Obtaining from Polylang
-        if (function_exists('pll_the_languages') && is_object($polylang)) {
-            $poly_langs = $polylang->model->get_languages_list();
-            foreach ($poly_langs as $lang) {
-                $languages[$lang->slug] = $lang->name;
-            }
-        }
-        return $languages;
     }
 
     /* Home
@@ -1858,6 +1834,13 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         $ids = array($page_id);
         if (function_exists('pll_get_post_translations')) {
             $ids = pll_get_post_translations($page_id);
+        }
+        if (function_exists('icl_get_languages')) {
+            $langs = array_keys(icl_get_languages());
+            $ids = array();
+            foreach ($langs as $lang) {
+                $ids[] = icl_object_id($page_id, 'page', false, $lang);
+            }
         }
         return $ids;
     }
