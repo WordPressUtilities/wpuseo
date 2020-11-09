@@ -15,6 +15,10 @@ function wpuseo_setcookie(cname, cvalue, exdays) {
 ---------------------------------------------------------- */
 
 jQuery(document).ready(function wpuseo_cookienotice($) {
+    /* Cookies are not needed */
+    if(typeof wpuseo_getcookie == 'undefined'){
+        return;
+    }
     var _hasCookies = wpuseo_getcookie('wpuseo_cookies');
     /* User has enabled or refused cookies */
     if (_hasCookies == '1' || _hasCookies == '-1') {
