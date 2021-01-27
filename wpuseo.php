@@ -1295,7 +1295,7 @@ class WPUSEO {
         $wputh_fb_app = trim(get_option('wputh_fb_app'));
         if ($this->enable_facebook_metas && !empty($wputh_fb_app)) {
             $metas['fb_app'] = array(
-                'property' => 'fb:app',
+                'property' => 'fb:app_id',
                 'content' => $wputh_fb_app
             );
         }
