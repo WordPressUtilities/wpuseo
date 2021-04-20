@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.3.2
+Version: 2.4.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.3.2';
+    public $plugin_version = '2.4.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -469,6 +469,12 @@ class WPUSEO {
             'label' => $this->__('Enable anonymizeIp for Analytics'),
             'box' => 'wpu_seo_google',
             'type' => 'select'
+        );
+        $options['wputh_analytics_cookie_expires'] = array(
+            'label' => $this->__('Cookie expiration for Analytics (in sec)'),
+            'box' => 'wpu_seo_google',
+            'type' => 'number',
+            'help' => $this->__('If not filled, will use Google’s default value.')
         );
 
         // Facebook
@@ -1398,7 +1404,7 @@ class WPUSEO {
 
         // Disable indexation for archives pages after page 1 OR 404 page OR paginated comments
         if ((is_paged() && (is_category() || is_tag() || is_author() || is_tax())) || is_404() || (is_single() && comments_open() && (int) get_query_var('cpage') > 0)) {
-            add_filter( 'wp_robots', 'wp_robots_no_robots' );
+            add_filter('wp_robots', 'wp_robots_no_robots');
         }
     }
 
@@ -1515,6 +1521,10 @@ class WPUSEO {
         }
         $hook_ajaxready = apply_filters('wpuseo_ajaxready_hook', 'vanilla-pjax-ready');
         $enableanonymizeip = (get_option('wputh_analytics_enableanonymizeip') == '1');
+        $analyticsCookieExpires = (get_option('wputh_analytics_cookie_expires'));
+        if ($analyticsCookieExpires) {
+            $analyticsCookieExpires = intval($analyticsCookieExpires, 10);
+        }
 
         $analytics_code = '';
         $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
@@ -1545,6 +1555,9 @@ class WPUSEO {
         }
         if ($enableanonymizeip) {
             $analytics_code .= "\nga('set', 'anonymizeIp', true);";
+        }
+        if ($analyticsCookieExpires) {
+            $analytics_code .= "\nga('set', 'cookie_expires', " . $analyticsCookieExpires . ");";
         }
         $analytics_code .= "\nga('set','dimension1','visitorloggedin-" . (is_user_logged_in() ? '1' : '0') . "');";
         $analytics_code .= "\nga('send','pageview');";
