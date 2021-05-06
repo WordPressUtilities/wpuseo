@@ -52,6 +52,8 @@ body[data-cookie-notice="1"] .cookie-notice {
     left: 0;
     margin: auto;
     padding: 1em 4em 1em 1em;
+    border-bottom: 1px solid transparent;
+    border-bottom-width: calc(1.5*env(safe-area-inset-bottom) );
     background-color: #fff;
 }
 
