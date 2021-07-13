@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.4.1
+Version: 2.5.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.4.1';
+    public $plugin_version = '2.5.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -72,6 +72,9 @@ class WPUSEO {
         ), 99, 0);
         add_action('wp_head', array(&$this,
             'display_facebook_pixel_code'
+        ), 99, 0);
+        add_action('wp_head', array(&$this,
+            'display_custom_tracking'
         ), 99, 0);
         add_action('woocommerce_thankyou', array(&$this,
             'display_facebook_pixel_code__thankyou'
@@ -373,6 +376,10 @@ class WPUSEO {
             'name' => 'Google',
             'tab' => 'wpu_seo'
         );
+        $boxes['wpu_seo_custom'] = array(
+            'name' => 'Custom',
+            'tab' => 'wpu_seo'
+        );
         $boxes['wpu_seo_facebook'] = array(
             'name' => 'Facebook',
             'tab' => 'wpu_seo'
@@ -449,6 +456,14 @@ class WPUSEO {
                 'help' => $this->__('Use the content attribute of the validation meta tag') . ' (&lt;meta name="msvalidate.01" content="THECODE" /&gt;)'
             );
         }
+
+        // Custom
+        $options['wputh_custom_tracking_code'] = array(
+            'label' => $this->__('Custom JS Code'),
+            'box' => 'wpu_seo_custom',
+            'type' => 'textarea',
+            'help' => $this->__('Custom tracking code : Plugged to cookie notice if enabled. No HTML !')
+        );
 
         // Google
         $options['wpu_google_site_verification'] = array(
@@ -1415,7 +1430,8 @@ class WPUSEO {
     public function wp_head_cookie_helper() {
         $fb_pixel = $this->get_pixel_id();
         $ua_analytics = $this->get_analytics_id();
-        if (!$fb_pixel && !$ua_analytics) {
+        $custom_tracking = $this->get_custom_tracking_code();
+        if (!$fb_pixel && !$ua_analytics && !$custom_tracking) {
             return;
         }
         $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
@@ -1502,6 +1518,43 @@ class WPUSEO {
         echo '</div>';
         echo '</div>';
         echo '</div>';
+    }
+
+    /* ----------------------------------------------------------
+      Custom tracking
+    ---------------------------------------------------------- */
+
+    public function display_custom_tracking() {
+        $code = $this->get_custom_tracking_code();
+        if (!$code) {
+            return;
+        }
+
+        $hook_ajaxready = apply_filters('wpuseo_ajaxready_hook', 'vanilla-pjax-ready');
+        $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
+        $enable_tracking = get_option('wpu_seo_cookies__enable_tracking');
+
+        $custom_code = '';
+
+        $custom_code .= '<script>function wpuseo_init_custom_tracking(){';
+        if ($cookie_notice == '1' && $enable_tracking != '1') {
+            $custom_code .= 'if(wpuseo_getcookie("wpuseo_cookies") != "1"){return;};';
+        }
+        $custom_code .= $code;
+        $custom_code .= '};wpuseo_init_custom_tracking();</script>';
+
+        echo apply_filters('wpuseo__display_custom_tracking', $custom_code);
+
+    }
+
+    public function get_custom_tracking_code() {
+        $code = get_option('wputh_custom_tracking_code');
+        $code = strip_tags($code);
+        if (!$code) {
+            return;
+        }
+
+        return $code;
     }
 
     /* ----------------------------------------------------------

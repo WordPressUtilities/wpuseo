@@ -47,6 +47,9 @@ jQuery(document).ready(function wpuseo_cookienotice($) {
             if (typeof wpuseo_init_fbpixel == 'function') {
                 wpuseo_init_fbpixel();
             }
+            if (typeof wpuseo_init_custom_tracking == 'function') {
+                wpuseo_init_custom_tracking();
+            }
         }
     });
 
