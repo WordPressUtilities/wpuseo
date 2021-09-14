@@ -20,12 +20,6 @@ jQuery(document).ready(function wpuseo_cookienotice($) {
         return;
     }
     var _hasCookies = wpuseo_getcookie('wpuseo_cookies');
-    /* User has enabled or refused cookies */
-    if (_hasCookies == '1' || _hasCookies == '-1') {
-        return;
-    }
-    /* Enable cookie notice */
-    jQuery('body').attr('data-cookie-notice', 1);
 
     /* Actions */
     jQuery('.cookie-notice').on('click', '[data-cookie-action]', function(e) {
@@ -36,7 +30,7 @@ jQuery(document).ready(function wpuseo_cookienotice($) {
         /* Set cookie */
         wpuseo_setcookie('wpuseo_cookies', _action);
 
-        /* Disable cookie notice */
+        /* Hide cookie notice */
         jQuery('body').attr('data-cookie-notice', 0);
 
         /* Restart analytics & pixel if available */
@@ -53,4 +47,13 @@ jQuery(document).ready(function wpuseo_cookienotice($) {
         }
     });
 
+    /* User has enabled or refused cookies */
+    if (_hasCookies == '1' || _hasCookies == '-1') {
+        return;
+    }
+
+    /* Display cookie notice */
+    jQuery('body').attr('data-cookie-notice', 1);
+
 });
+
