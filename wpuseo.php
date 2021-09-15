@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.6.0
+Version: 2.6.1
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.6.0';
+    public $plugin_version = '2.6.1';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -1436,7 +1436,7 @@ class WPUSEO {
         }
         $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
         if (!$wpu_seo_cookies__enable_notice) {
-            echo '<script>jQuery(document).ready(function(){jQuery("body").trigger("wpuseo-cookie-notice-not-needed");});</script>';
+            echo '<script>window.addEventListener("DOMContentLoaded",function(){jQuery("body").trigger("wpuseo-cookie-notice-not-needed");});</script>';
             return;
         }
 
@@ -1538,7 +1538,7 @@ class WPUSEO {
             $custom_code .= 'if(wpuseo_getcookie("wpuseo_cookies") != "1"){return;};';
         }
 
-        $custom_code .= 'jQuery(document).ready(function(){jQuery("body").trigger("wpuseo-cookie-notice-accepted");});';
+        $custom_code .= 'window.addEventListener("DOMContentLoaded",function(){jQuery("body").trigger("wpuseo-cookie-notice-accepted");});';
 
         $code = $this->get_custom_tracking_code();
         if ($code) {
