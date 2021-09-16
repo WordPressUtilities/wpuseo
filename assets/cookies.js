@@ -11,28 +11,12 @@ function wpuseo_setcookie(cname, cvalue, exdays) {
 }
 
 /* ----------------------------------------------------------
-  Events
----------------------------------------------------------- */
-
-function wpuseo_cookie_notice_accepted(){
-    function _trigger(){
-        jQuery("body").trigger("wpuseo-cookie-notice-accepted");
-    }
-    if (document.readyState === "complete" || document.readyState === "loaded") {
-         _trigger();
-    }
-    else {
-        window.addEventListener("DOMContentLoaded",_trigger);
-    }
-}
-
-/* ----------------------------------------------------------
   Display Cookie notice
 ---------------------------------------------------------- */
 
 jQuery(document).ready(function wpuseo_cookienotice($) {
     /* Cookies are not needed */
-    if(typeof wpuseo_getcookie == 'undefined'){
+    if (typeof wpuseo_getcookie == 'undefined') {
         return;
     }
     var _hasCookies = wpuseo_getcookie('wpuseo_cookies');
@@ -72,4 +56,3 @@ jQuery(document).ready(function wpuseo_cookienotice($) {
     jQuery('body').attr('data-cookie-notice', 1);
 
 });
-

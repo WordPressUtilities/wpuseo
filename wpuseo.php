@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.6.2
+Version: 2.6.3
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.6.2';
+    public $plugin_version = '2.6.3';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -1454,7 +1454,7 @@ class WPUSEO {
     public function wp_enqueue_scripts() {
         $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
         if ($wpu_seo_cookies__enable_notice) {
-            wp_enqueue_script('wpuseo_cookies_script', plugins_url('assets/cookies.js', __FILE__), array('jquery'), $this->plugin_version);
+            wp_enqueue_script('wpuseo_cookies_script', plugins_url('assets/cookies.js', __FILE__), array('jquery'), $this->plugin_version, false);
             wp_enqueue_style('wpuseo_cookies_style', plugins_url('assets/cookies.css', __FILE__), array(), $this->plugin_version);
         }
     }
@@ -1538,7 +1538,11 @@ class WPUSEO {
             $custom_code .= 'if(wpuseo_getcookie("wpuseo_cookies") != "1"){return;};';
         }
 
-        $custom_code .= 'wpuseo_cookie_notice_accepted();';
+        $custom_code .= '(function(){';
+        $custom_code .= 'function _trigger(){jQuery("body").trigger("wpuseo-cookie-notice-accepted");}';
+        $custom_code .= 'if(document.readyState==="complete"||document.readyState==="loaded"){_trigger();}';
+        $custom_code .= 'else{window.addEventListener("DOMContentLoaded",_trigger);}';
+        $custom_code .= '}());';
 
         $code = $this->get_custom_tracking_code();
         if ($code) {
