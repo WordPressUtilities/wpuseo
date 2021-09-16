@@ -11,6 +11,22 @@ function wpuseo_setcookie(cname, cvalue, exdays) {
 }
 
 /* ----------------------------------------------------------
+  Events
+---------------------------------------------------------- */
+
+function wpuseo_cookie_notice_accepted(){
+    function _trigger(){
+        jQuery("body").trigger("wpuseo-cookie-notice-accepted");
+    }
+    if (document.readyState === "complete" || document.readyState === "loaded") {
+         _trigger();
+    }
+    else {
+        window.addEventListener("DOMContentLoaded",_trigger);
+    }
+}
+
+/* ----------------------------------------------------------
   Display Cookie notice
 ---------------------------------------------------------- */
 
