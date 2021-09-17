@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.6.5
+Version: 2.6.6
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.6.5';
+    public $plugin_version = '2.6.6';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -1539,6 +1539,11 @@ class WPUSEO {
         $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
         $enable_tracking = get_option('wpu_seo_cookies__enable_tracking');
 
+        $code = $this->get_custom_tracking_code();
+        if (!$code) {
+            return;
+        }
+
         $custom_code = '';
 
         $custom_code .= '<script>function wpuseo_init_custom_tracking(){';
@@ -1551,11 +1556,7 @@ class WPUSEO {
         $custom_code .= 'if(document.readyState==="complete"||document.readyState==="loaded"){_trigger();}';
         $custom_code .= 'else{window.addEventListener("DOMContentLoaded",_trigger);}';
         $custom_code .= '}());';
-
-        $code = $this->get_custom_tracking_code();
-        if ($code) {
-            $custom_code .= $code;
-        }
+        $custom_code .= $code;
         $custom_code .= '};wpuseo_init_custom_tracking();</script>';
 
         echo apply_filters('wpuseo__display_custom_tracking', $custom_code);
@@ -1564,11 +1565,11 @@ class WPUSEO {
 
     public function get_custom_tracking_code() {
         $code = get_option('wputh_custom_tracking_code');
+        $code = apply_filters('wpuseo_wputh_custom_tracking_code', $code);
         $code = strip_tags($code);
         if (!$code) {
             return;
         }
-
         return $code;
     }
 
