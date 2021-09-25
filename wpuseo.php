@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.6.6
+Version: 2.7.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.6.6';
+    public $plugin_version = '2.7.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -224,6 +224,12 @@ class WPUSEO {
                 'lang' => true
             );
         }
+        $fields['wpuseo_hide_search'] = array(
+            'box' => 'wpuseo_box',
+            'name' => $this->__('Hide'),
+            'checkbox_label' => $this->__('Hide from search engines'),
+            'type' => 'checkbox'
+        );
         /* Twitter */
         $fields['wpuseo_post_image_twitter'] = array(
             'box' => 'wpuseo_box_twitter',
@@ -824,6 +830,13 @@ class WPUSEO {
         $metas_json = array();
         $links = array();
 
+        if (is_singular()) {
+            $wpuseo_hide_search = get_post_meta(get_the_ID(), 'wpuseo_hide_search', 1);
+            if ($wpuseo_hide_search == '1') {
+                return;
+            }
+        }
+
         if ($this->enable_facebook_metas) {
             $metas['og_sitename'] = array(
                 'property' => 'og:site_name',
@@ -1420,6 +1433,13 @@ class WPUSEO {
         // Disable indexation for archives pages after page 1 OR 404 page OR paginated comments
         if ((is_paged() && (is_category() || is_tag() || is_author() || is_tax())) || is_404() || (is_single() && comments_open() && (int) get_query_var('cpage') > 0)) {
             add_filter('wp_robots', 'wp_robots_no_robots');
+        }
+
+        if (is_singular()) {
+            $wpuseo_hide_search = get_post_meta(get_the_ID(), 'wpuseo_hide_search', 1);
+            if ($wpuseo_hide_search == '1') {
+                add_filter('wp_robots', 'wp_robots_no_robots');
+            }
         }
     }
 
