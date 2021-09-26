@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.7.0
+Version: 2.7.1
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.7.0';
+    public $plugin_version = '2.7.1';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -303,6 +303,12 @@ class WPUSEO {
             'taxonomies' => $taxonomies,
             'type' => 'textarea',
             'lang' => 1
+        );
+        $fields['wpuseo_hide_search'] = array(
+            'taxonomies' => $taxonomies,
+            'label' => $this->__('Hide'),
+            'long_label' => $this->__('Hide from search engines'),
+            'type' => 'checkbox'
         );
         if ($this->enable_twitter_metas) {
             $fields['wpuseo_title_twitter'] = array(
@@ -830,11 +836,8 @@ class WPUSEO {
         $metas_json = array();
         $links = array();
 
-        if (is_singular()) {
-            $wpuseo_hide_search = get_post_meta(get_the_ID(), 'wpuseo_hide_search', 1);
-            if ($wpuseo_hide_search == '1') {
-                return;
-            }
+        if ($this->is_hidden_from_search()) {
+            return;
         }
 
         if ($this->enable_facebook_metas) {
@@ -1425,6 +1428,26 @@ class WPUSEO {
     }
 
     /* ----------------------------------------------------------
+      Hide from search
+    ---------------------------------------------------------- */
+
+    public function is_hidden_from_search() {
+        if (is_singular()) {
+            $wpuseo_hide_search = get_post_meta(get_the_ID(), 'wpuseo_hide_search', 1);
+            if ($wpuseo_hide_search == '1') {
+                return true;
+            }
+        }
+        if (is_category() || is_tax() || is_tag()) {
+            $wpuseo_hide_search = $this->get_taxo_meta('wpuseo_hide_search');
+            if ($wpuseo_hide_search == '1') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /* ----------------------------------------------------------
       Robots tag
     ---------------------------------------------------------- */
 
@@ -1435,11 +1458,9 @@ class WPUSEO {
             add_filter('wp_robots', 'wp_robots_no_robots');
         }
 
-        if (is_singular()) {
-            $wpuseo_hide_search = get_post_meta(get_the_ID(), 'wpuseo_hide_search', 1);
-            if ($wpuseo_hide_search == '1') {
-                add_filter('wp_robots', 'wp_robots_no_robots');
-            }
+        // Disable indexation for some pages marked as sensitive
+        if ($this->is_hidden_from_search()) {
+            add_filter('wp_robots', 'wp_robots_sensitive_page');
         }
     }
 
