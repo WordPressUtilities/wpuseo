@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.7.1
+Version: 2.7.2
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.7.1';
+    public $plugin_version = '2.7.2';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -610,6 +610,13 @@ class WPUSEO {
         $options['wpu_seo_cookies__display_refuse'] = array(
             'label' => $this->__('Display "refuse" button'),
             'type' => 'select',
+            'box' => 'wpu_seo_cookies'
+        );
+
+        $options['wpu_seo_cookies__duration_choice'] = array(
+            'label' => $this->__('Duration of choice (in days)'),
+            'type' => 'number',
+            'default_value' => 30,
             'box' => 'wpu_seo_cookies'
         );
 
@@ -1495,8 +1502,11 @@ class WPUSEO {
     public function wp_enqueue_scripts() {
         $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
         if ($wpu_seo_cookies__enable_notice) {
-            wp_enqueue_script('wpuseo_cookies_script', plugins_url('assets/cookies.js', __FILE__), array('jquery'), $this->plugin_version, false);
             wp_enqueue_style('wpuseo_cookies_style', plugins_url('assets/cookies.css', __FILE__), array(), $this->plugin_version);
+            wp_enqueue_script('wpuseo_cookies_script', plugins_url('assets/cookies.js', __FILE__), array('jquery'), $this->plugin_version, false);
+            wp_localize_script('wpuseo_cookies_script', 'wpuseo_obj', array(
+                'duration_choice' => get_option('wpu_seo_cookies__duration_choice')
+            ));
         }
     }
 

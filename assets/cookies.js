@@ -5,7 +5,7 @@
 
 function wpuseo_setcookie(cname, cvalue, exdays) {
     var d = new Date();
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    d.setTime(d.getTime() + (parseInt(exdays, 10) * 24 * 60 * 60 * 1000));
     var expires = "expires=" + d.toUTCString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
@@ -28,7 +28,7 @@ jQuery(document).ready(function wpuseo_cookienotice($) {
             _action = $this.attr('data-cookie-action');
 
         /* Set cookie */
-        wpuseo_setcookie('wpuseo_cookies', _action);
+        wpuseo_setcookie('wpuseo_cookies', _action, wpuseo_obj.duration_choice);
 
         /* Hide cookie notice */
         jQuery('body').attr('data-cookie-notice', 0);
