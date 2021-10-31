@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.7.2
+Version: 2.8.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,21 +14,23 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.7.2';
+    public $plugin_version = '2.8.0';
     private $active_wp_title = true;
     private $active_metas = true;
+
+    public function __construct() {
+        add_action('init', array(&$this,
+            'init'
+        ));
+    }
 
     public function init() {
 
         $this->active_wp_title = !apply_filters('wpuseo__disable__wp_title', false);
         $this->active_metas = !apply_filters('wpuseo__disable__metas', false);
 
-        add_action('init', array(&$this,
-            'check_config'
-        ));
-        add_action('plugins_loaded', array(&$this,
-            'load_translation'
-        ));
+        $this->check_config();
+        $this->load_translation();
 
         // Filter
         if ($this->active_wp_title) {
@@ -114,7 +116,6 @@ class WPUSEO {
         add_filter('wputh_post_metas_fields', array(&$this,
             'post_meta_fields'
         ), 10, 3);
-
         // Taxo fields
         add_filter('wputaxometas_fields', array(&$this,
             'taxo_fields'
@@ -179,6 +180,16 @@ class WPUSEO {
             remove_action('wp_head', 'wp_shortlink_wp_head');
             remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
         }
+    }
+
+    /* ----------------------------------------------------------
+      Post types
+    ---------------------------------------------------------- */
+
+    public function get_post_types() {
+        return get_post_types(array(
+            'rewrite' => true
+        ), 'objects');
     }
 
     /* ----------------------------------------------------------
@@ -404,6 +415,11 @@ class WPUSEO {
             'name' => 'Cookies',
             'tab' => 'wpu_seo'
         );
+        //$pt = $this->get_post_types();
+        //foreach ($pt as $post_type) {
+        //
+        //}
+
         return $boxes;
     }
 
@@ -619,6 +635,14 @@ class WPUSEO {
             'default_value' => 30,
             'box' => 'wpu_seo_cookies'
         );
+
+        //$pt = $this->get_post_types();
+        //foreach ($pt as $post_type) {
+        //    $boxes['wpu_seo_pt__' . $post_type->name] = array(
+        //        'name' => 'Post-type : ' . $post_type->label,
+        //        'tab' => 'wpu_seo'
+        //    );
+        //}
 
         // Multilingual
         if ($this->is_site_multilingual()) {
@@ -1992,4 +2016,3 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
 }
 
 $WPUSEO = new WPUSEO();
-$WPUSEO->init();
