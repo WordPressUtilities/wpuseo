@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.8.0
+Version: 2.9.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.8.0';
+    public $plugin_version = '2.9.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -130,6 +130,9 @@ class WPUSEO {
             'post',
             'page'
         ));
+        $this->boxes_pt_with_archive = array_filter($this->boxes_pt, function ($a) {
+            return !in_array($a, array('post', 'page'));
+        });
         $this->twitter_cards = apply_filters('wpuseo_twitter_cards', array(
             'summary' => 'summary',
             'summary_large_image' => 'summary_large_image'
@@ -180,16 +183,6 @@ class WPUSEO {
             remove_action('wp_head', 'wp_shortlink_wp_head');
             remove_action('wp_head', 'adjacent_posts_rel_link_wp_head');
         }
-    }
-
-    /* ----------------------------------------------------------
-      Post types
-    ---------------------------------------------------------- */
-
-    public function get_post_types() {
-        return get_post_types(array(
-            'rewrite' => true
-        ), 'objects');
     }
 
     /* ----------------------------------------------------------
@@ -415,10 +408,13 @@ class WPUSEO {
             'name' => 'Cookies',
             'tab' => 'wpu_seo'
         );
-        //$pt = $this->get_post_types();
-        //foreach ($pt as $post_type) {
-        //
-        //}
+
+        foreach ($this->boxes_pt_with_archive as $post_type) {
+            $boxes['wpu_seo_pt__' . $post_type] = array(
+                'name' => 'Post-type : ' . $post_type,
+                'tab' => 'wpu_seo'
+            );
+        }
 
         return $boxes;
     }
@@ -636,15 +632,79 @@ class WPUSEO {
             'box' => 'wpu_seo_cookies'
         );
 
-        //$pt = $this->get_post_types();
-        //foreach ($pt as $post_type) {
-        //    $boxes['wpu_seo_pt__' . $post_type->name] = array(
-        //        'name' => 'Post-type : ' . $post_type->label,
-        //        'tab' => 'wpu_seo'
-        //    );
-        //}
+        foreach ($this->boxes_pt_with_archive as $post_type) {
 
-        // Multilingual
+            if ($this->active_wp_title) {
+                /* Title */
+                $options['wpu_seo_pt__' . $post_type . '__page_title'] = array(
+                    'label' => $this->__('Page title'),
+                    'lang' => true,
+                    'box' => 'wpu_seo_pt__' . $post_type
+                );
+            }
+            if ($this->active_metas) {
+                /* Desc */
+                $options['wpu_seo_pt__' . $post_type . '__meta_description'] = array(
+                    'label' => $this->__('Meta description'),
+                    'type' => 'textarea',
+                    'lang' => true,
+                    'box' => 'wpu_seo_pt__' . $post_type
+                );
+
+                /* Twitter */
+                if ($this->enable_twitter_metas) {
+                    $options['wpu_seo_pt__' . $post_type . '_box_title_twitter'] = array(
+                        'box' => 'wpu_seo_pt__' . $post_type,
+                        'label' => $this->__('Twitter'),
+                        'type' => 'title'
+                    );
+                    $options['wpu_seo_pt__' . $post_type . '_post_image_twitter'] = array(
+                        'box' => 'wpu_seo_pt__' . $post_type,
+                        'label' => $this->__('Image'),
+                        'type' => 'media',
+                        'lang' => true
+                    );
+                    $options['wpu_seo_pt__' . $post_type . '_post_title_twitter'] = array(
+                        'box' => 'wpu_seo_pt__' . $post_type,
+                        'label' => $this->__('Page title'),
+                        'lang' => true
+                    );
+                    $options['wpu_seo_pt__' . $post_type . '_post_description_twitter'] = array(
+                        'box' => 'wpu_seo_pt__' . $post_type,
+                        'label' => $this->__('Page description'),
+                        'type' => 'textarea',
+                        'lang' => true
+                    );
+                }
+                /* Facebook */
+                if ($this->enable_facebook_metas) {
+                    $options['wpu_seo_pt__' . $post_type . '_box_title_facebook'] = array(
+                        'box' => 'wpu_seo_pt__' . $post_type,
+                        'label' => $this->__('Facebook'),
+                        'type' => 'title'
+                    );
+                    $options['wpu_seo_pt__' . $post_type . '_post_image_facebook'] = array(
+                        'box' => 'wpu_seo_pt__' . $post_type,
+                        'label' => $this->__('Image'),
+                        'type' => 'media',
+                        'lang' => true
+                    );
+                    $options['wpu_seo_pt__' . $post_type . '_post_title_facebook'] = array(
+                        'box' => 'wpu_seo_pt__' . $post_type,
+                        'label' => $this->__('Page title'),
+                        'lang' => true
+                    );
+                    $options['wpu_seo_pt__' . $post_type . '_post_description_facebook'] = array(
+                        'box' => 'wpu_seo_pt__' . $post_type,
+                        'label' => $this->__('Page description'),
+                        'type' => 'textarea',
+                        'lang' => true
+                    );
+                }
+            }
+        }
+
+        // Multilingual : defined here for retrocompatibility purposes
         if ($this->is_site_multilingual()) {
             if (isset($options['wpu_home_page_title'])) {
                 $options['wpu_home_page_title']['lang'] = 1;
@@ -777,6 +837,14 @@ class WPUSEO {
 
         $new_title = $this->get_displayed_title();
 
+        if (is_post_type_archive() && in_array(get_post_type(), $this->boxes_pt_with_archive)) {
+            $post_type = get_post_type();
+            $wpuseo_post_title = wputh_l18n_get_option('wpu_seo_pt__' . $post_type . '__page_title');
+            if (!empty($wpuseo_post_title)) {
+                $new_title = $wpuseo_post_title;
+            }
+        }
+
         if (is_singular() || $this->is_shop()) {
             $post_id = get_the_ID();
             if ($this->is_shop()) {
@@ -788,6 +856,7 @@ class WPUSEO {
                 $new_title = $wpuseo_post_title;
             }
         }
+
         if (is_category() || is_tax() || is_tag()) {
             $taxo_meta_title = $this->get_taxo_meta('title');
             if (!empty($taxo_meta_title)) {
@@ -983,6 +1052,93 @@ class WPUSEO {
                 'property' => 'twitter:account_id',
                 'content' => $wpu_seo_user_twitter_account_id
             );
+        }
+
+        if (is_post_type_archive() && in_array(get_post_type(), $this->boxes_pt_with_archive)) {
+
+            /* Default values */
+            $post_type = get_post_type();
+            $post_type_obj = get_post_type_object($post_type);
+            $post_type_label = $post_type_obj->label;
+            $title = wputh_l18n_get_option('wpu_seo_pt__' . $post_type . '__page_title');
+            $description = wputh_l18n_get_option('wpu_seo_pt__' . $post_type . '__meta_description');
+
+            /* Meta description */
+            $title = $title ? $title : $post_type_label;
+            $description = $description ? $description : $title;
+            $metas['description'] = array(
+                'name' => 'description',
+                'content' => $this->prepare_text($description)
+            );
+
+            if ($this->enable_twitter_metas) {
+
+                /* Default values */
+                $twitter_title = trim(wputh_l18n_get_option('wpu_seo_pt__' . $post_type . '_post_title_twitter'));
+                $twitter_description = trim(wputh_l18n_get_option('wpu_seo_pt__' . $post_type . '_post_description_twitter'));
+                $twitter_image = trim(wputh_l18n_get_option('wpu_seo_pt__' . $post_type . '_post_image_twitter'));
+
+                /* Title */
+                $twitter_title = $twitter_title ? $twitter_title : $title;
+                $metas['twitter_title'] = array(
+                    'name' => 'twitter:title',
+                    'content' => $twitter_title
+                );
+
+                /* Description */
+                $twitter_description = $twitter_description ? $twitter_description : $description;
+                $metas['twitter_description'] = array(
+                    'name' => 'twitter:description',
+                    'content' => $this->prepare_text($twitter_description)
+                );
+
+                /* Image */
+                if (is_numeric($twitter_image)) {
+                    $thumb_url = wp_get_attachment_image_src($twitter_image, $this->thumbnail_size, true);
+                    if (isset($thumb_url[0])) {
+                        $metas['twitter_image'] = array(
+                            'name' => 'twitter:image',
+                            'imgid' => $custom_twitter_image,
+                            'content' => $thumb_url[0]
+                        );
+                    }
+                }
+            }
+
+            if ($this->enable_facebook_metas) {
+
+                /* Default values */
+                $facebook_title = trim(wputh_l18n_get_option('wpu_seo_pt__' . $post_type . '_post_title_facebook'));
+                $facebook_description = trim(wputh_l18n_get_option('wpu_seo_pt__' . $post_type . '_post_description_facebook'));
+                $facebook_image = trim(wputh_l18n_get_option('wpu_seo_pt__' . $post_type . '_post_image_facebook'));
+
+                /* Title */
+                $facebook_title = $facebook_title ? $facebook_title : $title;
+                $metas['facebook_title'] = array(
+                    'name' => 'og:title',
+                    'content' => $facebook_title
+                );
+
+                /* Description */
+                $facebook_description = $facebook_description ? $facebook_description : $description;
+                $metas['facebook_description'] = array(
+                    'name' => 'og:description',
+                    'content' => $this->prepare_text($facebook_description)
+                );
+
+                /* Image */
+                if (is_numeric($facebook_image)) {
+                    $thumb_url = wp_get_attachment_image_src($facebook_image, $this->thumbnail_size, true);
+                    if (isset($thumb_url[0])) {
+                        $metas['facebook_image'] = array(
+                            'name' => 'og:image',
+                            'imgid' => $custom_facebook_image,
+                            'content' => $thumb_url[0]
+                        );
+                    }
+                }
+            }
+
         }
 
         if (is_category() || is_tax() || is_tag()) {
