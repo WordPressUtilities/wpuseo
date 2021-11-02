@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.9.0
+Version: 2.9.1
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.9.0';
+    public $plugin_version = '2.9.1';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -288,6 +288,7 @@ class WPUSEO {
      -------------------------- */
 
     public function taxo_fields($fields) {
+        $lang = apply_filters('wpuseo_enable_lang_on_taxos', true);
         $taxonomies = apply_filters('wpuseo_taxo_list', array(
             'category',
             'post_tag'
@@ -300,13 +301,13 @@ class WPUSEO {
         $fields['wpuseo_taxo_title'] = array(
             'label' => $this->__('Page title'),
             'taxonomies' => $taxonomies,
-            'lang' => 1
+            'lang' => $lang
         );
         $fields['wpuseo_taxo_description'] = array(
             'label' => $this->__('Page description'),
             'taxonomies' => $taxonomies,
             'type' => 'textarea',
-            'lang' => 1
+            'lang' => $lang
         );
         $fields['wpuseo_hide_search'] = array(
             'taxonomies' => $taxonomies,
@@ -323,13 +324,13 @@ class WPUSEO {
             $fields['wpuseo_taxo_title_twitter'] = array(
                 'label' => $this->__('Twitter:title'),
                 'taxonomies' => $taxonomies,
-                'lang' => 1
+                'lang' => $lang
             );
             $fields['wpuseo_taxo_description_twitter'] = array(
                 'label' => $this->__('Twitter:description'),
                 'type' => 'textarea',
                 'taxonomies' => $taxonomies,
-                'lang' => 1
+                'lang' => $lang
             );
             $fields['wpuseo_taxo_image_twitter'] = array(
                 'label' => $this->__('Twitter:Image'),
@@ -347,13 +348,13 @@ class WPUSEO {
             $fields['wpuseo_taxo_title_facebook'] = array(
                 'label' => $this->__('OG:Title'),
                 'taxonomies' => $taxonomies,
-                'lang' => 1
+                'lang' => $lang
             );
             $fields['wpuseo_taxo_description_facebook'] = array(
                 'label' => $this->__('OG:Description'),
                 'type' => 'textarea',
                 'taxonomies' => $taxonomies,
-                'lang' => 1
+                'lang' => $lang
             );
             $fields['wpuseo_taxo_image_facebook'] = array(
                 'label' => $this->__('Og:Image'),
