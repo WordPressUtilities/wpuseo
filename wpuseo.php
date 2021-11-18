@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.9.1
+Version: 2.9.2
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.9.1';
+    public $plugin_version = '2.9.2';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -426,7 +426,8 @@ class WPUSEO {
         if ($this->active_wp_title) {
             $options['wpu_home_title_separator'] = array(
                 'label' => $this->__('Title separator'),
-                'box' => 'wpu_seo'
+                'box' => 'wpu_seo',
+                'help' => $this->__('Between site name and site description, or page name and site name')
             );
             $options['wpu_title_order'] = array(
                 'label' => $this->__('Site name before page title'),
@@ -1665,7 +1666,9 @@ class WPUSEO {
         }
         $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
         if (!$wpu_seo_cookies__enable_notice) {
-            echo '<script>window.addEventListener("DOMContentLoaded",function(){jQuery("body").trigger("wpuseo-cookie-notice-not-needed");});</script>';
+            echo '<script>window.addEventListener("DOMContentLoaded",function(){';
+            echo 'if(typeof(jQuery)=="function"){jQuery("body").trigger("wpuseo-cookie-notice-not-needed");}';
+            echo '});</script>';
             return;
         }
 
