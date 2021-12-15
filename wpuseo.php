@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.9.3
+Version: 2.9.4
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.9.3';
+    public $plugin_version = '2.9.4';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -523,6 +523,11 @@ class WPUSEO {
             'label' => $this->__('Enable Facebook metas'),
             'type' => 'select',
             'box' => 'wpu_seo_facebook'
+        );
+        $options['wputh_fb_domain'] = array(
+            'label' => $this->__('Site verification ID'),
+            'box' => 'wpu_seo_facebook',
+            'help' => $this->__('Use the content attribute of the validation meta tag') . ' (&lt;meta name="facebook-domain-verification" content="THECODE" /&gt;)'
         );
         $options['wputh_fb_admins'] = array(
             'label' => $this->__('FB:Admins ID'),
@@ -1514,6 +1519,15 @@ class WPUSEO {
             $metas['google_site_verification'] = array(
                 'name' => 'google-site-verification',
                 'content' => $wpu_google_site_verification
+            );
+        }
+
+        // FB Domain
+        $wputh_fb_domain = trim(get_option('wputh_fb_domain'));
+        if ($this->enable_facebook_metas && !empty($wputh_fb_domain)) {
+            $metas['fb_domain'] = array(
+                'name' => 'facebook-domain-verification',
+                'content' => $wputh_fb_domain
             );
         }
 
