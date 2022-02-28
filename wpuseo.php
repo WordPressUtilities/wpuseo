@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.9.4
+Version: 2.10.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.9.4';
+    public $plugin_version = '2.10.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -44,6 +44,10 @@ class WPUSEO {
                 'rss_wp_title'
             ), 999, 2);
         }
+
+        add_filter('wpupostmetas__box_content__after_table', array(&$this,
+            'admin_box_preview'
+        ), 10, 2);
 
         // Actions
         if ($this->active_metas) {
@@ -852,7 +856,7 @@ class WPUSEO {
             }
         }
 
-        if (is_singular() || $this->is_shop()) {
+        if (is_singular() || $this->is_shop() || $this->is_admin_preview()) {
             $post_id = get_the_ID();
             if ($this->is_shop()) {
                 $post_id = get_option('woocommerce_shop_page_id');
@@ -917,7 +921,7 @@ class WPUSEO {
         if (is_day()) {
             $displayed_title = ($prefix ? $this->__('Day:') . ' ' : '') . get_the_time($this->__('F j, Y'));
         }
-        if (is_singular()) {
+        if (is_singular() || $this->is_admin_preview()) {
             $displayed_title = get_the_title();
             if (property_exists($post, 'post_password') && !empty($post->post_password)) {
                 if (post_password_required()) {
@@ -937,7 +941,7 @@ class WPUSEO {
       Meta content & open graph
     ---------------------------------------------------------- */
 
-    public function add_metas() {
+    public function get_metas() {
         global $post;
         $metas = apply_filters('wpuseo_metas_before_settings', array());
         $metas_json = array();
@@ -1235,7 +1239,7 @@ class WPUSEO {
 
         }
 
-        if (!is_home() && !is_front_page() && (is_single() || is_page() || is_singular() || $this->is_shop())) {
+        if (!is_home() && !is_front_page() && (is_single() || is_page() || is_singular() || $this->is_shop() || $this->is_admin_preview())) {
 
             $post_infos = $post;
             $post_type = get_post_type($post);
@@ -1575,13 +1579,21 @@ class WPUSEO {
         $metas = apply_filters('wpuseo_metas_after_settings', $metas);
         $metas_json = apply_filters('wpuseo_metas_json_after_settings', $metas_json, $metas);
 
-        echo $this->special_convert_array_html($metas);
-        echo $this->special_convert_array_html($links, 'link');
+        return array(
+            'links' => $links,
+            'metas' => $metas,
+            'metas_json' => $metas_json
+        );
+    }
 
-        if (!empty($metas_json)) {
-            echo $this->set_metas_ld_json($metas, $metas_json);
+    public function add_metas() {
+        $metas = $this->get_metas();
+        echo $this->special_convert_array_html($metas['metas']);
+        echo $this->special_convert_array_html($metas['links'], 'link');
+
+        if (!empty($metas['metas_json'])) {
+            echo $this->set_metas_ld_json($metas['metas'], $metas['metas_json']);
         }
-
     }
 
     public function set_metas_ld_json($metas, $metas_json) {
@@ -2047,6 +2059,51 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
 
     public function order_keywords_values($a, $b) {
         return $a[0] < $b[0];
+    }
+
+    /* ----------------------------------------------------------
+      Admin preview
+    ---------------------------------------------------------- */
+
+    public function admin_box_preview($content, $boxid) {
+        if ($boxid != 'wpuseo_box') {
+            return $content;
+        }
+        $html = '<hr /><details><summary>' . $this->__('Preview') . '</summary>';
+
+        $html .= '<table class="wpupostmetas-table"><tbody>';
+
+        if ($this->active_wp_title) {
+            $html .= '<tr><th>' . $this->__('Title tag content') . '</th><td><pre>' . $this->wp_title('') . '</pre></td></tr>';
+        }
+
+        $metas = $this->get_metas();
+
+        if (isset($metas['metas']['description']['content'])) {
+            $html .= '<tr><th>' . $this->__('Meta description content') . '</th><td><pre>' . $metas['metas']['description']['content'] . '</pre></td></tr>';
+        }
+
+        $html .= '</tbody></table>';
+        $html .= wpautop($this->__('Save post to display updated values'));
+        $html .= '</details>';
+
+        return $content . $html;
+    }
+
+    /* Checks for admin preview
+    -------------------------- */
+
+    public function is_admin_preview($base = 'post') {
+        if (!is_admin()) {
+            return false;
+        }
+
+        $screen = get_current_screen();
+        if (!$screen) {
+            return false;
+        }
+
+        return $screen->base == $base;
     }
 
     /* ----------------------------------------------------------
