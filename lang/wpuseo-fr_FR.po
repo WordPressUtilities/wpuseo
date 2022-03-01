@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU SEO\n"
-"POT-Creation-Date: 2022-02-28 23:13+0100\n"
+"POT-Creation-Date: 2022-03-01 15:33+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Darklg <darklg.blog@gmail.com>\n"
 "Language-Team: \n"
@@ -330,19 +330,43 @@ msgstr "Accepter"
 msgid "Refuse"
 msgstr "Refuser"
 
-#: .././wpuseo.php:2072
-msgid "Preview"
-msgstr "Aperçu"
-
-#: .././wpuseo.php:2077
+#: .././wpuseo.php:2085
 msgid "Title tag content"
 msgstr "Contenu de la balise title"
 
-#: .././wpuseo.php:2083
+#: .././wpuseo.php:2091
 msgid "Meta description content"
 msgstr "Contenu de la méta-description"
 
-#: .././wpuseo.php:2087
+#: .././wpuseo.php:2099
+msgid "Twitter Title"
+msgstr "Titre Twitter"
+
+#: .././wpuseo.php:2105
+msgid "Twitter Description"
+msgstr "Description Twitter"
+
+#: .././wpuseo.php:2111
+msgid "Twitter Image"
+msgstr "Image Twitter"
+
+#: .././wpuseo.php:2119
+msgid "Facebook og:title"
+msgstr "Facebook og:title"
+
+#: .././wpuseo.php:2125
+msgid "Facebook og:description"
+msgstr "Facebook og:description"
+
+#: .././wpuseo.php:2131
+msgid "Facebook og:image"
+msgstr "Facebook og:image"
+
+#: .././wpuseo.php:2138
+msgid "Preview"
+msgstr "Aperçu"
+
+#: .././wpuseo.php:2144
 msgid "Save post to display updated values"
 msgstr "Enregistrer la publication pour afficher les valeurs mises à jour"
 

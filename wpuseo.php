@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.10.0
+Version: 2.11.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.10.0';
+    public $plugin_version = '2.11.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -2066,23 +2066,80 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
     ---------------------------------------------------------- */
 
     public function admin_box_preview($content, $boxid) {
-        if ($boxid != 'wpuseo_box') {
+        $boxes = array(
+            'wpuseo_box',
+            'wpuseo_box_twitter',
+            'wpuseo_box_facebook'
+        );
+
+        if (!in_array($boxid, $boxes)) {
             return $content;
-        }
-        $html = '<hr /><details><summary>' . $this->__('Preview') . '</summary>';
-
-        $html .= '<table class="wpupostmetas-table"><tbody>';
-
-        if ($this->active_wp_title) {
-            $html .= '<tr><th>' . $this->__('Title tag content') . '</th><td><pre>' . $this->wp_title('') . '</pre></td></tr>';
         }
 
         $metas = $this->get_metas();
 
-        if (isset($metas['metas']['description']['content'])) {
-            $html .= '<tr><th>' . $this->__('Meta description content') . '</th><td><pre>' . $metas['metas']['description']['content'] . '</pre></td></tr>';
+        $data = array();
+        if ($boxid == 'wpuseo_box') {
+            if ($this->active_wp_title) {
+                $data[] = array(
+                    'th' => $this->__('Title tag content'),
+                    'td' => '<pre>' . $this->wp_title('') . '</pre>'
+                );
+            }
+            if (isset($metas['metas']['description']['content'])) {
+                $data[] = array(
+                    'th' => $this->__('Meta description content'),
+                    'td' => '<pre>' . $metas['metas']['description']['content'] . '</pre>'
+                );
+            }
+        }
+        if ($boxid == 'wpuseo_box_twitter') {
+            if (isset($metas['metas']['twitter_title']['content'])) {
+                $data[] = array(
+                    'th' => $this->__('Twitter Title'),
+                    'td' => '<pre>' . $metas['metas']['twitter_title']['content'] . '</pre>'
+                );
+            }
+            if (isset($metas['metas']['twitter_description']['content'])) {
+                $data[] = array(
+                    'th' => $this->__('Twitter Description'),
+                    'td' => '<pre>' . $metas['metas']['twitter_description']['content'] . '</pre>'
+                );
+            }
+            if (isset($metas['metas']['twitter_image']['content'])) {
+                $data[] = array(
+                    'th' => $this->__('Twitter Image'),
+                    'td' => '<img src="' . $metas['metas']['twitter_image']['content'] . '" style="width:100px;height:70px;object-fit:cover;background-color:#ccc;" loading="lazy" alt="" />'
+                );
+            }
+        }
+        if ($boxid == 'wpuseo_box_facebook') {
+            if (isset($metas['metas']['og_title']['content'])) {
+                $data[] = array(
+                    'th' => $this->__('Facebook og:title'),
+                    'td' => '<pre>' . $metas['metas']['og_title']['content'] . '</pre>'
+                );
+            }
+            if (isset($metas['metas']['og_description']['content'])) {
+                $data[] = array(
+                    'th' => $this->__('Facebook og:description'),
+                    'td' => '<pre>' . $metas['metas']['og_description']['content'] . '</pre>'
+                );
+            }
+            if (isset($metas['metas']['og_image']['content'])) {
+                $data[] = array(
+                    'th' => $this->__('Facebook og:image'),
+                    'td' => '<img src="' . $metas['metas']['og_image']['content'] . '" style="width:100px;height:70px;object-fit:cover;background-color:#ccc;" loading="lazy" alt="" />'
+                );
+            }
         }
 
+        /* Display box content */
+        $html = '<hr /><details><summary>' . $this->__('Preview') . '</summary>';
+        $html .= '<table class="wpupostmetas-table"><tbody>';
+        foreach ($data as $item) {
+            $html .= '<tr><th>' . $item['th'] . '</th><td>' . $item['td'] . '</td></tr>';
+        }
         $html .= '</tbody></table>';
         $html .= wpautop($this->__('Save post to display updated values'));
         $html .= '</details>';
