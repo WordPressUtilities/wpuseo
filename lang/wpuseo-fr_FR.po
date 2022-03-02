@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU SEO\n"
-"POT-Creation-Date: 2022-03-01 15:33+0100\n"
+"POT-Creation-Date: 2022-03-02 22:06+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Darklg <darklg.blog@gmail.com>\n"
 "Language-Team: \n"
@@ -265,56 +265,56 @@ msgstr "Twitter"
 msgid "Facebook"
 msgstr "Facebook"
 
-#: .././wpuseo.php:890 .././wpuseo.php:935
+#: .././wpuseo.php:894 .././wpuseo.php:939
 msgid "404 Error"
 msgstr "Erreur 404"
 
-#: .././wpuseo.php:892
+#: .././wpuseo.php:896
 #, php-format
 msgid "Search results for \"%s\""
 msgstr "Résultats de recherche pour \"%s\""
 
-#: .././wpuseo.php:895
+#: .././wpuseo.php:899
 msgid "Archive"
 msgstr "Archive"
 
-#: .././wpuseo.php:901
+#: .././wpuseo.php:905
 msgid "Tag:"
 msgstr "Tag :"
 
-#: .././wpuseo.php:904
+#: .././wpuseo.php:908
 msgid "Category:"
 msgstr "Catégorie :"
 
-#: .././wpuseo.php:913
+#: .././wpuseo.php:917
 msgid "Author:"
 msgstr "Auteur :"
 
-#: .././wpuseo.php:916
+#: .././wpuseo.php:920
 msgid "Year:"
 msgstr "Année :"
 
-#: .././wpuseo.php:916
+#: .././wpuseo.php:920
 msgid "Y"
 msgstr "Y"
 
-#: .././wpuseo.php:919
+#: .././wpuseo.php:923
 msgid "Month:"
 msgstr "Mois :"
 
-#: .././wpuseo.php:919
+#: .././wpuseo.php:923
 msgid "F Y"
 msgstr "F Y"
 
-#: .././wpuseo.php:922
+#: .././wpuseo.php:926
 msgid "Day:"
 msgstr "Jour :"
 
-#: .././wpuseo.php:922
+#: .././wpuseo.php:926
 msgid "F j, Y"
 msgstr "j F Y"
 
-#: .././wpuseo.php:1739
+#: .././wpuseo.php:1743
 msgid ""
 "This website uses cookies to ensure you get the best experience on our "
 "website."
@@ -322,53 +322,58 @@ msgstr ""
 "Ce site utilise des cookies pour vous garantir la meilleure expérience "
 "utilisateur."
 
-#: .././wpuseo.php:1745
+#: .././wpuseo.php:1749
 msgid "Accept"
 msgstr "Accepter"
 
-#: .././wpuseo.php:1751
+#: .././wpuseo.php:1755
 msgid "Refuse"
 msgstr "Refuser"
 
-#: .././wpuseo.php:2085
+#: .././wpuseo.php:2089
 msgid "Title tag content"
 msgstr "Contenu de la balise title"
 
-#: .././wpuseo.php:2091
+#: .././wpuseo.php:2095
 msgid "Meta description content"
 msgstr "Contenu de la méta-description"
 
-#: .././wpuseo.php:2099
+#: .././wpuseo.php:2103
 msgid "Twitter Title"
 msgstr "Titre Twitter"
 
-#: .././wpuseo.php:2105
+#: .././wpuseo.php:2109
 msgid "Twitter Description"
 msgstr "Description Twitter"
 
-#: .././wpuseo.php:2111
+#: .././wpuseo.php:2115
 msgid "Twitter Image"
 msgstr "Image Twitter"
 
-#: .././wpuseo.php:2119
+#: .././wpuseo.php:2123
 msgid "Facebook og:title"
 msgstr "Facebook og:title"
 
-#: .././wpuseo.php:2125
+#: .././wpuseo.php:2129
 msgid "Facebook og:description"
 msgstr "Facebook og:description"
 
-#: .././wpuseo.php:2131
+#: .././wpuseo.php:2135
 msgid "Facebook og:image"
 msgstr "Facebook og:image"
 
-#: .././wpuseo.php:2138
+#: .././wpuseo.php:2142
 msgid "Preview"
 msgstr "Aperçu"
 
-#: .././wpuseo.php:2144
+#: .././wpuseo.php:2148
 msgid "Save post to display updated values"
 msgstr "Enregistrer la publication pour afficher les valeurs mises à jour"
+
+#: .././wpuseo.php:2149
+msgid "Edit in site options to display updated values"
+msgstr ""
+"Modifier dans les options du site pour afficher les valeurs mises à jour"
 
 #~ msgid "Cookie expirations for Analytics (in sec)"
 #~ msgstr "Expiration des cookies pour Analytics (en sec)"

@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.11.0
+Version: 2.12.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.11.0';
+    public $plugin_version = '2.12.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -747,20 +747,24 @@ class WPUSEO {
     }
 
     public function remove_boxes() {
-        $screen = get_current_screen();
-        /* Only on post page */
-        if (!isset($_GET['post']) || !is_object($screen) || $screen->base != 'post' || $screen->id != 'page') {
+        if (!$this->is_admin_preview_home()) {
             return;
         }
-        $show_on_front = get_option('show_on_front');
-        if ($show_on_front != 'page') {
-            return;
+
+        $selectors = array(
+            '#wputh_box_wpuseo_box',
+            '#wputh_box_wpuseo_box_twitter',
+            '#wputh_box_wpuseo_box_facebook'
+        );
+        $rules = array();
+
+        echo '<style>';
+        foreach ($selectors as $selector) {
+            echo $selector . ' hr, ' . $selector . ' .inside > table {display:none;}';
+            echo $selector . ' .wpuseo-message-post{display:none!important;}';
+            echo $selector . ' .wpuseo-message-home{display:block!important;}';
         }
-        $home_ids = $this->get_home_page_ids();
-        if (!in_array($_GET['post'], $home_ids)) {
-            return;
-        }
-        echo '<style>#wputh_box_wpuseo_box, #wputh_box_wpuseo_box_twitter, #wputh_box_wpuseo_box_facebook{display:none;}</style>';
+        echo '</style>';
     }
 
     /* ----------------------------------------------------------
@@ -833,7 +837,7 @@ class WPUSEO {
         $new_title = '';
 
         // Home : Exception for order
-        if (is_home() || is_front_page() || is_feed()) {
+        if (is_home() || is_front_page() || is_feed() || $this->is_admin_preview_home()) {
             $wpu_title = trim($this->get_option_custom('wpu_home_page_title'));
             if (empty($wpu_title)) {
                 $wpu_title = get_bloginfo('description');
@@ -1422,7 +1426,7 @@ class WPUSEO {
             }
         }
 
-        if (is_home() || is_front_page()) {
+        if (is_home() || is_front_page() || $this->is_admin_preview_home()) {
 
             // Main values
             $wpu_description = trim($this->get_option_custom('wpu_home_meta_description'));
@@ -2109,7 +2113,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
             if (isset($metas['metas']['twitter_image']['content'])) {
                 $data[] = array(
                     'th' => $this->__('Twitter Image'),
-                    'td' => '<img src="' . $metas['metas']['twitter_image']['content'] . '" style="width:100px;height:70px;object-fit:cover;background-color:#ccc;" loading="lazy" alt="" />'
+                    'td' => '<img src="' . $metas['metas']['twitter_image']['content'] . '" style="width:96px;height:54px;object-fit:cover;background-color:#ccc;" loading="lazy" alt="" />'
                 );
             }
         }
@@ -2129,7 +2133,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
             if (isset($metas['metas']['og_image']['content'])) {
                 $data[] = array(
                     'th' => $this->__('Facebook og:image'),
-                    'td' => '<img src="' . $metas['metas']['og_image']['content'] . '" style="width:100px;height:70px;object-fit:cover;background-color:#ccc;" loading="lazy" alt="" />'
+                    'td' => '<img src="' . $metas['metas']['og_image']['content'] . '" style="width:103px;height:54px;object-fit:cover;background-color:#ccc;" loading="lazy" alt="" />'
                 );
             }
         }
@@ -2141,7 +2145,8 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
             $html .= '<tr><th>' . $item['th'] . '</th><td>' . $item['td'] . '</td></tr>';
         }
         $html .= '</tbody></table>';
-        $html .= wpautop($this->__('Save post to display updated values'));
+        $html .= '<div class="wpuseo-message-post">' . wpautop($this->__('Save post to display updated values')) . '</div>';
+        $html .= '<div style="display:none;" class="wpuseo-message-home">' . wpautop($this->__('Edit in site options to display updated values')) . '</div>';
         $html .= '</details>';
 
         return $content . $html;
@@ -2149,6 +2154,26 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
 
     /* Checks for admin preview
     -------------------------- */
+
+    public function is_admin_preview_home() {
+        if (!is_admin()) {
+            return false;
+        }
+        $screen = get_current_screen();
+        /* Only on post page */
+        if (!isset($_GET['post']) || !is_object($screen) || $screen->base != 'post' || $screen->id != 'page') {
+            return false;
+        }
+        $show_on_front = get_option('show_on_front');
+        if ($show_on_front != 'page') {
+            return false;
+        }
+        $home_ids = $this->get_home_page_ids();
+        if (!in_array($_GET['post'], $home_ids)) {
+            return false;
+        }
+        return true;
+    }
 
     public function is_admin_preview($base = 'post') {
         if (!is_admin()) {
