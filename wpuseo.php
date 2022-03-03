@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.12.0
+Version: 2.13.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.12.0';
+    public $plugin_version = '2.13.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -48,6 +48,9 @@ class WPUSEO {
         add_filter('wpupostmetas__box_content__after_table', array(&$this,
             'admin_box_preview'
         ), 10, 2);
+        add_filter('wputaxometas__box_content__after_field_main', array(&$this,
+            'admin_box_preview_taxo'
+        ), 10, 6);
 
         // Actions
         if ($this->active_metas) {
@@ -797,7 +800,8 @@ class WPUSEO {
 
     public function get_taxo_meta($type) {
         global $q_config;
-        $queried_object = get_queried_object();
+        $queried_object = $this->get_queried_object();
+
         $term_id = $queried_object->term_id;
         $metas = array();
         if (function_exists('get_taxonomy_metas')) {
@@ -813,6 +817,13 @@ class WPUSEO {
             }
         }
         return $seo_title;
+    }
+
+    public function get_queried_object() {
+        if (!is_admin() || !isset($_GET['tag_ID'], $_GET['taxonomy']) || !is_numeric($_GET['tag_ID'])) {
+            return get_queried_object();
+        }
+        return get_term($_GET['tag_ID'], $_GET['taxonomy']);
     }
 
     /* ----------------------------------------------------------
@@ -872,7 +883,7 @@ class WPUSEO {
             }
         }
 
-        if (is_category() || is_tax() || is_tag()) {
+        if (is_category() || is_tax() || is_tag() || $this->is_admin_preview('term')) {
             $taxo_meta_title = $this->get_taxo_meta('title');
             if (!empty($taxo_meta_title)) {
                 $new_title = $taxo_meta_title;
@@ -892,20 +903,21 @@ class WPUSEO {
     public function get_displayed_title($prefix = true) {
         global $post;
         $displayed_title = $this->__('404 Error');
+        $queried_object = $this->get_queried_object();
         if (is_search()) {
             $displayed_title = sprintf($this->__('Search results for "%s"'), get_search_query());
         }
         if (is_archive()) {
             $displayed_title = $this->__('Archive');
         }
-        if (is_tax()) {
-            $displayed_title = single_cat_title("", false);
+        if (is_tax() || $this->is_admin_preview('term')) {
+            $displayed_title = $queried_object->name;
         }
-        if (is_tag()) {
-            $displayed_title = ($prefix ? $this->__('Tag:') . ' ' : '') . single_tag_title("", false);
+        if (is_tag() || $this->is_admin_preview('term')) {
+            $displayed_title = ($prefix ? $this->__('Tag:') . ' ' : '') . $queried_object->name;
         }
-        if (is_category()) {
-            $displayed_title = ($prefix ? $this->__('Category:') . ' ' : '') . single_cat_title("", false);
+        if (is_category() || $this->is_admin_preview('term')) {
+            $displayed_title = ($prefix ? $this->__('Category:') . ' ' : '') . $queried_object->name;
         }
         if (is_post_type_archive()) {
             $displayed_title = post_type_archive_title('', false);
@@ -1156,8 +1168,8 @@ class WPUSEO {
 
         }
 
-        if (is_category() || is_tax() || is_tag()) {
-            $queried_object = get_queried_object();
+        if (is_category() || is_tax() || is_tag() || $this->is_admin_preview('term')) {
+            $queried_object = $this->get_queried_object();
             $description = $queried_object->description;
             $taxo_meta_title = $this->get_taxo_meta('title');
             if (empty($taxo_meta_title)) {
@@ -2140,16 +2152,43 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
 
         /* Display box content */
         $html = '<hr /><details><summary>' . $this->__('Preview') . '</summary>';
-        $html .= '<table class="wpupostmetas-table"><tbody>';
+        $html .= '<table class="wpupostmetas-table" style="width:100%"><tbody>';
         foreach ($data as $item) {
             $html .= '<tr><th>' . $item['th'] . '</th><td>' . $item['td'] . '</td></tr>';
         }
         $html .= '</tbody></table>';
         $html .= '<div class="wpuseo-message-post">' . wpautop($this->__('Save post to display updated values')) . '</div>';
-        $html .= '<div style="display:none;" class="wpuseo-message-home">' . wpautop($this->__('Edit in site options to display updated values')) . '</div>';
+        $html .= '<div style="display:none;" class="wpuseo-message-home">' . wpautop('<a href="' . admin_url('admin.php?page=wpuoptions-settings&tab=wpu_seo#box-wpu_seo_home') . '">' . $this->__('Edit in site options to display updated values') . '</a>') . '</div>';
         $html .= '</details>';
 
         return $content . $html;
+    }
+
+    /* Taxo
+    -------------------------- */
+
+    public function admin_box_preview_taxo($content, $id, $field, $term_meta, $id_lang, $mode) {
+        if ($mode != 'edit') {
+            return $content;
+        }
+
+        $content = '';
+
+        switch ($id) {
+        case 'wpuseo_taxo_image_facebook':
+            $content = '<tr><td colspan="2">' . $this->admin_box_preview('', 'wpuseo_box_facebook') . '</td></tr>';
+            break;
+        case 'wpuseo_taxo_image_twitter':
+            $content = '<tr><td colspan="2">' . $this->admin_box_preview('', 'wpuseo_box_twitter') . '</td></tr>';
+            break;
+        case 'wpuseo_hide_search':
+            $content = '<tr><td colspan="2">' . $this->admin_box_preview('', 'wpuseo_box') . '</td></tr>';
+            break;
+        default:
+
+        }
+
+        return $content;
     }
 
     /* Checks for admin preview
