@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.13.0
+Version: 2.14.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.13.0';
+    public $plugin_version = '2.14.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -1714,8 +1714,15 @@ class WPUSEO {
             return;
         }
 
+        $wpuseo_cookies_name = site_url();
+        $wpuseo_cookies_name = str_replace(array('http://', 'https://'), '', $wpuseo_cookies_name);
+        $wpuseo_cookies_name = 'wpuseo_cookies_' . sanitize_title($wpuseo_cookies_name);
+
         /* Thanks to https://gist.github.com/wpsmith/6cf23551dd140fb72ae7 */
-        echo '<script data-cfasync="false">function wpuseo_getcookie(name){';
+
+        echo '<script data-cfasync="false">';
+        echo 'window.wpuseo_cookies_name="' . $wpuseo_cookies_name . '";';
+        echo 'function wpuseo_getcookie(name){';
         echo 'var value="; "+document.cookie;';
         echo 'var parts=value.split("; "+name+"=");';
         echo 'if(parts.length==2)return parts.pop().split(";").shift();';
@@ -1825,7 +1832,7 @@ class WPUSEO {
 
         $custom_code .= '<script>function wpuseo_init_custom_tracking(){';
         if ($cookie_notice == '1' && $enable_tracking != '1') {
-            $custom_code .= 'if(wpuseo_getcookie("wpuseo_cookies") != "1"){return;};';
+            $custom_code .= 'if(wpuseo_getcookie(window.wpuseo_cookies_name) != "1"){return;};';
         }
 
         $custom_code .= '(function(){';
@@ -1886,7 +1893,7 @@ class WPUSEO {
 
         /* Cookie notice */
         if ($cookie_notice == '1' && $enable_tracking != '1') {
-            $analytics_code .= 'if(wpuseo_getcookie("wpuseo_cookies") != "1"){return;};';
+            $analytics_code .= 'if(wpuseo_getcookie(window.wpuseo_cookies_name) != "1"){return;};';
         }
         $analytics_code .= "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');";
 
@@ -1976,7 +1983,7 @@ class WPUSEO {
 
         /* Cookie notice */
         if ($cookie_notice == '1' && $enable_tracking != '1') {
-            $pixel_code .= 'if(wpuseo_getcookie("wpuseo_cookies") != "1"){return;};';
+            $pixel_code .= 'if(wpuseo_getcookie(window.wpuseo_cookies_name) != "1"){return;};';
         }
         $pixel_code .= '!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;

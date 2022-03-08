@@ -19,7 +19,7 @@ jQuery(document).ready(function wpuseo_cookienotice($) {
     if (typeof wpuseo_getcookie == 'undefined') {
         return;
     }
-    var _hasCookies = wpuseo_getcookie('wpuseo_cookies');
+    var _hasCookies = wpuseo_getcookie(window.wpuseo_cookies_name);
 
     /* Actions */
     jQuery('.cookie-notice').on('click', '[data-cookie-action]', function(e) {
@@ -28,7 +28,7 @@ jQuery(document).ready(function wpuseo_cookienotice($) {
             _action = $this.attr('data-cookie-action');
 
         /* Set cookie */
-        wpuseo_setcookie('wpuseo_cookies', _action, wpuseo_obj.duration_choice);
+        wpuseo_setcookie(window.wpuseo_cookies_name, _action, wpuseo_obj.duration_choice);
 
         /* Hide cookie notice */
         jQuery('body').attr('data-cookie-notice', 0);
