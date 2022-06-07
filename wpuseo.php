@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.14.3
+Version: 2.15.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.14.3';
+    public $plugin_version = '2.15.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -1874,6 +1874,10 @@ class WPUSEO {
             return;
         }
 
+        $base_ua_analytics = strtolower($ua_analytics);
+
+        $ga_type = substr($base_ua_analytics, 0, 2) == 'g-' ? 'ga4' : 'ga3';
+
         // Tracked logged in users
         $analytics_enableloggedin = (get_option('wputh_analytics_enableloggedin') == '1');
         if (is_user_logged_in() && !$analytics_enableloggedin) {
@@ -1902,27 +1906,41 @@ class WPUSEO {
         if ($cookie_notice == '1' && $enable_tracking != '1') {
             $analytics_code .= 'if(wpuseo_getcookie(window.wpuseo_cookies_name) != "1"){return;};';
         }
-        $analytics_code .= "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');";
 
-        /* Calls GA */
-        $analytics_code .= "if (typeof(ga) == 'function') {";
-        $analytics_code .= "\nga('create','" . $ua_analytics . "','auto');";
-        if (is_user_logged_in() && apply_filters('wpuseo_analytics_track_user_id', true)) {
-            $user = wp_get_current_user();
-            if (is_object($user)) {
-                $analytics_code .= "\nga('set','userId','" . $user->ID . "');";
+        if ($ga_type == 'ga4') {
+            $analytics_code .= 'var gtag4 = document.createElement("script");';
+            $analytics_code .= 'gtag4.type = "text/javascript";';
+            $analytics_code .= 'gtag4.setAttribute("async", "true");';
+            $analytics_code .= 'gtag4.setAttribute("src", "https://www.googletagmanager.com/gtag/js?id=' . $ua_analytics . '");';
+            $analytics_code .= 'document.documentElement.firstChild.appendChild(gtag4);';
+            $analytics_code .= "window.dataLayer = window.dataLayer || [];";
+            $analytics_code .= "function gtag(){dataLayer.push(arguments);}";
+            $analytics_code .= "gtag('js', new Date());";
+            $analytics_code .= "gtag('config', '" . $ua_analytics . "');";
+
+        } else {
+            /* Calls GA */
+            $analytics_code .= "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');";
+            $analytics_code .= "if (typeof(ga) == 'function') {";
+            $analytics_code .= "\nga('create','" . $ua_analytics . "','auto');";
+            if (is_user_logged_in() && apply_filters('wpuseo_analytics_track_user_id', true)) {
+                $user = wp_get_current_user();
+                if (is_object($user)) {
+                    $analytics_code .= "\nga('set','userId','" . $user->ID . "');";
+                }
             }
+            if ($enableanonymizeip) {
+                $analytics_code .= "\nga('set', 'anonymizeIp', true);";
+            }
+            if ($analyticsCookieExpires) {
+                $analytics_code .= "\nga('set', 'cookie_expires', " . $analyticsCookieExpires . ");";
+            }
+            $analytics_code .= "\nga('set','dimension1','visitorloggedin-" . (is_user_logged_in() ? '1' : '0') . "');";
+            $analytics_code .= "\nga('send','pageview');";
+            $analytics_code .= "\n}\n";
         }
-        if ($enableanonymizeip) {
-            $analytics_code .= "\nga('set', 'anonymizeIp', true);";
-        }
-        if ($analyticsCookieExpires) {
-            $analytics_code .= "\nga('set', 'cookie_expires', " . $analyticsCookieExpires . ");";
-        }
-        $analytics_code .= "\nga('set','dimension1','visitorloggedin-" . (is_user_logged_in() ? '1' : '0') . "');";
-        $analytics_code .= "\nga('send','pageview');";
+
         $analytics_code .= apply_filters('wpuseo__display_google_analytics_code__after', '');
-        $analytics_code .= "\n}\n";
         $analytics_code .= "} wpuseo_init_analytics();";
         /* End of calls */
 
