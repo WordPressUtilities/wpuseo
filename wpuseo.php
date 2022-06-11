@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.15.0
+Version: 2.16.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.15.0';
+    public $plugin_version = '2.16.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -645,11 +645,15 @@ class WPUSEO {
             'type' => 'select',
             'box' => 'wpu_seo_cookies'
         );
-
         $options['wpu_seo_cookies__duration_choice'] = array(
             'label' => $this->__('Duration of choice (in days)'),
             'type' => 'number',
             'default_value' => 30,
+            'box' => 'wpu_seo_cookies'
+        );
+        $options['wpu_seo_cookies__support_dnt'] = array(
+            'label' => $this->__('Support DoNotTrack'),
+            'type' => 'select',
             'box' => 'wpu_seo_cookies'
         );
 
@@ -1828,7 +1832,6 @@ class WPUSEO {
 
         $hook_ajaxready = apply_filters('wpuseo_ajaxready_hook', 'vanilla-pjax-ready');
         $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
-        $enable_tracking = get_option('wpu_seo_cookies__enable_tracking');
 
         $code = $this->get_custom_tracking_code();
         if (!$code) {
@@ -1836,12 +1839,8 @@ class WPUSEO {
         }
 
         $custom_code = '';
-
         $custom_code .= '<script>function wpuseo_init_custom_tracking(){';
-        if ($cookie_notice == '1' && $enable_tracking != '1') {
-            $custom_code .= 'if(wpuseo_getcookie(window.wpuseo_cookies_name) != "1"){return;};';
-        }
-
+        $custom_code .= $this->get_js_conditions_tracking();
         $custom_code .= '(function(){';
         $custom_code .= 'function _trigger(){jQuery("body").trigger("wpuseo-cookie-notice-accepted");}';
         $custom_code .= 'if(document.readyState==="complete"||document.readyState==="loaded"){_trigger();}';
@@ -1892,7 +1891,6 @@ class WPUSEO {
 
         $analytics_code = '';
         $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
-        $enable_tracking = get_option('wpu_seo_cookies__enable_tracking');
 
         if ($cookie_notice != '1') {
             $analytics_code .= '<link rel="dns-prefetch" href="//www.google-analytics.com">';
@@ -1903,9 +1901,7 @@ class WPUSEO {
         $analytics_code .= apply_filters('wpuseo__display_google_analytics_code__before', '');
 
         /* Cookie notice */
-        if ($cookie_notice == '1' && $enable_tracking != '1') {
-            $analytics_code .= 'if(wpuseo_getcookie(window.wpuseo_cookies_name) != "1"){return;};';
-        }
+        $analytics_code .= $this->get_js_conditions_tracking();
 
         if ($ga_type == 'ga4') {
             $analytics_code .= 'var gtag4 = document.createElement("script");';
@@ -1996,7 +1992,6 @@ class WPUSEO {
 
         $pixel_code = '';
         $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
-        $enable_tracking = get_option('wpu_seo_cookies__enable_tracking');
 
         if ($cookie_notice != '1') {
             $pixel_code .= '<link rel="dns-prefetch" href="//connect.facebook.net">';
@@ -2005,11 +2000,7 @@ class WPUSEO {
         $pixel_code .= '<script>';
         $pixel_code .= "function wpuseo_init_fbpixel(){";
         $pixel_code .= apply_filters('wpuseo__display_facebook_pixel_code__before', '');
-
-        /* Cookie notice */
-        if ($cookie_notice == '1' && $enable_tracking != '1') {
-            $pixel_code .= 'if(wpuseo_getcookie(window.wpuseo_cookies_name) != "1"){return;};';
-        }
+        $pixel_code .= $this->get_js_conditions_tracking();
         $pixel_code .= '!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
 n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;
@@ -2107,6 +2098,32 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
 
     public function order_keywords_values($a, $b) {
         return $a[0] < $b[0];
+    }
+
+    /* ----------------------------------------------------------
+      Get common JS tracking conditions
+    ---------------------------------------------------------- */
+
+    function get_js_conditions_tracking() {
+
+        $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
+        $enable_tracking = get_option('wpu_seo_cookies__enable_tracking');
+        $support_dnt = get_option('wpu_seo_cookies__support_dnt');
+
+        $js = '';
+
+        /* DNT */
+        if($support_dnt == '1'){
+            $js .= 'if(navigator.doNotTrack==1){console.log("DNT is enabled");return;}';
+        }
+
+        /* Cookie notice */
+        if ($cookie_notice == '1' && $enable_tracking != '1') {
+            $js .= 'if(wpuseo_getcookie(window.wpuseo_cookies_name) != "1"){return;};';
+        }
+
+        return $js;
+
     }
 
     /* ----------------------------------------------------------
