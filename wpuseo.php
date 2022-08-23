@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.16.0
+Version: 2.16.1
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.16.0';
+    public $plugin_version = '2.16.1';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -204,13 +204,13 @@ class WPUSEO {
             'name' => $this->__('SEO Details'),
             'post_type' => $this->boxes_pt
         );
-        if ($this->enable_twitter_metas) {
+        if ($this->active_metas && $this->enable_twitter_metas) {
             $boxes['wpuseo_box_twitter'] = array(
                 'name' => $this->__('SEO Details - Twitter'),
                 'post_type' => $this->boxes_pt
             );
         }
-        if ($this->enable_facebook_metas) {
+        if ($this->active_metas && $this->enable_facebook_metas) {
             $boxes['wpuseo_box_facebook'] = array(
                 'name' => $this->__('SEO Details - Facebook'),
                 'post_type' => $this->boxes_pt
@@ -237,13 +237,13 @@ class WPUSEO {
                 'type' => 'textarea',
                 'lang' => true
             );
+            $fields['wpuseo_hide_search'] = array(
+                'box' => 'wpuseo_box',
+                'name' => $this->__('Hide'),
+                'checkbox_label' => $this->__('Hide from search engines'),
+                'type' => 'checkbox'
+            );
         }
-        $fields['wpuseo_hide_search'] = array(
-            'box' => 'wpuseo_box',
-            'name' => $this->__('Hide'),
-            'checkbox_label' => $this->__('Hide from search engines'),
-            'type' => 'checkbox'
-        );
         /* Twitter */
         $fields['wpuseo_post_image_twitter'] = array(
             'box' => 'wpuseo_box_twitter',
@@ -2113,7 +2113,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         $js = '';
 
         /* DNT */
-        if($support_dnt == '1'){
+        if ($support_dnt == '1') {
             $js .= 'if(navigator.doNotTrack==1){console.log("DNT is enabled");return;}';
         }
 
