@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.16.2
+Version: 2.16.3
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.16.2';
+    public $plugin_version = '2.16.3';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -2062,10 +2062,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         $keywords_raw = $this->add_terms_to_keywords(get_the_tags($id), $keywords_raw);
 
         // Sort keywords by score
-        usort($keywords_raw, array(
-            'WPUSEO',
-            'order_keywords_values'
-        ));
+        usort($keywords_raw, array($this, 'order_keywords_values'));
 
         // Set keywords
         $keywords = array();
@@ -2101,7 +2098,10 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
     }
 
     public function order_keywords_values($a, $b) {
-        return $a[0] < $b[0];
+        if ($a[0] == $b[0]) {
+            return 0;
+        }
+        return ($a[0] < $b[0]) ? -1 : 1;
     }
 
     /* ----------------------------------------------------------
@@ -2345,7 +2345,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
     public function special_convert_array_html($metas, $tag = 'meta') {
         $_excluded_attrs = array('imgid');
         $html = '';
-        if(!is_array($metas)){
+        if (!is_array($metas)) {
             return '';
         }
         foreach ($metas as $values) {
