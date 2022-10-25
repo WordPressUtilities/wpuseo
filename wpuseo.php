@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.16.3
+Version: 2.16.4
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.16.3';
+    public $plugin_version = '2.16.4';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -1140,7 +1140,7 @@ class WPUSEO {
                     if (isset($thumb_url[0])) {
                         $metas['twitter_image'] = array(
                             'name' => 'twitter:image',
-                            'imgid' => $custom_twitter_image,
+                            'imgid' => $twitter_image,
                             'content' => $thumb_url[0]
                         );
                     }
@@ -1156,14 +1156,14 @@ class WPUSEO {
 
                 /* Title */
                 $facebook_title = $facebook_title ? $facebook_title : $title;
-                $metas['facebook_title'] = array(
+                $metas['og_title'] = array(
                     'name' => 'og:title',
                     'content' => $facebook_title
                 );
 
                 /* Description */
                 $facebook_description = $facebook_description ? $facebook_description : $description;
-                $metas['facebook_description'] = array(
+                $metas['og_description'] = array(
                     'name' => 'og:description',
                     'content' => $this->prepare_text($facebook_description)
                 );
@@ -1172,9 +1172,9 @@ class WPUSEO {
                 if (is_numeric($facebook_image)) {
                     $thumb_url = wp_get_attachment_image_src($facebook_image, $this->thumbnail_size, true);
                     if (isset($thumb_url[0])) {
-                        $metas['facebook_image'] = array(
+                        $metas['og_image'] = array(
                             'name' => 'og:image',
-                            'imgid' => $custom_facebook_image,
+                            'imgid' => $facebook_image,
                             'content' => $thumb_url[0]
                         );
                     }
