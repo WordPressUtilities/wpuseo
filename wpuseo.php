@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.16.4
+Version: 2.16.5
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.16.4';
+    public $plugin_version = '2.16.5';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -1813,12 +1813,13 @@ class WPUSEO {
         if ($add_wrapper_buttons) {
             $cookie_content .= '</div>';
         }
+        $wrapper_classname = 'cookie-notice__wrapper ' . apply_filters('wpuseo__display_cookie_notice__wrapper_extra_classname', '');
         $cookie_content = apply_filters('wpuseo__display_cookie_notice__cookie_content', $cookie_content);
 
         /* Content */
         echo '<div class="cookie-notice" data-nosnippet>';
         echo '<div class="cookie-notice__overlay"></div>';
-        echo '<div class="cookie-notice__wrapper">';
+        echo '<div class="' . esc_attr(trim($wrapper_classname)) . '">';
         echo '<a href="#" class="close" data-cookie-action="-1" title="' . esc_attr($cookie_button_refuse) . '"><span>&times;</span></a>';
         /* Content */
         echo '<div class="cookie-notice__inner">';
