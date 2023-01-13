@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.16.5
+Version: 2.17.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.16.5';
+    public $plugin_version = '2.17.0';
     private $active_wp_title = true;
     private $active_metas = true;
 
@@ -31,6 +31,20 @@ class WPUSEO {
 
         $this->check_config();
         $this->load_translation();
+
+        // Ads
+        add_action('wpuoptions__post_update', array(&$this,
+            'wpuoptions__post_update__update_ads'
+        ));
+        add_action('init', array(&$this,
+            'add_rewrite_rule__ads'
+        ));
+        add_filter('redirect_canonical', array(&$this,
+            'redirect_canonical_callback'
+        ), 100, 2);
+        add_action('query_vars', array(&$this,
+            'query_vars__ads'
+        ));
 
         // Filter
         if ($this->active_wp_title) {
@@ -407,6 +421,10 @@ class WPUSEO {
             'name' => 'Custom',
             'tab' => 'wpu_seo'
         );
+        $boxes['wpu_seo_ads'] = array(
+            'name' => 'Ads',
+            'tab' => 'wpu_seo'
+        );
         $boxes['wpu_seo_facebook'] = array(
             'name' => 'Facebook',
             'tab' => 'wpu_seo'
@@ -503,6 +521,15 @@ class WPUSEO {
             'box' => 'wpu_seo_custom',
             'type' => 'textarea',
             'help' => $this->__('Custom tracking code : Plugged to cookie notice if enabled. No HTML !')
+        );
+
+        // Ads
+        $options['wpu_seo_ads_txt_content'] = array(
+            'label' => $this->__('Ads.txt content'),
+            'box' => 'wpu_seo_ads',
+            'type' => 'textarea',
+            'autoload' => false,
+            'help' => $this->__('Content of the ads.txt file')
         );
 
         // Google
@@ -2279,6 +2306,58 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         }
 
         return $screen->base == $base;
+    }
+
+    /* ----------------------------------------------------------
+      Ads
+    ---------------------------------------------------------- */
+
+    function wpuoptions__post_update__update_ads() {
+        $opt_val = trim(get_option('wpu_seo_ads_txt_content'));
+        update_option('wpu_seo_ads_txt_content_has_val', $opt_val ? '1' : '0', true);
+        if ($opt_val) {
+            $this->add_rewrite_rule__ads();
+            flush_rewrite_rules();
+        }
+    }
+
+    function add_rewrite_rule__ads() {
+        $opt_val = get_option('wpu_seo_ads_txt_content_has_val');
+        if ($opt_val == '1') {
+            add_rewrite_rule('^ads\.txt$', 'index.php?wpuseovirtualfile=adstxt', 'top');
+        }
+    }
+
+    function redirect_canonical_callback($redirect_url, $requested_url) {
+        $opt_val = get_option('wpu_seo_ads_txt_content_has_val');
+        if ($opt_val && str_replace(site_url(), '', $requested_url) == '/ads.txt') {
+            if (!defined('WPU_SEO_DISPLAY_ADS_TXT')) {
+                define('WPU_SEO_DISPLAY_ADS_TXT', 1);
+            }
+            $this->display_ads_content();
+            return $requested_url;
+        }
+        return $redirect_url;
+    }
+
+    function query_vars__ads() {
+        $query_vars[] = 'wpuseovirtualfile';
+    }
+
+    function display_ads_content() {
+        if (!defined('WPU_SEO_DISPLAY_ADS_TXT')) {
+            return;
+        }
+        $opt_val = get_option('wpu_seo_ads_txt_content_has_val');
+        if ($opt_val != '1') {
+            return;
+        }
+        $opt_val = get_option('wpu_seo_ads_txt_content');
+        if ($opt_val) {
+            header( 'Content-Type: text/plain; charset=utf-8' );
+            echo $opt_val;
+            die;
+        }
     }
 
     /* ----------------------------------------------------------
