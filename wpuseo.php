@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.17.0
+Version: 2.17.1
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,9 +14,10 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.17.0';
+    public $plugin_version = '2.17.1';
     private $active_wp_title = true;
     private $active_metas = true;
+    private $fake_txt_files = array('ads', 'robots');
 
     public function __construct() {
         add_action('init', array(&$this,
@@ -34,16 +35,19 @@ class WPUSEO {
 
         // Ads
         add_action('wpuoptions__post_update', array(&$this,
-            'wpuoptions__post_update__update_ads'
+            'wpuoptions__post_update__update_fake_files'
         ));
         add_action('init', array(&$this,
-            'add_rewrite_rule__ads'
+            'add_rewrite_rule__fake_files'
         ));
         add_filter('redirect_canonical', array(&$this,
             'redirect_canonical_callback'
         ), 100, 2);
         add_action('query_vars', array(&$this,
-            'query_vars__ads'
+            'query_vars__fakefiles'
+        ));
+        add_action('wp', array(&$this,
+            'display_fake_file_content'
         ));
 
         // Filter
@@ -421,8 +425,12 @@ class WPUSEO {
             'name' => 'Custom',
             'tab' => 'wpu_seo'
         );
-        $boxes['wpu_seo_ads'] = array(
-            'name' => 'Ads',
+        $boxes['wpu_seo_fake_files'] = array(
+            'name' => 'Fake files',
+            'tab' => 'wpu_seo'
+        );
+        $boxes['wpu_seo_robots'] = array(
+            'name' => 'Robots',
             'tab' => 'wpu_seo'
         );
         $boxes['wpu_seo_facebook'] = array(
@@ -523,14 +531,16 @@ class WPUSEO {
             'help' => $this->__('Custom tracking code : Plugged to cookie notice if enabled. No HTML !')
         );
 
-        // Ads
-        $options['wpu_seo_ads_txt_content'] = array(
-            'label' => $this->__('Ads.txt content'),
-            'box' => 'wpu_seo_ads',
-            'type' => 'textarea',
-            'autoload' => false,
-            'help' => $this->__('Content of the ads.txt file')
-        );
+        // Fake files
+        foreach ($this->fake_txt_files as $fake_file) {
+            $options['wpu_seo_' . $fake_file . '_txt_content'] = array(
+                'label' => sprintf($this->__('%s content'), ucfirst($fake_file) . '.txt'),
+                'box' => 'wpu_seo_fake_files',
+                'type' => 'textarea',
+                'autoload' => false,
+                'help' => sprintf($this->__('Content of the %s file'), $fake_file . '.txt')
+            );
+        }
 
         // Google
         $options['wpu_google_site_verification'] = array(
@@ -2312,49 +2322,59 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
       Ads
     ---------------------------------------------------------- */
 
-    function wpuoptions__post_update__update_ads() {
-        $opt_val = trim(get_option('wpu_seo_ads_txt_content'));
-        update_option('wpu_seo_ads_txt_content_has_val', $opt_val ? '1' : '0', true);
-        if ($opt_val) {
-            $this->add_rewrite_rule__ads();
+    function wpuoptions__post_update__update_fake_files() {
+        $need_rewrite = false;
+        foreach ($this->fake_txt_files as $fake_file) {
+            $opt_val = trim(get_option('wpu_seo_' . $fake_file . '_txt_content'));
+            update_option('wpu_seo_' . $fake_file . '_txt_content_has_val', $opt_val ? '1' : '0', true);
+            if ($opt_val) {
+                $this->add_rewrite_rule__fake_files();
+                $need_rewrite = true;
+            }
+        }
+
+        if ($need_rewrite) {
             flush_rewrite_rules();
         }
     }
 
-    function add_rewrite_rule__ads() {
-        $opt_val = get_option('wpu_seo_ads_txt_content_has_val');
-        if ($opt_val == '1') {
-            add_rewrite_rule('^ads\.txt$', 'index.php?wpuseovirtualfile=adstxt', 'top');
+    function add_rewrite_rule__fake_files() {
+        foreach ($this->fake_txt_files as $fake_file) {
+            $opt_val = get_option('wpu_seo_' . $fake_file . '_txt_content_has_val');
+            if ($opt_val == '1') {
+                add_rewrite_rule('^' . $fake_file . '\.txt$', 'index.php?wpuseovirtualfile=' . $fake_file, 'top');
+            }
         }
     }
 
     function redirect_canonical_callback($redirect_url, $requested_url) {
-        $opt_val = get_option('wpu_seo_ads_txt_content_has_val');
-        if ($opt_val && str_replace(site_url(), '', $requested_url) == '/ads.txt') {
-            if (!defined('WPU_SEO_DISPLAY_ADS_TXT')) {
-                define('WPU_SEO_DISPLAY_ADS_TXT', 1);
+        foreach ($this->fake_txt_files as $fake_file) {
+            $opt_val = get_option('wpu_seo_' . $fake_file . '_txt_content_has_val');
+            if ($opt_val && str_replace(site_url(), '', $requested_url) == '/' . $fake_file . '.txt') {
+                return $requested_url;
             }
-            $this->display_ads_content();
-            return $requested_url;
         }
         return $redirect_url;
     }
 
-    function query_vars__ads() {
+    function query_vars__fakefiles($query_vars) {
         $query_vars[] = 'wpuseovirtualfile';
+        return $query_vars;
     }
 
-    function display_ads_content() {
-        if (!defined('WPU_SEO_DISPLAY_ADS_TXT')) {
+    function display_fake_file_content() {
+        global $wp_query;
+        if (!is_object($wp_query) || !isset($wp_query->query_vars, $wp_query->query_vars['wpuseovirtualfile'])) {
             return;
         }
-        $opt_val = get_option('wpu_seo_ads_txt_content_has_val');
+        $type = $wp_query->query_vars['wpuseovirtualfile'];
+        $opt_val = get_option('wpu_seo_' . $type . '_txt_content_has_val');
         if ($opt_val != '1') {
             return;
         }
-        $opt_val = get_option('wpu_seo_ads_txt_content');
+        $opt_val = get_option('wpu_seo_' . $type . '_txt_content');
         if ($opt_val) {
-            header( 'Content-Type: text/plain; charset=utf-8' );
+            header('Content-Type: text/plain; charset=utf-8');
             echo $opt_val;
             die;
         }
