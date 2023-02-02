@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.17.1
+Version: 2.18.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.17.1';
+    public $plugin_version = '2.18.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -82,6 +82,11 @@ class WPUSEO {
                 'add_metas'
             ), 1);
         }
+
+        // Native sitemap
+        add_filter('wp_sitemaps_posts_query_args', array(&$this,
+            'wp_sitemaps_posts_query_args'
+        ), 10, 2);
 
         // Cookies
         add_action('wp_head', array(&$this,
@@ -872,6 +877,22 @@ class WPUSEO {
             return get_queried_object();
         }
         return get_term($_GET['tag_ID'], $_GET['taxonomy']);
+    }
+
+    /* ----------------------------------------------------------
+      Sitemap
+    ---------------------------------------------------------- */
+
+    function wp_sitemaps_posts_query_args($args, $post_type) {
+
+        /* Remove hidden posts from sitemap */
+        $args['meta_query'] = isset($args['meta_query']) ? $args['meta_query'] : array();
+        $args['meta_query'][] = array(
+            'key' => 'wpuseo_hide_search',
+            'value' => '1',
+            'compare' => '!='
+        );
+        return $args;
     }
 
     /* ----------------------------------------------------------
