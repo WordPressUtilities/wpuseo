@@ -4,7 +4,7 @@
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.18.0
+Version: 2.18.1
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,7 +14,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.18.0';
+    public $plugin_version = '2.18.1';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -1215,14 +1215,14 @@ class WPUSEO {
                 /* Title */
                 $facebook_title = $facebook_title ? $facebook_title : $title;
                 $metas['og_title'] = array(
-                    'name' => 'og:title',
+                    'property' => 'og:title',
                     'content' => $facebook_title
                 );
 
                 /* Description */
                 $facebook_description = $facebook_description ? $facebook_description : $description;
                 $metas['og_description'] = array(
-                    'name' => 'og:description',
+                    'property' => 'og:description',
                     'content' => $this->prepare_text($facebook_description)
                 );
 
@@ -1231,7 +1231,7 @@ class WPUSEO {
                     $thumb_url = wp_get_attachment_image_src($facebook_image, $this->thumbnail_size, true);
                     if (isset($thumb_url[0])) {
                         $metas['og_image'] = array(
-                            'name' => 'og:image',
+                            'property' => 'og:image',
                             'imgid' => $facebook_image,
                             'content' => $thumb_url[0]
                         );
