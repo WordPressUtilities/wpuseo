@@ -3,8 +3,9 @@
 /*
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
-Description: Enhance SEO : Clean title, Nice metas, GPRD friendly Analytics.
-Version: 2.18.1
+Update URI: https://github.com/WordPressUtilities/wpuseo
+Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
+Version: 2.19.0
 Author: Darklg
 Author URI: https://darklg.me/
 License: MIT License
@@ -14,10 +15,18 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.18.1';
+    public $plugin_version = '2.19.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
+    private $plugin_description;
+    private $thumbnail_size;
+    private $enable_twitter_metas;
+    private $enable_facebook_metas;
+    private $boxes_pt;
+    private $boxes_pt_with_archive;
+    private $twitter_cards;
+    private $settings_update;
 
     public function __construct() {
         add_action('init', array(&$this,
@@ -179,9 +188,11 @@ class WPUSEO {
     }
 
     public function load_translation() {
-
-        // Load lang
-        load_plugin_textdomain('wpuseo', false, dirname(plugin_basename(__FILE__)) . '/lang/');
+        $lang_dir = dirname(plugin_basename(__FILE__)) . '/lang/';
+        if (!load_plugin_textdomain('wpuseo', false, $lang_dir)) {
+            load_muplugin_textdomain('wpuseo', $lang_dir);
+        }
+        $this->plugin_description = __('Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.', 'wpuseo');
     }
 
     /* ----------------------------------------------------------

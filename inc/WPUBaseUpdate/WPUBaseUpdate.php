@@ -4,11 +4,12 @@ namespace wpuseo;
 /*
 Class Name: WPU Base Update
 Description: A class to handle plugin update from github
-Version: 0.4.1
+Version: 0.4.3
+Class URI: https://github.com/WordPressUtilities/wpubaseplugin
 Author: Darklg
-Author URI: http://darklg.me/
+Author URI: https://darklg.me/
 License: MIT License
-License URI: http://opensource.org/licenses/MIT
+License URI: https://opensource.org/licenses/MIT
 Thanks: https://gist.github.com/danielbachhuber/7684646
 */
 
@@ -17,6 +18,7 @@ class WPUBaseUpdate {
     public $current_version;
     private $github_username;
     private $github_project;
+    private $github_path;
     private $transient_name;
     private $transient_expiration;
     private $plugin_id;
@@ -24,10 +26,10 @@ class WPUBaseUpdate {
     private $details;
 
     public function __construct($github_username = false, $github_project = false, $current_version = false, $details = array()) {
-        $this->init();
+        $this->init($github_username, $github_project, $current_version, $details);
     }
 
-    public function init($github_username = false, $github_project = false, $current_version = false, $details = array()){
+    public function init($github_username = false, $github_project = false, $current_version = false, $details = array()) {
         if (!$github_username || !$github_project || !$current_version) {
             return;
         }
@@ -123,7 +125,7 @@ class WPUBaseUpdate {
 
             /* Fetch plugin data */
             $plugin_data = array();
-            if(file_exists($this->plugin_dir)){
+            if (file_exists($this->plugin_dir)) {
                 $plugin_data = get_plugin_data($this->plugin_dir);
             }
 

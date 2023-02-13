@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU SEO\n"
-"POT-Creation-Date: 2022-06-11 16:02+0200\n"
+"POT-Creation-Date: 2023-02-13 11:49+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Darklg <darklg.blog@gmail.com>\n"
 "Language-Team: \n"
@@ -9,13 +9,17 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.2.2\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-Basepath: .\n"
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-SearchPath-0: ../.\n"
 
-#: .././wpuseo.php:184
+#: .././wpuseo.php:198
+msgid "Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics."
+msgstr "Migliora SEO: titolo pulito, metas di Nizza, analisi GDPR friendly."
+
+#: .././wpuseo.php:221
 #, php-format
 msgid ""
 "The plugin <b>%s</b> depends on the <b>WPU Options</b> plugin. Please "
@@ -24,299 +28,309 @@ msgstr ""
 "Il plugin <b>%s</b> dipende il plugin <b>WPU Options </b> . Si prega di "
 "installare e attivarlo."
 
-#: .././wpuseo.php:204 .././wpuseo.php:307
+#: .././wpuseo.php:241 .././wpuseo.php:344
 msgid "SEO Details"
 msgstr "Dettagli SEO"
 
-#: .././wpuseo.php:209 .././wpuseo.php:330
+#: .././wpuseo.php:246 .././wpuseo.php:367
 msgid "SEO Details - Twitter"
 msgstr "Dettagli SEO - Twitter"
 
-#: .././wpuseo.php:215 .././wpuseo.php:354
+#: .././wpuseo.php:252 .././wpuseo.php:391
 msgid "SEO Details - Facebook"
 msgstr "Dettagli SEO - Facebook"
 
-#: .././wpuseo.php:229 .././wpuseo.php:256 .././wpuseo.php:274
-#: .././wpuseo.php:312 .././wpuseo.php:474 .././wpuseo.php:665
-#: .././wpuseo.php:694 .././wpuseo.php:719
+#: .././wpuseo.php:266 .././wpuseo.php:293 .././wpuseo.php:311
+#: .././wpuseo.php:349 .././wpuseo.php:519 .././wpuseo.php:721
+#: .././wpuseo.php:750 .././wpuseo.php:775
 msgid "Page title"
 msgstr "Titolo della pagina"
 
-#: .././wpuseo.php:236 .././wpuseo.php:261 .././wpuseo.php:279
-#: .././wpuseo.php:317 .././wpuseo.php:699 .././wpuseo.php:724
+#: .././wpuseo.php:273 .././wpuseo.php:298 .././wpuseo.php:316
+#: .././wpuseo.php:354 .././wpuseo.php:755 .././wpuseo.php:780
 msgid "Page description"
 msgstr "Descrizione della pagina"
 
-#: .././wpuseo.php:243 .././wpuseo.php:324
+#: .././wpuseo.php:279 .././wpuseo.php:361
 msgid "Hide"
 msgstr "Nascondi"
 
-#: .././wpuseo.php:244 .././wpuseo.php:325
+#: .././wpuseo.php:280 .././wpuseo.php:362
 msgid "Hide from search engines"
 msgstr "Nascondi dai motori di ricerca"
 
-#: .././wpuseo.php:250 .././wpuseo.php:268 .././wpuseo.php:688
-#: .././wpuseo.php:713
+#: .././wpuseo.php:287 .././wpuseo.php:305 .././wpuseo.php:744
+#: .././wpuseo.php:769
 msgid "Image"
 msgstr "Immagine"
 
-#: .././wpuseo.php:335
+#: .././wpuseo.php:372
 msgid "Twitter:title"
 msgstr "Twitter:title"
 
-#: .././wpuseo.php:340
+#: .././wpuseo.php:377
 msgid "Twitter:description"
 msgstr "Twitter:description"
 
-#: .././wpuseo.php:346 .././wpuseo.php:599
+#: .././wpuseo.php:383 .././wpuseo.php:655
 msgid "Twitter:Image"
 msgstr "Twitter:Image"
 
-#: .././wpuseo.php:359
+#: .././wpuseo.php:396
 msgid "OG:Title"
 msgstr "OG:Title"
 
-#: .././wpuseo.php:364
+#: .././wpuseo.php:401
 msgid "OG:Description"
 msgstr "OG:Description"
 
-#: .././wpuseo.php:370
+#: .././wpuseo.php:407
 msgid "Og:Image"
 msgstr "Og:Image"
 
-#: .././wpuseo.php:391
+#: .././wpuseo.php:428
 msgid "Main"
 msgstr "Principale"
 
-#: .././wpuseo.php:395
+#: .././wpuseo.php:432
 msgid "Homepage"
 msgstr "Homepage"
 
-#: .././wpuseo.php:442
+#: .././wpuseo.php:487
 msgid "Title separator"
 msgstr "Separatore del titolo"
 
-#: .././wpuseo.php:444
+#: .././wpuseo.php:489
 msgid "Between site name and site description, or page name and site name"
 msgstr ""
 "Tra nome del sito e descrizione del sito o nome della pagina e nome del sito"
 
-#: .././wpuseo.php:447
+#: .././wpuseo.php:492
 msgid "Site name before page title"
 msgstr "Nome del sito prima del titolo della pagina"
 
-#: .././wpuseo.php:454
+#: .././wpuseo.php:499
 msgid "Meta keyword min length"
 msgstr "Lunghezza min del meta keyword"
 
-#: .././wpuseo.php:460
+#: .././wpuseo.php:505
 msgid "Default SEO Thumbnail"
 msgstr "Miniatura SEO predefinita"
 
-#: .././wpuseo.php:463
+#: .././wpuseo.php:508
 msgid "If not filled, the current theme screenshot will be used"
 msgstr "Se non è pieno, verrà utilizzata la schermata del tema corrente"
 
-#: .././wpuseo.php:469
+#: .././wpuseo.php:514
 msgid "Hide title prefix"
 msgstr "Nascondere il prefisso del titolo"
 
-#: .././wpuseo.php:480 .././wpuseo.php:673
+#: .././wpuseo.php:525 .././wpuseo.php:729
 msgid "Meta description"
 msgstr "Meta description"
 
-#: .././wpuseo.php:485
+#: .././wpuseo.php:530
 msgid "Meta keywords"
 msgstr "Principali meta keywords"
 
-#: .././wpuseo.php:494 .././wpuseo.php:510 .././wpuseo.php:542
+#: .././wpuseo.php:539 .././wpuseo.php:566 .././wpuseo.php:598
 msgid "Site verification ID"
 msgstr "Sito verification ID"
 
-#: .././wpuseo.php:496 .././wpuseo.php:512 .././wpuseo.php:544
+#: .././wpuseo.php:541 .././wpuseo.php:568 .././wpuseo.php:600
 msgid "Use the content attribute of the validation meta tag"
 msgstr "Utilizzare l'attributo content del tag meta convalida"
 
-#: .././wpuseo.php:502
+#: .././wpuseo.php:547
 msgid "Custom JS Code"
 msgstr "Codice JS personalizzato"
 
-#: .././wpuseo.php:505
+#: .././wpuseo.php:550
 msgid "Custom tracking code : Plugged to cookie notice if enabled. No HTML !"
 msgstr ""
 "Codice di tracciamento personalizzato. Collegato all'avviso cookie, se "
 "abilitato. Nessun html !"
 
-#: .././wpuseo.php:515
+#: .././wpuseo.php:556
+#, php-format
+msgid "%s content"
+msgstr "%s contenuto"
+
+#: .././wpuseo.php:560
+#, php-format
+msgid "Content of the %s file"
+msgstr "Contenuto del file %s"
+
+#: .././wpuseo.php:571
 msgid "Google Analytics ID"
 msgstr "Google Analytics ID"
 
-#: .././wpuseo.php:519
+#: .././wpuseo.php:575
 msgid "Enable Analytics for logged-in users"
 msgstr "Abilitare Analytics per gli utenti registrati"
 
-#: .././wpuseo.php:524
+#: .././wpuseo.php:580
 msgid "Enable anonymizeIp for Analytics"
 msgstr "Abilitare anonymizeIp for Analytics"
 
-#: .././wpuseo.php:529
+#: .././wpuseo.php:585
 msgid "Cookie expiration for Analytics (in sec)"
 msgstr "Scadenza dei cookie per Analytics (in sec)"
 
-#: .././wpuseo.php:532
+#: .././wpuseo.php:588
 msgid "If not filled, will use Google’s default value."
 msgstr "Se non è pieno, verrà utilizzata la valore predefinito di Google."
 
-#: .././wpuseo.php:537
+#: .././wpuseo.php:593
 msgid "Enable Facebook metas"
 msgstr "Abilitare Facebook metas"
 
-#: .././wpuseo.php:547
+#: .././wpuseo.php:603
 msgid "FB:Admins ID"
 msgstr "FB:Admins ID"
 
-#: .././wpuseo.php:551
+#: .././wpuseo.php:607
 msgid "FB:App ID"
 msgstr "FB:App ID"
 
-#: .././wpuseo.php:555
+#: .././wpuseo.php:611
 msgid "FB:Pixel ID"
 msgstr "FB:Pixel ID"
 
-#: .././wpuseo.php:559
+#: .././wpuseo.php:615
 msgid "Enable FB:Pixel for logged-in users"
 msgstr "Attivare FB:Pixel per gli utenti registrati"
 
-#: .././wpuseo.php:564
+#: .././wpuseo.php:620
 msgid "OG:Image"
 msgstr "OG: Image"
 
-#: .././wpuseo.php:569
+#: .././wpuseo.php:625
 msgid "OG:Title Home"
 msgstr "OG:Title Home"
 
-#: .././wpuseo.php:573
+#: .././wpuseo.php:629
 msgid "OG:Description Home"
 msgstr "OG:Description Home"
 
-#: .././wpuseo.php:580
+#: .././wpuseo.php:636
 msgid "Enable Twitter metas"
 msgstr "Abilitare Twitter metas"
 
-#: .././wpuseo.php:585
+#: .././wpuseo.php:641
 msgid "Twitter site @username"
 msgstr "Twitter site @username"
 
-#: .././wpuseo.php:589
+#: .././wpuseo.php:645
 msgid "Twitter ads ID"
 msgstr "Twitter ads ID"
 
-#: .././wpuseo.php:593
+#: .././wpuseo.php:649
 msgid "Twitter:Card format"
 msgstr "Twitter:Card format"
 
-#: .././wpuseo.php:604
+#: .././wpuseo.php:660
 msgid "Title Home"
 msgstr "Titolo Home"
 
-#: .././wpuseo.php:608
+#: .././wpuseo.php:664
 msgid "Description Home"
 msgstr "Descrizione Home"
 
-#: .././wpuseo.php:615
+#: .././wpuseo.php:671
 msgid "Enable Cookie Notice"
 msgstr "Attiva notifica cookie"
 
-#: .././wpuseo.php:620
+#: .././wpuseo.php:676
 msgid "Track before cookie check"
 msgstr "Traccia prima del controllo dei cookie"
 
-#: .././wpuseo.php:623
+#: .././wpuseo.php:679
 msgid "For test purposes only : do not use in production !"
 msgstr "Solo a scopo di prova : non utilizzare in produzione !"
 
-#: .././wpuseo.php:626
+#: .././wpuseo.php:682
 msgid "Banner text"
 msgstr "Testo banner"
 
-#: .././wpuseo.php:632
+#: .././wpuseo.php:688
 msgid "\"Accept\" button text"
 msgstr "Testo del pulsante \"Accetta\""
 
-#: .././wpuseo.php:638
+#: .././wpuseo.php:694
 msgid "\"Refuse\" button text"
 msgstr "Testo del pulsante \"Rifiuta\""
 
-#: .././wpuseo.php:644
+#: .././wpuseo.php:700
 msgid "Display \"refuse\" button"
 msgstr "Visualizzare il pulsante \"rifiuta\""
 
-#: .././wpuseo.php:649
+#: .././wpuseo.php:705
 msgid "Duration of choice (in days)"
 msgstr "Durata della scelta (in giorni)"
 
-#: .././wpuseo.php:655
+#: .././wpuseo.php:711
 msgid "Support DoNotTrack"
 msgstr "Supporto DoNotTrack"
 
-#: .././wpuseo.php:683
+#: .././wpuseo.php:739
 msgid "Twitter"
 msgstr "Twitter"
 
-#: .././wpuseo.php:708
+#: .././wpuseo.php:764
 msgid "Facebook"
 msgstr "Facebook"
 
-#: .././wpuseo.php:916 .././wpuseo.php:962
+#: .././wpuseo.php:988 .././wpuseo.php:1034
 msgid "404 Error"
 msgstr "Errore 404"
 
-#: .././wpuseo.php:919
+#: .././wpuseo.php:991
 #, php-format
 msgid "Search results for \"%s\""
 msgstr "Risultati della ricerca per \"%s\""
 
-#: .././wpuseo.php:922
+#: .././wpuseo.php:994
 msgid "Archive"
 msgstr "Archivio"
 
-#: .././wpuseo.php:928
+#: .././wpuseo.php:1000
 msgid "Tag:"
 msgstr "Tag:"
 
-#: .././wpuseo.php:931
+#: .././wpuseo.php:1003
 msgid "Category:"
 msgstr "Categoria :"
 
-#: .././wpuseo.php:940
+#: .././wpuseo.php:1012
 msgid "Author:"
 msgstr "Autore:"
 
-#: .././wpuseo.php:943
+#: .././wpuseo.php:1015
 msgid "Year:"
 msgstr "Anno:"
 
-#: .././wpuseo.php:943
+#: .././wpuseo.php:1015
 msgid "Y"
 msgstr "Y"
 
-#: .././wpuseo.php:946
+#: .././wpuseo.php:1018
 msgid "Month:"
 msgstr "Mese:"
 
-#: .././wpuseo.php:946
+#: .././wpuseo.php:1018
 msgid "F Y"
 msgstr "F Y"
 
-#: .././wpuseo.php:949
+#: .././wpuseo.php:1021
 msgid "Day:"
 msgstr "Giorno:"
 
-#: .././wpuseo.php:949
+#: .././wpuseo.php:1021
 msgid "F j, Y"
 msgstr "j F Y"
 
-#: .././wpuseo.php:1773
+#: .././wpuseo.php:1849
 msgid ""
 "This website uses cookies to ensure you get the best experience on our "
 "website."
@@ -324,55 +338,55 @@ msgstr ""
 "Questo sito Web utilizza i cookie per assicurarti di ottenere la migliore "
 "esperienza sul nostro sito Web."
 
-#: .././wpuseo.php:1779
+#: .././wpuseo.php:1855
 msgid "Accept"
 msgstr "Accetta"
 
-#: .././wpuseo.php:1785
+#: .././wpuseo.php:1861
 msgid "Refuse"
 msgstr "Rifiutato"
 
-#: .././wpuseo.php:2150
+#: .././wpuseo.php:2227
 msgid "Title tag content"
 msgstr "Contenuto del tag del titolo"
 
-#: .././wpuseo.php:2156
+#: .././wpuseo.php:2233
 msgid "Meta description content"
 msgstr "Contenuto della meta descrizione"
 
-#: .././wpuseo.php:2164
+#: .././wpuseo.php:2241
 msgid "Twitter Title"
 msgstr "Titolo di Twitter"
 
-#: .././wpuseo.php:2170
+#: .././wpuseo.php:2247
 msgid "Twitter Description"
 msgstr "Descrizione Twitter"
 
-#: .././wpuseo.php:2176
+#: .././wpuseo.php:2253
 msgid "Twitter Image"
 msgstr "Immagine Twitter"
 
-#: .././wpuseo.php:2184
+#: .././wpuseo.php:2261
 msgid "Facebook og:title"
 msgstr "Facebook og:title"
 
-#: .././wpuseo.php:2190
+#: .././wpuseo.php:2267
 msgid "Facebook og:description"
 msgstr "Facebook og:description"
 
-#: .././wpuseo.php:2196
+#: .././wpuseo.php:2273
 msgid "Facebook og:image"
 msgstr "Facebook og:image"
 
-#: .././wpuseo.php:2203
+#: .././wpuseo.php:2280
 msgid "Preview"
 msgstr "Anteprima"
 
-#: .././wpuseo.php:2209
+#: .././wpuseo.php:2286
 msgid "Save post to display updated values"
 msgstr "Salva post per visualizzare i valori aggiornati"
 
-#: .././wpuseo.php:2210
+#: .././wpuseo.php:2287
 msgid "Edit in site options to display updated values"
 msgstr "Modificare le opzioni del sito per visualizzare i valori aggiornati"
 
@@ -394,11 +408,11 @@ msgstr "Modificare le opzioni del sito per visualizzare i valori aggiornati"
 #~ msgstr "FB:Image"
 
 #~ msgid ""
-#~ "Use the content attribute of the validation meta tag (&lt;meta name="
-#~ "\"google-site-verification\" content=\"THECODE\" /&gt;)"
+#~ "Use the content attribute of the validation meta tag (&lt;meta "
+#~ "name=\"google-site-verification\" content=\"THECODE\" /&gt;)"
 #~ msgstr ""
-#~ "Utilizzare l'attributo content del tag meta convalida (&lt;meta name="
-#~ "\"google-site-verification\" content=\"THECODE\" /&gt;)"
+#~ "Utilizzare l'attributo content del tag meta convalida (&lt;meta "
+#~ "name=\"google-site-verification\" content=\"THECODE\" /&gt;)"
 
 #~ msgid "Google verification ID"
 #~ msgstr "Google verification ID"
