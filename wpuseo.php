@@ -5,9 +5,13 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.19.2
+Version: 2.20.0
 Author: Darklg
 Author URI: https://darklg.me/
+Text Domain: wpuseo
+Domain Path: /lang
+Requires at least: 6.0
+Requires PHP: 8.0
 License: MIT License
 License URI: https://opensource.org/licenses/MIT
 Contributors: @boiteaweb, @CecileBr
@@ -15,7 +19,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.19.2';
+    public $plugin_version = '2.20.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -188,6 +192,7 @@ class WPUSEO {
     }
 
     public function load_translation() {
+        // Load lang
         $lang_dir = dirname(plugin_basename(__FILE__)) . '/lang/';
         if (!load_plugin_textdomain('wpuseo', false, $lang_dir)) {
             load_muplugin_textdomain('wpuseo', $lang_dir);
@@ -1046,14 +1051,6 @@ class WPUSEO {
         $metas = apply_filters('wpuseo_metas_before_settings', array());
         $metas_json = array();
         $links = array();
-
-        if ($this->is_hidden_from_search()) {
-            return array(
-                'metas' => array(),
-                'links' => array(),
-                'metas_json' => array()
-            );
-        }
 
         if ($this->enable_facebook_metas) {
             $metas['og_sitename'] = array(
