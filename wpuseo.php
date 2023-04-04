@@ -2455,21 +2455,23 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
     /* Prepare meta description
      -------------------------- */
 
-    public function prepare_text($text, $max_length = 200) {
-        $text = strip_shortcodes($text);
-        $text = strip_tags($text);
-        $text = preg_replace("/\s+/", ' ', $text);
-        $text = trim($text);
-        $words = explode(' ', $text);
-        $final_text = '';
-        foreach ($words as $word) {
-            if ((strlen($final_text) + strlen(' ' . $word)) > $max_length) {
-                return trim($final_text) . ' ...';
+    public function prepare_text( $text, $max_length = 200 ) {
+        $text        = strip_shortcodes( $text );
+        $text        = strip_tags( $text );
+        $text        = preg_replace( "/\s+/", ' ', $text );
+        $text        = trim( $text );
+        $words       = explode( ' ', $text );
+        $final_text  = '';
+        $$max_length = (int) apply_filters( 'WPUSEO/prepare_text/max_length', $max_length, $text );
+        $hellip      = apply_filters( 'WPUSEO/prepare_text/hellip', ' ...' );
+        foreach ( $words as $word ) {
+            if ( ( strlen( $final_text ) + strlen( ' ' . $word ) ) > $max_length) {
+                return trim( $final_text ) . $hellip;
             } else {
                 $final_text .= ' ' . $word;
             }
         }
-        return trim($final_text);
+        return trim( $final_text );
     }
 
     /* Convert an array of metas to HTML
