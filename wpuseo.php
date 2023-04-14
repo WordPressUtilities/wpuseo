@@ -1361,7 +1361,8 @@ class WPUSEO {
             if (!empty($wpuseo_post_description)) {
                 $description = $wpuseo_post_description;
             }
-
+            
+            $description = apply_filters( 'wpuseo__get_metas__description', $description );
             $description = $this->prepare_text($description);
 
             if ($this->enable_twitter_metas) {
