@@ -1180,7 +1180,7 @@ class WPUSEO {
             $description = $description ? $description : $title;
             $metas['description'] = array(
                 'name' => 'description',
-                'content' => $this->prepare_text($description)
+                'content' => $this->prepare_text($description, 200, 'description')
             );
 
             if ($this->enable_twitter_metas) {
@@ -1201,7 +1201,7 @@ class WPUSEO {
                 $twitter_description = $twitter_description ? $twitter_description : $description;
                 $metas['twitter_description'] = array(
                     'name' => 'twitter:description',
-                    'content' => $this->prepare_text($twitter_description)
+                    'content' => $this->prepare_text($twitter_description, 200, 'twitter_description')
                 );
 
                 /* Image */
@@ -1235,7 +1235,7 @@ class WPUSEO {
                 $facebook_description = $facebook_description ? $facebook_description : $description;
                 $metas['og_description'] = array(
                     'property' => 'og:description',
-                    'content' => $this->prepare_text($facebook_description)
+                    'content' => $this->prepare_text($facebook_description, 200, 'facebook_description')
                 );
 
                 /* Image */
@@ -1270,7 +1270,7 @@ class WPUSEO {
 
             $metas['description'] = array(
                 'name' => 'description',
-                'content' => $this->prepare_text($description)
+                'content' => $this->prepare_text($description, 200, 'description')
             );
 
             if ($this->enable_twitter_metas) {
@@ -1285,7 +1285,7 @@ class WPUSEO {
                     'content' => $twitter_title
                 );
                 /* Description */
-                $twitter_description = $this->prepare_text($this->get_taxo_meta('description_twitter'));
+                $twitter_description = $this->prepare_text($this->get_taxo_meta('description_twitter'), 200, 'twitter_description');
                 if (empty($twitter_description)) {
                     $twitter_description = $description;
                 }
@@ -1307,7 +1307,7 @@ class WPUSEO {
             }
 
             if ($this->enable_facebook_metas) {
-                $facebook_title = $this->prepare_text($this->get_taxo_meta('title_facebook'));
+                $facebook_title = $this->prepare_text($this->get_taxo_meta('title_facebook'), 200, 'facebook_title');
                 if (empty($facebook_title)) {
                     $facebook_title = $taxo_meta_title;
                 }
@@ -1362,7 +1362,7 @@ class WPUSEO {
                 $description = $wpuseo_post_description;
             }
 
-            $description = $this->prepare_text($description);
+            $description = $this->prepare_text($description, 200, 'description');
 
             if ($this->enable_twitter_metas) {
                 /* Title */
@@ -1375,7 +1375,7 @@ class WPUSEO {
                     'content' => $twitter_title
                 );
                 /* Description */
-                $twitter_description = $this->prepare_text($this->get_post_meta_custom($post_id, 'wpuseo_post_description_twitter', 1));
+                $twitter_description = $this->prepare_text($this->get_post_meta_custom($post_id, 'wpuseo_post_description_twitter', 1), 200, 'twitter_description');
                 if (empty($twitter_description)) {
                     $twitter_description = $description;
                 }
@@ -1408,12 +1408,12 @@ class WPUSEO {
                 $keywords_txt = implode(', ', $keywords);
                 $metas['keywords'] = array(
                     'name' => 'keywords',
-                    'content' => $this->prepare_text($keywords_txt)
+                    'content' => $this->prepare_text($keywords_txt, 200, 'not_homepage_keywords')
                 );
             }
 
             if ($this->enable_facebook_metas) {
-                $facebook_title = $this->prepare_text($this->get_post_meta_custom($post_id, 'wpuseo_post_title_facebook', 1));
+                $facebook_title = $this->prepare_text($this->get_post_meta_custom($post_id, 'wpuseo_post_title_facebook', 1), 200, 'title_facebook');
                 if (empty($facebook_title)) {
                     $facebook_title = get_the_title($post_id);
                 }
@@ -1422,7 +1422,7 @@ class WPUSEO {
                     'content' => $facebook_title
                 );
                 /* Description */
-                $facebook_description = trim($this->get_post_meta_custom($post_id, 'wpuseo_post_description_facebook', 1));
+                $facebook_description = trim($this->get_post_meta_custom($post_id, 'wpuseo_post_description_facebook', 1), 'description_facebook');
                 if (empty($facebook_description)) {
                     $facebook_description = $description;
                 }
@@ -1536,7 +1536,7 @@ class WPUSEO {
             }
             $metas['description'] = array(
                 'name' => 'description',
-                'content' => $this->prepare_text($home_meta_description, 200)
+                'content' => $this->prepare_text($home_meta_description, 200, 'homepage_description')
             );
 
             // Meta keywords
@@ -1553,7 +1553,7 @@ class WPUSEO {
             if (!empty($wpu_keywords)) {
                 $metas['keywords'] = array(
                     'name' => 'keywords',
-                    'content' => $this->prepare_text($wpu_keywords, 200)
+                    'content' => $this->prepare_text($wpu_keywords, 200, 'homepage_keywords')
                 );
             }
 
@@ -1574,7 +1574,7 @@ class WPUSEO {
                 );
                 $metas['twitter_description'] = array(
                     'name' => 'twitter:description',
-                    'content' => $this->prepare_text($wpu_hometwitter_meta_description, 200)
+                    'content' => $this->prepare_text($wpu_hometwitter_meta_description, 200, 'twitter_description')
                 );
             }
 
@@ -2455,8 +2455,8 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
     /* Prepare meta description
      -------------------------- */
 
-    public function prepare_text($source_text, $max_length = 200) {
-        $text = apply_filters('wpuseo__prepare_text__before', $source_text);
+    public function prepare_text($source_text, $max_length = 200, $context = "" ) {
+        $text = apply_filters('wpuseo__prepare_text__before', $source_text, $context);
         $text = strip_shortcodes($text);
         $text = strip_tags($text);
         $text = preg_replace("/\s+/", ' ', $text);
@@ -2464,8 +2464,8 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         $words = explode(' ', $text);
         $final_text = '';
 
-        $max_length = apply_filters('wpuseo__prepare_text__max_length', $max_length, $text);
-        $hellip = apply_filters('wpuseo__prepare_text__hellip', ' ...', $text);
+        $max_length = apply_filters('wpuseo__prepare_text__max_length', $max_length, $text, $context);
+        $hellip = apply_filters('wpuseo__prepare_text__hellip', ' ...', $text, $context);
 
         foreach ($words as $word) {
             if ((strlen($final_text) + strlen(' ' . $word)) > $max_length) {
@@ -2475,7 +2475,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
             }
         }
         $final_text = trim($final_text);
-        $final_text = apply_filters('wpuseo__prepare_text__after', $final_text, $source_text);
+        $final_text = apply_filters('wpuseo__prepare_text__after', $final_text, $source_text, $context);
         return $final_text;
     }
 
