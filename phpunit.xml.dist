@@ -3,13 +3,10 @@
 	bootstrap="tests/bootstrap.php"
 	backupGlobals="false"
 	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
-			<directory prefix="test-" suffix=".php">./tests/</directory>
+		<testsuite name="tests">
+			<directory prefix="test_" suffix=".php">./tests/</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>
