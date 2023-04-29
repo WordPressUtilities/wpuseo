@@ -104,6 +104,13 @@ class test_WPUSEO extends WP_UnitTestCase {
         $metas = $this->demo_plugin->get_metas();
         $this->assertEquals($metas['metas']['description']['content'], $test_str2);
 
+        /* Long description with a long word should be cutted */
+        $test_str = str_repeat('a', 300);
+        $test_str2 = str_repeat('a', 200) . ' ...';
+        update_option('blogdescription', $test_str);
+        $metas = $this->demo_plugin->get_metas();
+        $this->assertEquals($metas['metas']['description']['content'], $test_str2);
+
         /* Home meta desc should be used */
         $test_str3 = 'Lorem ipsum';
         update_option('wpu_home_meta_description', $test_str3);

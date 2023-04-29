@@ -5,7 +5,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.21.0
+Version: 2.21.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -19,7 +19,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.21.0';
+    public $plugin_version = '2.21.1';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -2466,13 +2466,20 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         $max_length = apply_filters('wpuseo__prepare_text__max_length', $max_length, $text, $source_type);
         $hellip = apply_filters('wpuseo__prepare_text__hellip', ' ...', $text, $source_type);
 
+        if (isset($words[0]) && strlen($words[0]) > $max_length) {
+            $words = array(substr($words[0], 0, $max_length));
+            $final_text = $words[0];
+        }
+
         foreach ($words as $word) {
             if ((strlen($final_text) + strlen(' ' . $word)) > $max_length) {
-                return trim($final_text) . $hellip;
+                $final_text = trim($final_text) . $hellip;
+                break;
             } else {
                 $final_text .= ' ' . $word;
             }
         }
+
         $final_text = trim($final_text);
         $final_text = apply_filters('wpuseo__prepare_text__after', $final_text, $source_text, $source_type);
         return $final_text;
