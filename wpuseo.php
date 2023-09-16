@@ -5,7 +5,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.21.2
+Version: 2.22.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -19,7 +19,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.21.2';
+    public $plugin_version = '2.22.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -31,6 +31,7 @@ class WPUSEO {
     public $boxes_pt_with_archive;
     private $twitter_cards;
     private $settings_update;
+    private $cookie_notice_tracking_feature_flag;
 
     public function __construct() {
         add_action('init', array(&$this,
@@ -42,6 +43,7 @@ class WPUSEO {
 
         $this->active_wp_title = !apply_filters('wpuseo__disable__wp_title', false);
         $this->active_metas = !apply_filters('wpuseo__disable__metas', false);
+        $this->cookie_notice_tracking_feature_flag = apply_filters('wpuseo__cookie_notice_tracking_feature_flag', true);
 
         $this->check_config();
         $this->load_translation();
@@ -145,6 +147,11 @@ class WPUSEO {
         ), 99, 1);
         add_filter('admin_head', array(&$this,
             'remove_boxes'
+        ), 99);
+
+        // Cookie notice deprecated alert
+        add_filter('admin_head', array(&$this,
+            'cookie_notice_flag_deprecated_alert'
         ), 99);
 
         // User boxes
@@ -462,11 +469,12 @@ class WPUSEO {
             'name' => 'Twitter',
             'tab' => 'wpu_seo'
         );
-        $boxes['wpu_seo_cookies'] = array(
-            'name' => 'Cookies',
-            'tab' => 'wpu_seo'
-        );
-
+        if ($this->cookie_notice_tracking_feature_flag) {
+            $boxes['wpu_seo_cookies'] = array(
+                'name' => 'Cookies',
+                'tab' => 'wpu_seo'
+            );
+        }
         foreach ($this->boxes_pt_with_archive as $post_type) {
             $post_type_details = get_post_type_object($post_type);
             if (!$post_type_details) {
@@ -545,12 +553,14 @@ class WPUSEO {
         }
 
         // Custom
-        $options['wputh_custom_tracking_code'] = array(
-            'label' => $this->__('Custom JS Code'),
-            'box' => 'wpu_seo_custom',
-            'type' => 'textarea',
-            'help' => $this->__('Custom tracking code : Plugged to cookie notice if enabled. No HTML !')
-        );
+        if ($this->cookie_notice_tracking_feature_flag) {
+            $options['wputh_custom_tracking_code'] = array(
+                'label' => $this->__('Custom JS Code'),
+                'box' => 'wpu_seo_custom',
+                'type' => 'textarea',
+                'help' => $this->__('Custom tracking code : Plugged to cookie notice if enabled. No HTML !')
+            );
+        }
 
         // Fake files
         foreach ($this->fake_txt_files as $fake_file) {
@@ -569,26 +579,29 @@ class WPUSEO {
             'box' => 'wpu_seo_google',
             'help' => $this->__('Use the content attribute of the validation meta tag') . ' (&lt;meta name="google-site-verification" content="THECODE" /&gt;)'
         );
-        $options['wputh_ua_analytics'] = array(
-            'label' => $this->__('Google Analytics ID'),
-            'box' => 'wpu_seo_google'
-        );
-        $options['wputh_analytics_enableloggedin'] = array(
-            'label' => $this->__('Enable Analytics for logged-in users'),
-            'box' => 'wpu_seo_google',
-            'type' => 'select'
-        );
-        $options['wputh_analytics_enableanonymizeip'] = array(
-            'label' => $this->__('Enable anonymizeIp for Analytics'),
-            'box' => 'wpu_seo_google',
-            'type' => 'select'
-        );
-        $options['wputh_analytics_cookie_expires'] = array(
-            'label' => $this->__('Cookie expiration for Analytics (in sec)'),
-            'box' => 'wpu_seo_google',
-            'type' => 'number',
-            'help' => $this->__('If not filled, will use Google’s default value.')
-        );
+
+        if ($this->cookie_notice_tracking_feature_flag) {
+            $options['wputh_ua_analytics'] = array(
+                'label' => $this->__('Google Analytics ID'),
+                'box' => 'wpu_seo_google'
+            );
+            $options['wputh_analytics_enableloggedin'] = array(
+                'label' => $this->__('Enable Analytics for logged-in users'),
+                'box' => 'wpu_seo_google',
+                'type' => 'select'
+            );
+            $options['wputh_analytics_enableanonymizeip'] = array(
+                'label' => $this->__('Enable anonymizeIp for Analytics'),
+                'box' => 'wpu_seo_google',
+                'type' => 'select'
+            );
+            $options['wputh_analytics_cookie_expires'] = array(
+                'label' => $this->__('Cookie expiration for Analytics (in sec)'),
+                'box' => 'wpu_seo_google',
+                'type' => 'number',
+                'help' => $this->__('If not filled, will use Google’s default value.')
+            );
+        }
 
         // Facebook
         $options['wpu_seo_user_facebook_enable'] = array(
@@ -609,15 +622,17 @@ class WPUSEO {
             'label' => $this->__('FB:App ID'),
             'box' => 'wpu_seo_facebook'
         );
-        $options['wputh_fb_pixel'] = array(
-            'label' => $this->__('FB:Pixel ID'),
-            'box' => 'wpu_seo_facebook'
-        );
-        $options['wputh_fbpixel_enableloggedin'] = array(
-            'label' => $this->__('Enable FB:Pixel for logged-in users'),
-            'box' => 'wpu_seo_facebook',
-            'type' => 'select'
-        );
+        if ($this->cookie_notice_tracking_feature_flag) {
+            $options['wputh_fb_pixel'] = array(
+                'label' => $this->__('FB:Pixel ID'),
+                'box' => 'wpu_seo_facebook'
+            );
+            $options['wputh_fbpixel_enableloggedin'] = array(
+                'label' => $this->__('Enable FB:Pixel for logged-in users'),
+                'box' => 'wpu_seo_facebook',
+                'type' => 'select'
+            );
+        }
         $options['wputh_fb_image'] = array(
             'label' => $this->__('OG:Image'),
             'type' => 'media',
@@ -669,51 +684,53 @@ class WPUSEO {
         );
 
         // Cookies
-        $options['wpu_seo_cookies__enable_notice'] = array(
-            'label' => $this->__('Enable Cookie Notice'),
-            'type' => 'select',
-            'box' => 'wpu_seo_cookies'
-        );
-        $options['wpu_seo_cookies__enable_tracking'] = array(
-            'label' => $this->__('Track before cookie check'),
-            'type' => 'select',
-            'box' => 'wpu_seo_cookies',
-            'help' => $this->__('For test purposes only : do not use in production !')
-        );
-        $options['wpu_seo_cookies__text'] = array(
-            'label' => $this->__('Banner text'),
-            'type' => 'textarea',
-            'lang' => true,
-            'box' => 'wpu_seo_cookies'
-        );
-        $options['wpu_seo_cookies__button_accept'] = array(
-            'label' => $this->__('"Accept" button text'),
-            'type' => 'text',
-            'lang' => true,
-            'box' => 'wpu_seo_cookies'
-        );
-        $options['wpu_seo_cookies__button_refuse'] = array(
-            'label' => $this->__('"Refuse" button text'),
-            'type' => 'text',
-            'lang' => true,
-            'box' => 'wpu_seo_cookies'
-        );
-        $options['wpu_seo_cookies__display_refuse'] = array(
-            'label' => $this->__('Display "refuse" button'),
-            'type' => 'select',
-            'box' => 'wpu_seo_cookies'
-        );
-        $options['wpu_seo_cookies__duration_choice'] = array(
-            'label' => $this->__('Duration of choice (in days)'),
-            'type' => 'number',
-            'default_value' => 30,
-            'box' => 'wpu_seo_cookies'
-        );
-        $options['wpu_seo_cookies__support_dnt'] = array(
-            'label' => $this->__('Support DoNotTrack'),
-            'type' => 'select',
-            'box' => 'wpu_seo_cookies'
-        );
+        if ($this->cookie_notice_tracking_feature_flag) {
+            $options['wpu_seo_cookies__enable_notice'] = array(
+                'label' => $this->__('Enable Cookie Notice'),
+                'type' => 'select',
+                'box' => 'wpu_seo_cookies'
+            );
+            $options['wpu_seo_cookies__enable_tracking'] = array(
+                'label' => $this->__('Track before cookie check'),
+                'type' => 'select',
+                'box' => 'wpu_seo_cookies',
+                'help' => $this->__('For test purposes only : do not use in production !')
+            );
+            $options['wpu_seo_cookies__text'] = array(
+                'label' => $this->__('Banner text'),
+                'type' => 'textarea',
+                'lang' => true,
+                'box' => 'wpu_seo_cookies'
+            );
+            $options['wpu_seo_cookies__button_accept'] = array(
+                'label' => $this->__('"Accept" button text'),
+                'type' => 'text',
+                'lang' => true,
+                'box' => 'wpu_seo_cookies'
+            );
+            $options['wpu_seo_cookies__button_refuse'] = array(
+                'label' => $this->__('"Refuse" button text'),
+                'type' => 'text',
+                'lang' => true,
+                'box' => 'wpu_seo_cookies'
+            );
+            $options['wpu_seo_cookies__display_refuse'] = array(
+                'label' => $this->__('Display "refuse" button'),
+                'type' => 'select',
+                'box' => 'wpu_seo_cookies'
+            );
+            $options['wpu_seo_cookies__duration_choice'] = array(
+                'label' => $this->__('Duration of choice (in days)'),
+                'type' => 'number',
+                'default_value' => 30,
+                'box' => 'wpu_seo_cookies'
+            );
+            $options['wpu_seo_cookies__support_dnt'] = array(
+                'label' => $this->__('Support DoNotTrack'),
+                'type' => 'select',
+                'box' => 'wpu_seo_cookies'
+            );
+        }
 
         foreach ($this->boxes_pt_with_archive as $post_type) {
             if ($this->active_wp_title) {
@@ -1783,7 +1800,38 @@ class WPUSEO {
       Cookies
     ---------------------------------------------------------- */
 
+    function cookie_notice_flag_deprecated_alert() {
+        if (!$this->cookie_notice_tracking_feature_flag) {
+            return;
+        }
+
+        $replace_by = __('a certified GDPR plugin', 'wpuseo');
+
+        if (
+            get_option('wpu_seo_cookies__enable_notice') == 1
+            || get_option('wputh_ua_analytics')
+            || get_option('wputh_fb_pixel')
+            || get_option('wputh_custom_tracking_code')
+        ) {
+            _deprecated_function('WPUSEO - Cookie Notice', '2.22.0', $replace_by);
+            error_log('The “WPUSEO - Cookie Notice” feature, the Google Analytics, FB Pixel codes and custom JS code will be totally removed in a future version.');
+        }
+
+        if(get_option('wputh_ua_analytics')){
+            _deprecated_function('wputh_ua_analytics', '2.22.0', $replace_by);
+        }
+        if(get_option('wputh_fb_pixel')){
+            _deprecated_function('wputh_fb_pixel', '2.22.0', $replace_by);
+        }
+        if(get_option('wputh_custom_tracking_code')){
+            _deprecated_function('wputh_custom_tracking_code', '2.22.0', $replace_by);
+        }
+    }
+
     public function wp_head_cookie_helper() {
+        if (!$this->cookie_notice_tracking_feature_flag) {
+            return;
+        }
         $fb_pixel = $this->get_pixel_id();
         $ua_analytics = $this->get_analytics_id();
         $custom_tracking = $this->get_custom_tracking_code();
@@ -1817,6 +1865,9 @@ class WPUSEO {
     -------------------------- */
 
     public function wp_enqueue_scripts() {
+        if (!$this->cookie_notice_tracking_feature_flag) {
+            return;
+        }
         $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
         if ($wpu_seo_cookies__enable_notice) {
             wp_enqueue_style('wpuseo_cookies_style', plugins_url('assets/cookies.css', __FILE__), array(), $this->plugin_version);
@@ -1836,6 +1887,9 @@ class WPUSEO {
     -------------------------- */
 
     public function wp_footer() {
+        if (!$this->cookie_notice_tracking_feature_flag) {
+            return;
+        }
         $wpu_seo_cookies__enable_notice = (get_option('wpu_seo_cookies__enable_notice') == 1);
         if ($wpu_seo_cookies__enable_notice) {
             $this->display__cookie_notice();
@@ -1903,7 +1957,9 @@ class WPUSEO {
     ---------------------------------------------------------- */
 
     public function display_custom_tracking() {
-
+        if (!$this->cookie_notice_tracking_feature_flag) {
+            return;
+        }
         $hook_ajaxready = apply_filters('wpuseo_ajaxready_hook', 'vanilla-pjax-ready');
         $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
 
@@ -1942,6 +1998,9 @@ class WPUSEO {
     ---------------------------------------------------------- */
 
     public function display_google_analytics_code() {
+        if (!$this->cookie_notice_tracking_feature_flag) {
+            return;
+        }
         $ua_analytics = $this->get_analytics_id();
         if (!$ua_analytics) {
             return;
@@ -2058,7 +2117,9 @@ class WPUSEO {
     }
 
     public function display_facebook_pixel_code() {
-
+        if (!$this->cookie_notice_tracking_feature_flag) {
+            return;
+        }
         $fb_pixel = $this->get_pixel_id();
         if (!$fb_pixel) {
             return false;
@@ -2091,7 +2152,9 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
     }
 
     public function display_facebook_pixel_code__thankyou($order_id) {
-
+        if (!$this->cookie_notice_tracking_feature_flag) {
+            return;
+        }
         $fb_pixel = $this->get_pixel_id();
         if (!$fb_pixel) {
             return false;
