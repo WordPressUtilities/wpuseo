@@ -1,0 +1,23 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "rules": {
+        "no-prototype-builtins": 0
+    },
+    "globals": {
+        "wpuseo_options": true,
+        "wp": true,
+        "jQuery": true,
+        "wpuseo_getcookie": true,
+        "wpuseo_obj": true,
+        "wpuseo_init_analytics": true,
+        "wpuseo_init_fbpixel": true,
+        "wpuseo_init_custom_tracking": true
+    }
+}

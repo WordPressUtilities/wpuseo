@@ -14,7 +14,7 @@ function wpuseo_setcookie(cname, cvalue, exdays) {
   Display Cookie notice
 ---------------------------------------------------------- */
 
-jQuery(document).ready(function wpuseo_cookienotice($) {
+jQuery(document).ready(function wpuseo_cookienotice() {
     /* Cookies are not needed */
     if (typeof wpuseo_getcookie == 'undefined') {
         return;

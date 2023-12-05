@@ -5,12 +5,12 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.22.0
+Version: 2.23.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
 Domain Path: /lang
-Requires at least: 6.0
+Requires at least: 6.2
 Requires PHP: 8.0
 License: MIT License
 License URI: https://opensource.org/licenses/MIT
@@ -19,7 +19,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.22.0';
+    public $plugin_version = '2.23.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -886,6 +886,9 @@ class WPUSEO {
     public function get_taxo_meta($type) {
         global $q_config;
         $queried_object = $this->get_queried_object();
+        if (!$queried_object || !is_object($queried_object)) {
+            return '';
+        }
 
         $term_id = $queried_object->term_id;
         $metas = array();
@@ -1715,7 +1718,7 @@ class WPUSEO {
 
     public function set_metas_ld_json($metas, $metas_json) {
 
-        $metas_json = array_merge(array("@context" => "http://schema.org"), $metas_json);
+        $metas_json = array_merge(array("@context" => "https://schema.org"), $metas_json);
 
         if (!empty($metas['description'])) {
             $metas_json['description'] = $metas['description']['content'];
@@ -1817,13 +1820,13 @@ class WPUSEO {
             error_log('The “WPUSEO - Cookie Notice” feature, the Google Analytics, FB Pixel codes and custom JS code will be totally removed in a future version.');
         }
 
-        if(get_option('wputh_ua_analytics')){
+        if (get_option('wputh_ua_analytics')) {
             _deprecated_function('wputh_ua_analytics', '2.22.0', $replace_by);
         }
-        if(get_option('wputh_fb_pixel')){
+        if (get_option('wputh_fb_pixel')) {
             _deprecated_function('wputh_fb_pixel', '2.22.0', $replace_by);
         }
-        if(get_option('wputh_custom_tracking_code')){
+        if (get_option('wputh_custom_tracking_code')) {
             _deprecated_function('wputh_custom_tracking_code', '2.22.0', $replace_by);
         }
     }
