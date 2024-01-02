@@ -1733,8 +1733,8 @@ class WPUSEO {
             if (is_numeric($image_id)) {
                 $image_obj = wp_get_attachment_image_src($image_id, $this->thumbnail_size);
                 if (is_array($image_obj) && $image_obj[0] == $metas['image']['content']) {
-                    $metas_json['image']['height'] = $image_obj[1];
-                    $metas_json['image']['width'] = $image_obj[2];
+                    $metas_json['image']['width'] = $image_obj[1];
+                    $metas_json['image']['height'] = $image_obj[2];
                 }
             }
         }
