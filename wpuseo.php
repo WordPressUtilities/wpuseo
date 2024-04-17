@@ -1,17 +1,19 @@
 <?php
+defined('ABSPATH') || die;
 
 /*
 Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.23.1
+Version: 2.23.2
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
 Domain Path: /lang
 Requires at least: 6.2
 Requires PHP: 8.0
+Network: Optional
 License: MIT License
 License URI: https://opensource.org/licenses/MIT
 Contributors: @boiteaweb, @CecileBr
@@ -19,7 +21,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.23.1';
+    public $plugin_version = '2.23.2';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -191,7 +193,7 @@ class WPUSEO {
             'summary_large_image' => 'summary_large_image'
         ));
 
-        require_once dirname(__FILE__) . '/inc/WPUBaseUpdate/WPUBaseUpdate.php';
+        require_once __DIR__ . '/inc/WPUBaseUpdate/WPUBaseUpdate.php';
         $this->settings_update = new \wpuseo\WPUBaseUpdate(
             'WordPressUtilities',
             'wpuseo',
@@ -1034,7 +1036,7 @@ class WPUSEO {
             global $author;
             $author_name = get_query_var('author_name');
             $curauth = !empty($author_name) ? get_user_by('slug', $author_name) : get_userdata(intval($author));
-            $displayed_title = $this->__('Author:') . ' ' . $curauth->nickname;
+            $displayed_title = $this->__('Author:') . ' ' . esc_html($curauth->display_name);
         }
         if (is_year()) {
             $displayed_title = ($prefix ? $this->__('Year:') . ' ' : '') . get_the_time($this->__('Y'));
