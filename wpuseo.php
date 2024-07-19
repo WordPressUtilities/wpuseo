@@ -6,7 +6,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.23.3
+Version: 2.24.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -21,7 +21,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
 
-    public $plugin_version = '2.23.3';
+    public $plugin_version = '2.24.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -221,7 +221,22 @@ class WPUSEO {
         include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
         // Check if WPU Options is active
-        if (!is_plugin_active('wpuoptions/wpuoptions.php')) {
+        $wpuoptions_file = 'wpuoptions/wpuoptions.php';
+        $has_wpuoptions = is_plugin_active($wpuoptions_file) || is_plugin_active_for_network($wpuoptions_file);
+
+        /* Get active must-use plugins list */
+        $mu_plugins_path = array(
+            WPMU_PLUGIN_DIR,
+            WPMU_PLUGIN_DIR . '/wpu'
+        );
+        foreach ($mu_plugins_path as $mu_plugins_dir) {
+            if (is_dir($mu_plugins_dir) && file_exists($mu_plugins_dir . '/wpuoptions/wpuoptions.php')) {
+                $has_wpuoptions = true;
+                break;
+            }
+        }
+
+        if (!$has_wpuoptions) {
             add_action('admin_notices', array(&$this,
                 'set_error_missing_wpuoptions'
             ));
@@ -920,7 +935,7 @@ class WPUSEO {
       Sitemap
     ---------------------------------------------------------- */
 
-    function wp_sitemaps_posts_query_args($args, $post_type) {
+    public function wp_sitemaps_posts_query_args($args, $post_type) {
 
         /* Remove hidden posts from sitemap */
         $args['meta_query'] = isset($args['meta_query']) ? $args['meta_query'] : array();
@@ -1805,7 +1820,7 @@ class WPUSEO {
       Cookies
     ---------------------------------------------------------- */
 
-    function cookie_notice_flag_deprecated_alert() {
+    public function cookie_notice_flag_deprecated_alert() {
         if (!$this->cookie_notice_tracking_feature_flag) {
             return;
         }
@@ -2246,7 +2261,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
       Get common JS tracking conditions
     ---------------------------------------------------------- */
 
-    function get_js_conditions_tracking() {
+    public function get_js_conditions_tracking() {
 
         $cookie_notice = get_option('wpu_seo_cookies__enable_notice');
         $enable_tracking = get_option('wpu_seo_cookies__enable_tracking');
@@ -2422,7 +2437,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
       Ads
     ---------------------------------------------------------- */
 
-    function wpuoptions__post_update__update_fake_files() {
+    public function wpuoptions__post_update__update_fake_files() {
         $need_rewrite = false;
         foreach ($this->fake_txt_files as $fake_file) {
             $opt_val = trim(get_option('wpu_seo_' . $fake_file . '_txt_content'));
@@ -2438,7 +2453,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         }
     }
 
-    function add_rewrite_rule__fake_files() {
+    public function add_rewrite_rule__fake_files() {
         foreach ($this->fake_txt_files as $fake_file) {
             $opt_val = get_option('wpu_seo_' . $fake_file . '_txt_content_has_val');
             if ($opt_val == '1') {
@@ -2447,7 +2462,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         }
     }
 
-    function redirect_canonical_callback($redirect_url, $requested_url) {
+    public function redirect_canonical_callback($redirect_url, $requested_url) {
         foreach ($this->fake_txt_files as $fake_file) {
             $opt_val = get_option('wpu_seo_' . $fake_file . '_txt_content_has_val');
             if ($opt_val && str_replace(site_url(), '', $requested_url) == '/' . $fake_file . '.txt') {
@@ -2457,12 +2472,12 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         return $redirect_url;
     }
 
-    function query_vars__fakefiles($query_vars) {
+    public function query_vars__fakefiles($query_vars) {
         $query_vars[] = 'wpuseovirtualfile';
         return $query_vars;
     }
 
-    function display_fake_file_content() {
+    public function display_fake_file_content() {
         global $wp_query;
         if (!is_object($wp_query) || !isset($wp_query->query_vars, $wp_query->query_vars['wpuseovirtualfile'])) {
             return;
