@@ -6,7 +6,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.24.0
+Version: 2.25.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -20,8 +20,8 @@ Contributors: @boiteaweb, @CecileBr
 */
 
 class WPUSEO {
-
-    public $plugin_version = '2.24.0';
+    public $basetoolbox;
+    public $plugin_version = '2.25.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -47,7 +47,6 @@ class WPUSEO {
         $this->active_metas = !apply_filters('wpuseo__disable__metas', false);
         $this->cookie_notice_tracking_feature_flag = apply_filters('wpuseo__cookie_notice_tracking_feature_flag', true);
 
-        $this->check_config();
         $this->load_translation();
 
         // Ads
@@ -198,6 +197,24 @@ class WPUSEO {
             'WordPressUtilities',
             'wpuseo',
             $this->plugin_version);
+
+        require_once __DIR__ . '/inc/WPUBaseToolbox/WPUBaseToolbox.php';
+        $this->basetoolbox = new \wpuseo\WPUBaseToolbox(array(
+            'need_form_js' => false,
+            'plugin_name' => 'WPU SEO',
+        ));
+
+        /* Dependencies */
+        $this->basetoolbox->check_plugins_dependencies(array(
+            'wpuoptions' => array(
+                'path' => 'wpuoptions/wpuoptions.php',
+                'name' => 'WPU Options'
+            ),
+            'wputaxometas' => array(
+                'path' => 'wputaxometas/wputaxometas.php',
+                'name' => 'WPU Taxo Metas'
+            )
+        ));
     }
 
     public function load_translation() {
@@ -207,44 +224,6 @@ class WPUSEO {
             load_muplugin_textdomain('wpuseo', $lang_dir);
         }
         $this->plugin_description = __('Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.', 'wpuseo');
-    }
-
-    /* ----------------------------------------------------------
-      Check config
-    ---------------------------------------------------------- */
-
-    public function check_config() {
-
-        if (!is_admin()) {
-            return;
-        }
-        include_once ABSPATH . 'wp-admin/includes/plugin.php';
-
-        // Check if WPU Options is active
-        $wpuoptions_file = 'wpuoptions/wpuoptions.php';
-        $has_wpuoptions = is_plugin_active($wpuoptions_file) || is_plugin_active_for_network($wpuoptions_file);
-
-        /* Get active must-use plugins list */
-        $mu_plugins_path = array(
-            WPMU_PLUGIN_DIR,
-            WPMU_PLUGIN_DIR . '/wpu'
-        );
-        foreach ($mu_plugins_path as $mu_plugins_dir) {
-            if (is_dir($mu_plugins_dir) && file_exists($mu_plugins_dir . '/wpuoptions/wpuoptions.php')) {
-                $has_wpuoptions = true;
-                break;
-            }
-        }
-
-        if (!$has_wpuoptions) {
-            add_action('admin_notices', array(&$this,
-                'set_error_missing_wpuoptions'
-            ));
-        }
-    }
-
-    public function set_error_missing_wpuoptions() {
-        echo '<div class="error"><p>' . sprintf($this->__('The plugin <b>%s</b> depends on the <b>WPU Options</b> plugin. Please install and activate it.'), 'WPU SEO') . '</p></div>';
     }
 
     /* ----------------------------------------------------------
