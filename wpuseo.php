@@ -6,7 +6,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.25.1
+Version: 2.25.2
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -21,7 +21,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
     public $basetoolbox;
-    public $plugin_version = '2.25.1';
+    public $plugin_version = '2.25.2';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -215,6 +215,11 @@ class WPUSEO {
                 'path' => 'wputaxometas/wputaxometas.php',
                 'url' => 'https://github.com/WordPressUtilities/wputaxometas',
                 'name' => 'WPU Taxo Metas'
+            ),
+            'wpuusermetas' => array(
+                'path' => 'wpuusermetas/wpuusermetas.php',
+                'url' => 'https://github.com/WordPressUtilities/wpuusermetas',
+                'name' => 'WPU User Metas'
             )
         ));
     }
@@ -868,6 +873,11 @@ class WPUSEO {
     public function add_user_fields($fields) {
         $fields['wpu_seo_user_google_profile'] = array(
             'name' => 'Google+ URL',
+            'section' => 'wpu-seo'
+        );
+        $fields['wpu_seo_user_mastodon_profile'] = array(
+            'name' => 'Mastodon Profile',
+            'description' => 'Example: @username@instance.com',
             'section' => 'wpu-seo'
         );
         $fields['wpu_seo_user_twitter_account'] = array(
@@ -1527,6 +1537,15 @@ class WPUSEO {
                 $links['google_author'] = array(
                     'rel' => 'author',
                     'href' => $wpu_seo_user_google_profile
+                );
+            }
+
+            // Fediverse creator
+            $wpu_seo_user_mastodon_profile = get_user_meta($post_infos->post_author, 'wpu_seo_user_mastodon_profile', 1);
+            if (!empty($wpu_seo_user_mastodon_profile) && preg_match('/^@([A-Za-z0-9_]+)@([A-Za-z0-9_\.]+)$/', $wpu_seo_user_mastodon_profile)) {
+                $metas['mastodon_creator'] = array(
+                    'name' => 'fediverse:creator',
+                    'content' => $wpu_seo_user_mastodon_profile
                 );
             }
 
