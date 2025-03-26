@@ -6,7 +6,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.26.0
+Version: 2.27.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -21,7 +21,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
     public $basetoolbox;
-    public $plugin_version = '2.26.0';
+    public $plugin_version = '2.27.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -1698,7 +1698,7 @@ class WPUSEO {
         if ((is_single() || is_singular()) && !is_singular('product') && !is_front_page() && !is_home()) {
             $queried_object = get_queried_object();
             $metas_json = array(
-                "@type" => "NewsArticle",
+                "@type" => apply_filters('wpuseo_metasldjson_single_type', 'NewsArticle', $queried_object->post_type),
                 "author" => get_the_author_meta('display_name', $queried_object->post_author),
                 "datePublished" => get_the_time('Y-m-d', $queried_object->ID),
                 "dateModified" => get_the_modified_time('Y-m-d', $queried_object->ID),
@@ -2442,15 +2442,18 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         $need_rewrite = false;
         foreach ($this->fake_txt_files as $fake_file) {
             $opt_val = trim(get_option('wpu_seo_' . $fake_file . '_txt_content'));
-            update_option('wpu_seo_' . $fake_file . '_txt_content_has_val', $opt_val ? '1' : '0', true);
-            if ($opt_val) {
-                $this->add_rewrite_rule__fake_files();
+            $option_id = 'wpu_seo_' . $fake_file . '_txt_content_has_val';
+
+            $new_value = $opt_val ? '1' : '0';
+            $old_value = get_option($option_id);
+            update_option($option_id, $new_value, true);
+            if ($opt_val || $old_value != $new_value) {
                 $need_rewrite = true;
             }
         }
 
         if ($need_rewrite) {
-            flush_rewrite_rules();
+            $this->add_rewrite_rule__fake_files();
         }
     }
 
@@ -2461,6 +2464,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
                 add_rewrite_rule('^' . $fake_file . '\.txt$', 'index.php?wpuseovirtualfile=' . $fake_file, 'top');
             }
         }
+        flush_rewrite_rules();
     }
 
     public function redirect_canonical_callback($redirect_url, $requested_url) {
