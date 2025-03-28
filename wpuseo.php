@@ -6,7 +6,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.27.0
+Version: 2.28.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -21,7 +21,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
     public $basetoolbox;
-    public $plugin_version = '2.27.0';
+    public $plugin_version = '2.28.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -103,6 +103,9 @@ class WPUSEO {
         // Native sitemap
         add_filter('wp_sitemaps_posts_query_args', array(&$this,
             'wp_sitemaps_posts_query_args'
+        ), 10, 2);
+        add_filter('wp_sitemaps_taxonomies_query_args', array(&$this,
+            'wp_sitemaps_taxonomies_query_args'
         ), 10, 2);
 
         // Cookies
@@ -913,6 +916,9 @@ class WPUSEO {
                 $seo_title = $metas[$q_config['language'] . '__wpuseo_taxo_' . $type];
             }
         }
+        if ($type == 'wpuseo_hide_search') {
+            return get_term_meta($term_id, 'wpuseo_hide_search', 1);
+        }
         return $seo_title;
     }
 
@@ -928,13 +934,36 @@ class WPUSEO {
     ---------------------------------------------------------- */
 
     public function wp_sitemaps_posts_query_args($args, $post_type) {
-
         /* Remove hidden posts from sitemap */
         $args['meta_query'] = isset($args['meta_query']) ? $args['meta_query'] : array();
         $args['meta_query'][] = array(
-            'key' => 'wpuseo_hide_search',
-            'value' => '1',
-            'compare' => '!='
+            'relation' => 'OR',
+            array(
+                'key' => 'wpuseo_hide_search',
+                'compare' => 'NOT EXISTS'
+            ),
+            array(
+                'key' => 'wpuseo_hide_search',
+                'value' => '0',
+                'compare' => '='
+            )
+        );
+        return $args;
+    }
+
+    function wp_sitemaps_taxonomies_query_args($args, $taxonomy) {
+        $args['meta_query'] = isset($args['meta_query']) ? $args['meta_query'] : array();
+        $args['meta_query'][] = array(
+            'relation' => 'OR',
+            array(
+                'key' => 'wpuseo_hide_search',
+                'compare' => 'NOT EXISTS'
+            ),
+            array(
+                'key' => 'wpuseo_hide_search',
+                'value' => '0',
+                'compare' => '='
+            )
         );
         return $args;
     }
@@ -1791,7 +1820,7 @@ class WPUSEO {
                 return true;
             }
         }
-        if (is_category() || is_tax() || is_tag()) {
+        if (is_category() || is_tax() || is_tag() || is_tax()) {
             $wpuseo_hide_search = $this->get_taxo_meta('wpuseo_hide_search');
             if ($wpuseo_hide_search == '1') {
                 return true;
