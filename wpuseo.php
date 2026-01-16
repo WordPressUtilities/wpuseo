@@ -6,7 +6,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.28.0
+Version: 2.29.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -21,7 +21,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
     public $basetoolbox;
-    public $plugin_version = '2.28.0';
+    public $plugin_version = '2.29.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -951,7 +951,7 @@ class WPUSEO {
         return $args;
     }
 
-    function wp_sitemaps_taxonomies_query_args($args, $taxonomy) {
+    public function wp_sitemaps_taxonomies_query_args($args, $taxonomy) {
         $args['meta_query'] = isset($args['meta_query']) ? $args['meta_query'] : array();
         $args['meta_query'][] = array(
             'relation' => 'OR',
@@ -1000,7 +1000,7 @@ class WPUSEO {
                 $wpu_title = $bloginfo_name . $spaced_sep . $wpu_title;
             }
 
-            $wpu_title = strip_tags($wpu_title);
+            $wpu_title = wp_strip_all_tags($wpu_title);
 
             return apply_filters('wpuseo_title_after_settings', $wpu_title);
         }
@@ -1034,7 +1034,7 @@ class WPUSEO {
             }
         }
 
-        $new_title = strip_tags($new_title);
+        $new_title = wp_strip_all_tags($new_title);
 
         // Return new title with site name at the end
         if ($wpu_title_order_before) {
@@ -1043,7 +1043,7 @@ class WPUSEO {
             $wpu_title = $new_title . $spaced_sep . $bloginfo_name;
         }
 
-        return apply_filters('wpuseo_title_after_settings', $wpu_title);
+        return apply_filters('wpuseo_title_after_settings', $wpu_title, $new_title);
     }
 
     public function get_displayed_title($prefix = true) {
@@ -2036,7 +2036,7 @@ class WPUSEO {
     public function get_custom_tracking_code() {
         $code = get_option('wputh_custom_tracking_code');
         $code = apply_filters('wpuseo_wputh_custom_tracking_code', $code);
-        $code = strip_tags($code);
+        $code = wp_strip_all_tags($code);
         if (!$code) {
             return;
         }
@@ -2574,7 +2574,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
     public function prepare_text($source_text, $max_length = 200, $source_type = 'description') {
         $text = apply_filters('wpuseo__prepare_text__before', $source_text, $source_type);
         $text = strip_shortcodes($text);
-        $text = strip_tags($text);
+        $text = wp_strip_all_tags($text);
         $text = preg_replace("/\s+/", ' ', $text);
         $text = trim($text);
         $words = explode(' ', $text);
