@@ -6,7 +6,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.29.0
+Version: 2.29.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -21,7 +21,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
     public $basetoolbox;
-    public $plugin_version = '2.29.0';
+    public $plugin_version = '2.29.1';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -1002,7 +1002,7 @@ class WPUSEO {
 
             $wpu_title = wp_strip_all_tags($wpu_title);
 
-            return apply_filters('wpuseo_title_after_settings', $wpu_title);
+            return apply_filters('wpuseo_title_after_settings', $wpu_title, $bloginfo_name);
         }
 
         $new_title = $this->get_displayed_title();
