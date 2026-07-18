@@ -6,7 +6,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.29.3
+Version: 2.29.4
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -21,7 +21,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
     public $basetoolbox;
-    public $plugin_version = '2.29.3';
+    public $plugin_version = '2.29.4';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -265,7 +265,7 @@ class WPUSEO {
         }
         if ($this->active_metas && $this->enable_facebook_metas) {
             $boxes['wpuseo_box_facebook'] = array(
-                'name' => $this->__('SEO Details - Facebook'),
+                'name' => $this->__('SEO Details - Open Graph'),
                 'post_type' => $this->boxes_pt
             );
         }
@@ -315,7 +315,7 @@ class WPUSEO {
             'type' => 'textarea',
             'lang' => true
         );
-        /* Facebook */
+        /* Open Graph */
         $fields['wpuseo_post_image_facebook'] = array(
             'box' => 'wpuseo_box_facebook',
             'name' => $this->__('Image'),
@@ -404,7 +404,7 @@ class WPUSEO {
         }
         if ($this->enable_facebook_metas) {
             $fields['wpuseo_title_facebook'] = array(
-                'label' => $this->__('SEO Details - Facebook'),
+                'label' => $this->__('SEO Details - Open Graph'),
                 'type' => 'title',
                 'taxonomies' => $taxonomies
             );
@@ -420,7 +420,7 @@ class WPUSEO {
                 'lang' => $lang
             );
             $fields['wpuseo_taxo_image_facebook'] = array(
-                'label' => $this->__('Og:Image'),
+                'label' => $this->__('OG:Image'),
                 'type' => 'attachment',
                 'taxonomies' => $taxonomies
             );
@@ -469,7 +469,7 @@ class WPUSEO {
             'tab' => 'wpu_seo'
         );
         $boxes['wpu_seo_facebook'] = array(
-            'name' => 'Facebook',
+            'name' => 'Open Graph',
             'tab' => 'wpu_seo'
         );
         $boxes['wpu_seo_twitter'] = array(
@@ -610,9 +610,9 @@ class WPUSEO {
             );
         }
 
-        // Facebook
+        // Open Graph
         $options['wpu_seo_user_facebook_enable'] = array(
-            'label' => $this->__('Enable Facebook metas'),
+            'label' => $this->__('Enable Open Graph metas'),
             'type' => 'select',
             'box' => 'wpu_seo_facebook'
         );
@@ -782,11 +782,11 @@ class WPUSEO {
                         'lang' => true
                     );
                 }
-                /* Facebook */
+                /* Open Graph */
                 if ($this->enable_facebook_metas) {
                     $options['wpu_seo_pt__' . $post_type . '_box_title_facebook'] = array(
                         'box' => 'wpu_seo_pt__' . $post_type,
-                        'label' => $this->__('Facebook'),
+                        'label' => $this->__('Open Graph'),
                         'type' => 'title'
                     );
                     $options['wpu_seo_pt__' . $post_type . '_post_image_facebook'] = array(
@@ -1448,7 +1448,7 @@ class WPUSEO {
                     $og_type = 'product';
                 }
 
-                /* Facebook : Open Graph */
+                /* Open Graph */
                 $metas['og_type']['content'] = $og_type;
 
             }
@@ -2385,19 +2385,19 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         if ($boxid == 'wpuseo_box_facebook') {
             if (isset($metas['metas']['og_title']['content'])) {
                 $data[] = array(
-                    'th' => $this->__('Facebook og:title'),
+                    'th' => $this->__('Open Graph og:title'),
                     'td' => '<pre>' . $metas['metas']['og_title']['content'] . '</pre>'
                 );
             }
             if (isset($metas['metas']['og_description']['content'])) {
                 $data[] = array(
-                    'th' => $this->__('Facebook og:description'),
+                    'th' => $this->__('Open Graph og:description'),
                     'td' => '<pre>' . $metas['metas']['og_description']['content'] . '</pre>'
                 );
             }
             if (isset($metas['metas']['og_image']['content'])) {
                 $data[] = array(
-                    'th' => $this->__('Facebook og:image'),
+                    'th' => $this->__('Open Graph og:image'),
                     'td' => '<img src="' . $metas['metas']['og_image']['content'] . '" style="width:103px;height:54px;object-fit:cover;background-color:#ccc;" loading="lazy" alt="" />'
                 );
             }
