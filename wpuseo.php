@@ -6,7 +6,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.29.4
+Version: 2.30.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -21,7 +21,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
     public $basetoolbox;
-    public $plugin_version = '2.29.4';
+    public $plugin_version = '2.30.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -1588,7 +1588,7 @@ class WPUSEO {
             }
         }
 
-        if(is_author()) {
+        if (is_author()) {
             $description = get_the_author_meta('description');
             $metas['description'] = array(
                 'name' => 'description',
@@ -1809,8 +1809,7 @@ class WPUSEO {
                     "width" => is_numeric($header->width) ? $header->width : 0,
                     "height" => is_numeric($header->height) ? $header->height : 0
                 );
-            }
-            else {
+            } else {
                 $header_image = get_header_image();
                 if ($header_image) {
                     $metas_json['publisher']['logo'] = array(
@@ -2628,6 +2627,7 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
         if (!is_array($metas)) {
             return '';
         }
+        $clean_values_before_html = apply_filters('wpuseo__special_convert_array_html__clean_values_before_html', true);
         foreach ($metas as $values) {
             if (isset($values['hidden'])) {
                 continue;
@@ -2640,12 +2640,27 @@ document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');';
                 if ($name == 'id' && !$value) {
                     continue;
                 }
+                if ($clean_values_before_html && $name == 'content') {
+                    $value = $this->special_convert_array_html_clean($value);
+                }
                 $_value = esc_attr(trim($value));
+                $_value = str_replace("&#039;", "'", $_value);
                 $html .= sprintf(' %s="%s"', $name, $_value);
             }
             $html .= ' />' . "\n";
         }
         return $html;
+    }
+
+    public function special_convert_array_html_clean($content) {
+        /* Remove unbreakable spaces */
+        $content = str_replace('&nbsp;', ' ', $content);
+
+        /* Remove double spaces */
+        $content = preg_replace('/\s+/', ' ', $content);
+
+        return $content;
+
     }
 
     /* Check if site is multilingual
