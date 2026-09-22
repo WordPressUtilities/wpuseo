@@ -433,6 +433,18 @@ msgstr "Salva post per visualizzare i valori aggiornati"
 msgid "Edit in site options to display updated values"
 msgstr "Modificare le opzioni del sito per visualizzare i valori aggiornati"
 
+#: .././wpuseo.php
+msgid "SEO metas for this archive"
+msgstr "Meta SEO di questo archivio"
+
+#: .././wpuseo.php
+msgid "Archive metas have been updated."
+msgstr "I meta dell'archivio sono stati aggiornati."
+
+#: .././wpuseo.php
+msgid "Twitter &amp; Open Graph : advanced settings"
+msgstr "Twitter &amp; Open Graph: impostazioni avanzate"
+
 #~ msgid "SEO Details - Opengraph"
 #~ msgstr "Dettagli SEO - OpenGraph"
 

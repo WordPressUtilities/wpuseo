@@ -6,7 +6,7 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.30.0
+Version: 2.31.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
@@ -21,7 +21,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
     public $basetoolbox;
-    public $plugin_version = '2.30.0';
+    public $plugin_version = '2.31.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -153,6 +153,17 @@ class WPUSEO {
         add_filter('admin_head', array(&$this,
             'remove_boxes'
         ), 99);
+
+        // Archive metas on post type list screen
+        add_action('load-edit.php', array(&$this,
+            'archive_metas__save'
+        ));
+        add_action('admin_notices', array(&$this,
+            'archive_metas__notice'
+        ));
+        add_action('admin_footer-edit.php', array(&$this,
+            'archive_metas__display'
+        ));
 
         // Cookie notice deprecated alert
         add_filter('admin_head', array(&$this,
@@ -839,6 +850,155 @@ class WPUSEO {
         }
 
         return $options;
+    }
+
+    /* ----------------------------------------------------------
+      Archive metas on post type list screen
+    ---------------------------------------------------------- */
+
+    public function archive_metas__current_post_type() {
+        $screen = get_current_screen();
+        if (!$screen || $screen->base != 'edit') {
+            return false;
+        }
+        $post_type = $screen->post_type;
+        if (!in_array($post_type, $this->boxes_pt_with_archive)) {
+            return false;
+        }
+        if (!current_user_can(apply_filters('wpuseo_archive_metas_capability', 'manage_options', $post_type))) {
+            return false;
+        }
+        return $post_type;
+    }
+
+    /* Option ids : one per displayed language, or a single unprefixed option */
+    public function archive_metas__get_fields($post_type) {
+        global $WPUOptions;
+
+        $base_fields = array();
+        if ($this->active_wp_title) {
+            $base_fields['wpu_seo_pt__' . $post_type . '__page_title'] = array(
+                'label' => $this->__('Page title'),
+                'type' => 'text'
+            );
+        }
+        if ($this->active_metas) {
+            $base_fields['wpu_seo_pt__' . $post_type . '__meta_description'] = array(
+                'label' => $this->__('Meta description'),
+                'type' => 'textarea'
+            );
+        }
+
+        /* Languages are handled by WPU Options : same option naming scheme */
+        $languages = array();
+        if (is_object($WPUOptions)) {
+            $languages = $WPUOptions->get_languages();
+        }
+
+        /* Language filter of the admin list : "all" means no filter */
+        $current_language = false;
+        if (isset($_GET['lang'])) {
+            $current_language = $_GET['lang'] == 'all' ? false : sanitize_key($_GET['lang']);
+        } elseif (isset($GLOBALS['polylang']->curlang->slug)) {
+            $current_language = $GLOBALS['polylang']->curlang->slug;
+        }
+        if (empty($languages)) {
+            return $base_fields;
+        }
+
+        /* Only display the language selected in the admin language filter */
+        if ($current_language && isset($languages[$current_language])) {
+            $languages = array($current_language => $languages[$current_language]);
+        }
+
+        $fields = array();
+        foreach ($languages as $id_lang => $lang) {
+            foreach ($base_fields as $field_id => $field) {
+                $field['label'] = '[' . $id_lang . '] ' . $field['label'];
+                $fields[$id_lang . '___' . $field_id] = $field;
+            }
+        }
+
+        return $fields;
+    }
+
+    public function archive_metas__save() {
+        $post_type = $this->archive_metas__current_post_type();
+        if (!$post_type || !isset($_POST['wpuseo_archive_metas_nonce'])) {
+            return;
+        }
+        if (!wp_verify_nonce($_POST['wpuseo_archive_metas_nonce'], 'wpuseo_archive_metas_' . $post_type)) {
+            return;
+        }
+
+        /* Only save submitted fields : hidden languages are never overwritten */
+        foreach ($this->archive_metas__get_fields($post_type) as $field_id => $field) {
+            if (!isset($_POST[$field_id])) {
+                continue;
+            }
+            update_option($field_id, sanitize_textarea_field(wp_unslash($_POST[$field_id])));
+        }
+
+        $redirect = wp_get_referer();
+        if (!$redirect) {
+            $redirect = admin_url('edit.php?post_type=' . $post_type);
+        }
+        wp_safe_redirect(add_query_arg('wpuseo_updated', '1', remove_query_arg('wpuseo_updated', $redirect)));
+        die;
+    }
+
+    public function archive_metas__notice() {
+        if (!isset($_GET['wpuseo_updated']) || !$this->archive_metas__current_post_type()) {
+            return;
+        }
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($this->__('Archive metas have been updated.')) . '</p></div>';
+    }
+
+    public function archive_metas__display() {
+        $post_type = $this->archive_metas__current_post_type();
+        if (!$post_type) {
+            return;
+        }
+        $fields = $this->archive_metas__get_fields($post_type);
+        if (!$fields) {
+            return;
+        }
+
+        $post_type_object = get_post_type_object($post_type);
+        $fallback_title = $post_type_object ? $post_type_object->label : $post_type;
+
+        echo '<div class="wrap" id="wpuseo-archive-metas">';
+        echo '<h2>' . esc_html($this->__('SEO metas for this archive')) . '</h2>';
+        echo '<form action="" method="post">';
+        wp_nonce_field('wpuseo_archive_metas_' . $post_type, 'wpuseo_archive_metas_nonce');
+        echo '<table class="form-table"><tbody>';
+        foreach ($fields as $field_id => $field) {
+            $value = get_option($field_id);
+            /* Placeholder : the fallback value used on front-end */
+            $placeholder = $fallback_title;
+            if (strpos($field_id, '__meta_description') !== false) {
+                $title_value = get_option(str_replace('__meta_description', '__page_title', $field_id));
+                $placeholder = $title_value ? $title_value : $fallback_title;
+            }
+            echo '<tr>';
+            echo '<th scope="row"><label for="' . esc_attr($field_id) . '">' . esc_html($field['label']) . '</label></th>';
+            echo '<td>';
+            if ($field['type'] == 'textarea') {
+                echo '<textarea class="large-text" rows="3" id="' . esc_attr($field_id) . '" name="' . esc_attr($field_id) . '" placeholder="' . esc_attr($placeholder) . '">' . esc_textarea($value) . '</textarea>';
+            } else {
+                echo '<input type="text" class="large-text" id="' . esc_attr($field_id) . '" name="' . esc_attr($field_id) . '" value="' . esc_attr($value) . '" placeholder="' . esc_attr($placeholder) . '" />';
+            }
+            echo '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+        submit_button();
+        echo '</form>';
+        echo '<p><a href="' . esc_url(admin_url('admin.php?page=wpuoptions-settings&tab=wpu_seo#box-wpu_seo_pt__' . $post_type)) . '">' . esc_html($this->__('Twitter &amp; Open Graph : advanced settings')) . '</a></p>';
+        echo '</div>';
+
+        /* Admin footer hook prints outside of #wpcontent : move the block back inside */
+        echo '<script>(function(){var b=document.getElementById("wpbody-content"),m=document.getElementById("wpuseo-archive-metas");if(b&&m){b.appendChild(m);}}());</script>';
     }
 
     public function remove_boxes() {

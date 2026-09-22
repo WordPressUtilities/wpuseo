@@ -438,6 +438,18 @@ msgid "Edit in site options to display updated values"
 msgstr ""
 "Modifier dans les options du site pour afficher les valeurs mises à jour"
 
+#: .././wpuseo.php
+msgid "SEO metas for this archive"
+msgstr "Métadonnées SEO de cette archive"
+
+#: .././wpuseo.php
+msgid "Archive metas have been updated."
+msgstr "Les métadonnées de l'archive ont été mises à jour."
+
+#: .././wpuseo.php
+msgid "Twitter &amp; Open Graph : advanced settings"
+msgstr "Twitter &amp; Open Graph : réglages avancés"
+
 #~ msgid "SEO Details - Facebook"
 #~ msgstr "Détails SEO - Facebook"
 
