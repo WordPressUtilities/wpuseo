@@ -6,12 +6,12 @@ Plugin Name: WPU SEO
 Plugin URI: https://github.com/WordPressUtilities/wpuseo
 Update URI: https://github.com/WordPressUtilities/wpuseo
 Description: Enhance SEO : Clean title, Nice metas, GDPR friendly Analytics.
-Version: 2.31.0
+Version: 2.32.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpuseo
 Domain Path: /lang
-Requires at least: 6.2
+Requires at least: 6.9
 Requires PHP: 8.0
 Network: Optional
 License: MIT License
@@ -21,7 +21,7 @@ Contributors: @boiteaweb, @CecileBr
 
 class WPUSEO {
     public $basetoolbox;
-    public $plugin_version = '2.31.0';
+    public $plugin_version = '2.32.0';
     private $active_wp_title = true;
     private $active_metas = true;
     private $fake_txt_files = array('ads', 'robots');
@@ -185,6 +185,10 @@ class WPUSEO {
         add_filter('wputh_post_metas_fields', array(&$this,
             'post_meta_fields'
         ), 10, 3);
+        // Polylang Pro : machine translation
+        add_filter('pll_post_metas_to_export', array(&$this,
+            'pll_post_metas_to_export'
+        ));
         // Taxo fields
         add_filter('wputaxometas_fields', array(&$this,
             'taxo_fields'
@@ -356,6 +360,18 @@ class WPUSEO {
         }
 
         return $fields;
+    }
+
+    /* Polylang Pro : text metas sent to machine translation
+     -------------------------- */
+
+    public function pll_post_metas_to_export($metas) {
+        foreach ($this->post_meta_fields(array()) as $key => $field) {
+            if (!isset($field['type']) || in_array($field['type'], array('text', 'textarea'))) {
+                $metas[$key] = 1;
+            }
+        }
+        return $metas;
     }
 
     /* Taxo fields
